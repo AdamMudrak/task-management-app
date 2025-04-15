@@ -1,15 +1,13 @@
 package com.example.taskmanagementapp.validation.password;
 
+import static com.example.taskmanagementapp.constants.ValidationConstants.INVALID_PASSWORD;
+
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import static com.example.budgetingapp.constants.validation.ValidationConstants.INVALID_PASSWORD;
-import static com.example.taskmanagementapp.constants.ValidationConstants.INVALID_PASSWORD;
 
 @Constraint(validatedBy = PasswordValidator.class)
 @Target(ElementType.FIELD)

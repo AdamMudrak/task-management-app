@@ -1,5 +1,6 @@
 package com.example.taskmanagementapp.validation.fieldmatch;
 
+import com.example.taskmanagementapp.dtos.authentication.request.SetNewPasswordDto;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
