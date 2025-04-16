@@ -1,6 +1,6 @@
 package com.example.taskmanagementapp.entities;
 
-import static com.example.taskmanagementapp.constants.EntitiesConstants.ROLES;
+import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.ROLES;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

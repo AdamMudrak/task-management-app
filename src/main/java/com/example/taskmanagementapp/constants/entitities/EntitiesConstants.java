@@ -1,4 +1,4 @@
-package com.example.taskmanagementapp.constants;
+package com.example.taskmanagementapp.constants.entitities;
 
 public class EntitiesConstants {
 

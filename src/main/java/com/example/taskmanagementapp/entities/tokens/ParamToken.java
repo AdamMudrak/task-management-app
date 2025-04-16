@@ -1,6 +1,6 @@
 package com.example.taskmanagementapp.entities.tokens;
 
-import static com.example.taskmanagementapp.constants.EntitiesConstants.PARAM_TOKENS;
+import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.PARAM_TOKENS;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

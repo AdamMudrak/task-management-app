@@ -119,9 +119,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                                                    SetNewPasswordDto userSetNewPasswordRequestDto) {
         String token = parseToken(httpServletRequest);
         JwtAbstractUtil jwtAbstractUtil = jwtStrategy.getStrategy(ACCESS);
-        String email = jwtAbstractUtil.getUsername(token);
-        User user = userRepository.findByEmail(email).orElseThrow(() ->
-                new EntityNotFoundException("User with email " + email + " was not found"));
+        String username = jwtAbstractUtil.getUsername(token);
+        User user = userRepository.findByUsername(username).orElseThrow(() ->
+                new EntityNotFoundException("User with username " + username + " was not found"));
         if (!isCurrentPasswordValid(user, userSetNewPasswordRequestDto)) {
             throw new PasswordMismatch("Wrong password. Try resetting "
                     + "password and using a new random password");
@@ -185,13 +185,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private UserLoginResponseDto authenticateEmail(UserLoginRequestDto requestDto) {
         User currentUser = getIfExistsByEmail(requestDto.emailOrUsername());
         isEnabled(currentUser);
-        return getTokens(currentUser.getEmail(), requestDto.password());
+        return getTokens(currentUser.getUsername(), requestDto.password());
     }
 
     private UserLoginResponseDto authenticateUsername(UserLoginRequestDto requestDto) {
         User currentUser = getIfExistsByUsername(requestDto.emailOrUsername());
         isEnabled(currentUser);
-        return getTokens(currentUser.getEmail(), requestDto.password());
+        return getTokens(currentUser.getUsername(), requestDto.password());
     }
 
     private void assignUserRole(User user) {

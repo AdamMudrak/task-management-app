@@ -1,6 +1,6 @@
 package com.example.taskmanagementapp.validation.fieldmatch;
 
-import static com.example.taskmanagementapp.constants.ValidationConstants.PASSWORD_COLLISION;
+import static com.example.taskmanagementapp.constants.validation.ValidationConstants.PASSWORD_COLLISION;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

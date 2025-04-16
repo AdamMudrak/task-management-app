@@ -1,10 +1,10 @@
 package com.example.taskmanagementapp.entities;
 
-import static com.example.taskmanagementapp.constants.EntitiesConstants.BOOLEAN_TO_INT;
-import static com.example.taskmanagementapp.constants.EntitiesConstants.ROLE_ID;
-import static com.example.taskmanagementapp.constants.EntitiesConstants.USERS;
-import static com.example.taskmanagementapp.constants.EntitiesConstants.USERS_ROLES_JOIN_TABLE;
-import static com.example.taskmanagementapp.constants.EntitiesConstants.USER_ID;
+import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.BOOLEAN_TO_INT;
+import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.ROLE_ID;
+import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.USERS;
+import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.USERS_ROLES_JOIN_TABLE;
+import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.USER_ID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
