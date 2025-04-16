@@ -3,7 +3,8 @@ package com.example.taskmanagementapp.dtos.authentication.request;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import com.example.taskmanagementapp.constants.dtos.UserDtoConstants;
-import com.example.taskmanagementapp.validation.email.Email;
+import com.example.taskmanagementapp.validation.emailandusername.Email;
+import com.example.taskmanagementapp.validation.emailandusername.NotLikeEmail;
 import com.example.taskmanagementapp.validation.fieldmatch.FieldRegisterMatch;
 import com.example.taskmanagementapp.validation.password.Password;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -18,6 +19,7 @@ public record UserRegistrationRequestDto(
                 example = UserDtoConstants.USERNAME_EXAMPLE,
                 requiredMode = REQUIRED)
         @NotBlank
+        @NotLikeEmail
         String username,
 
         @Schema(name = UserDtoConstants.PASSWORD,

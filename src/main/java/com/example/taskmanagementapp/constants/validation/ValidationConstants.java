@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 public class ValidationConstants {
 
     public static final String INVALID_EMAIL = ": invalid email";
+    public static final String INVALID_USERNAME = ": invalid username";
     public static final String PATTERN_OF_EMAIL = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*"
             + "@[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
 

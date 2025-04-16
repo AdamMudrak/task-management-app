@@ -1,4 +1,4 @@
-package com.example.taskmanagementapp.validation.email;
+package com.example.taskmanagementapp.validation.emailandusername;
 
 import static com.example.taskmanagementapp.constants.validation.ValidationConstants.INVALID_EMAIL;
 
