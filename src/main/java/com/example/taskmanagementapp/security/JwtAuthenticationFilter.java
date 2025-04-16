@@ -3,7 +3,7 @@ package com.example.taskmanagementapp.security;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACCESS;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.BEGIN_INDEX;
 
-import com.example.taskmanagementapp.constants.controllers.AuthControllerConstants;
+import com.example.taskmanagementapp.constants.security.SecurityConstants;
 import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
 import com.example.taskmanagementapp.security.jwtutils.strategy.JwtStrategy;
 import jakarta.servlet.FilterChain;
@@ -56,7 +56,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String getToken(HttpServletRequest request) {
         String bearerToken = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (StringUtils.hasText(bearerToken)
-                && bearerToken.startsWith(AuthControllerConstants.BEARER)) {
+                && bearerToken.startsWith(SecurityConstants.BEARER)) {
             return bearerToken.substring(BEGIN_INDEX);
         }
         return null;

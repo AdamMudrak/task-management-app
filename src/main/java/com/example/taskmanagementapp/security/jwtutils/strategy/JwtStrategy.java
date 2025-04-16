@@ -1,13 +1,13 @@
 package com.example.taskmanagementapp.security.jwtutils.strategy;
 
-import com.example.budgetingapp.security.jwtutils.abstr.JwtAbstractUtil;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACCESS;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACTION;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.REFRESH;
+
+import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
 import io.jsonwebtoken.JwtException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-
-import static com.example.budgetingapp.constants.security.SecurityConstants.ACCESS;
-import static com.example.budgetingapp.constants.security.SecurityConstants.ACTION;
-import static com.example.budgetingapp.constants.security.SecurityConstants.REFRESH;
 
 @Component
 public class JwtStrategy {
