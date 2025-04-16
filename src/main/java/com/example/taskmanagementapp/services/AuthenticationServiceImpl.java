@@ -13,6 +13,7 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.REGISTERED_BUT_NOT_ACTIVATED;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.REGISTRATION_CONFIRMED;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RESET;
+import static com.example.taskmanagementapp.constants.validation.ValidationConstants.PATTERN_OF_EMAIL;
 
 import com.example.taskmanagementapp.constants.security.SecurityConstants;
 import com.example.taskmanagementapp.dtos.authentication.request.SetNewPasswordDto;
@@ -47,6 +48,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import java.util.Arrays;
 import java.util.Set;
+import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -69,10 +71,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final RandomStringUtil randomStringUtil;
     private final ParamTokenRepository paramTokenRepository;
     private final RoleRepository roleRepository;
+    private final Pattern emailPattern = Pattern.compile(PATTERN_OF_EMAIL);
 
     @Override
     public UserLoginResponseDto authenticateUser(UserLoginRequestDto requestDto) {
-        if (requestDto.emailOrUsername().contains("@")) {
+        if (emailPattern.matcher(requestDto.emailOrUsername()).matches()) {
             return authenticateEmail(requestDto);
         } else {
             return authenticateUsername(requestDto);
@@ -82,7 +85,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public SendLinkToResetPasswordDto sendPasswordResetLink(String emailOrUsername) {
         User currentUser;
-        if (emailOrUsername.contains("@")) {
+        if (emailPattern.matcher(emailOrUsername).matches()) {
             currentUser = getIfExistsByEmail(emailOrUsername);
         } else {
             currentUser = getIfExistsByUsername(emailOrUsername);
