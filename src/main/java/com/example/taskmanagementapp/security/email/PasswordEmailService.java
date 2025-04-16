@@ -1,7 +1,6 @@
 package com.example.taskmanagementapp.security.email;
 
 import static com.example.taskmanagementapp.constants.Constants.SPLITERATOR;
-import static com.example.taskmanagementapp.constants.redirects.RedirectConstants.RANDOM_PASSWORD_REDIRECT_LINK;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.CONFIRMATION;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.CONFIRMATION_PATH;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.CONFIRM_REGISTRATION_BODY;
@@ -10,7 +9,6 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.INITIATE_RANDOM_PASSWORD_SUBJECT;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RANDOM_PASSWORD_BODY;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RANDOM_PASSWORD_BODY_2;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.RANDOM_PASSWORD_BODY_3;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RANDOM_PASSWORD_SUBJECT;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RESET;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RESET_PATH;
@@ -28,8 +26,6 @@ public class PasswordEmailService extends EmailService {
     private String resetPath;
     @Value(CONFIRMATION_PATH)
     private String confirmationPath;
-    @Value(RANDOM_PASSWORD_REDIRECT_LINK)
-    private String redirectPath;
 
     public PasswordEmailService(JavaMailSender mailSender,
                                 EmailLinkParameterProvider emailLinkParameterProvider) {
@@ -51,15 +47,9 @@ public class PasswordEmailService extends EmailService {
         this.sendMessage(toEmail, RANDOM_PASSWORD_SUBJECT,
                 RANDOM_PASSWORD_BODY
                         + System.lineSeparator()
-                        + System.lineSeparator()
                         + randomPassword
                         + System.lineSeparator()
-                        + System.lineSeparator()
-                        + RANDOM_PASSWORD_BODY_2
-                        + System.lineSeparator()
-                        + redirectPath
-                        + System.lineSeparator()
-                        + RANDOM_PASSWORD_BODY_3);
+                        + RANDOM_PASSWORD_BODY_2);
     }
 
     private String formTextForAction(String toEmail, String body, String actionPath) {

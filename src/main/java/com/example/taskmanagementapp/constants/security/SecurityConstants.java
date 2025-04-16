@@ -16,8 +16,8 @@ public class SecurityConstants {
     public static final String JWT_REFRESH_EXPIRATION = "${jwt.refresh.expiration}";
     public static final String JWT_SECRET = "${jwt.secret}";
     public static final String SERVER_PATH = "${server.path}";
-    public static final String RESET_PATH = "${reset.path}";
-    public static final String CONFIRMATION_PATH = "${confirmation.path}";
+    public static final String RESET_PATH = "${get.random.password.path}";
+    public static final String CONFIRMATION_PATH = "${registration.confirmation.path}";
 
     public static final int BEGIN_INDEX = 7;
 
@@ -28,26 +28,24 @@ public class SecurityConstants {
     public static final String REFRESH = "REFRESH";
 
     public static final String CONFIRM_REGISTRATION_SUBJECT =
-            "Finish registration in Moneta";
+            "Finish registration in Facio";
     public static final String CONFIRM_REGISTRATION_BODY = """
             Good day! This email is here to help you confirm your registration
-            of Moneta account. Please, use this link to finish it:""";
+            of Facio account. Please, use this link to finish it:""";
 
     public static final String INITIATE_RANDOM_PASSWORD_SUBJECT =
-            "Initiate password reset for Moneta";
+            "Initiate password reset for Facio";
     public static final String INITIATE_RANDOM_PASSWORD_BODY = """
             Good day! This email is here to help you reset
-            password for your Moneta account. After confirmation,
+            password for your Facio account. After confirmation,
             you will receive a follow-up email with a new temporary
             random password. Do not hesitate to change it after to
             something you will remember! Please, use
             this link to confirm your request of password reset:""";
 
-    public static final String RANDOM_PASSWORD_SUBJECT = "New password for Moneta";
+    public static final String RANDOM_PASSWORD_SUBJECT = "New password for Facio";
     public static final String RANDOM_PASSWORD_BODY = "Your new random password:";
     public static final String RANDOM_PASSWORD_BODY_2 =
-            "Click or tap the link and log in using new password:";
-    public static final String RANDOM_PASSWORD_BODY_3 =
             "Feel free to change password to something you will remember!";
 
     public static final String PASSWORD_SET_SUCCESSFULLY =
