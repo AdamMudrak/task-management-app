@@ -13,7 +13,7 @@ public class UserDtoConstants {
     public static final String EMAIL = "email";
     public static final String EMAIL_EXAMPLE = "example@gmail.com";
 
-    public static final String EMAIL_OR_USERNAME = "email or username";
+    public static final String EMAIL_OR_USERNAME = "emailOrUsername";
     public static final String EMAIL_OR_USERNAME_EXAMPLE = "example@gmail.com or ExampleUsername";
 
     public static final String PASSWORD = "password";
