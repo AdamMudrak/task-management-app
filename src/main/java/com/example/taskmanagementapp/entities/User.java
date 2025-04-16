@@ -38,9 +38,9 @@ public class User implements UserDetails {
     private String password;
     @Column(unique = true, nullable = false)
     private String email;
-    @Column(nullable = false)
+    @Column(nullable = false, name = "first_name")
     private String firstName;
-    @Column(nullable = false)
+    @Column(nullable = false, name = "last_name")
     private String lastName;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
