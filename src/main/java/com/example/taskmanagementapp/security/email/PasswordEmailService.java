@@ -18,6 +18,7 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 import com.example.taskmanagementapp.exceptions.notfoundexceptions.ActionNotFoundException;
 import com.example.taskmanagementapp.security.utils.EmailLinkParameterProvider;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -30,7 +31,9 @@ public class PasswordEmailService extends EmailService {
     @Value(RANDOM_PASSWORD_REDIRECT_LINK)
     private String redirectPath;
 
-    public PasswordEmailService(EmailLinkParameterProvider emailLinkParameterProvider) {
+    public PasswordEmailService(JavaMailSender mailSender,
+                                EmailLinkParameterProvider emailLinkParameterProvider) {
+        super(mailSender);
         this.emailLinkParameterProvider = emailLinkParameterProvider;
     }
 
@@ -46,17 +49,17 @@ public class PasswordEmailService extends EmailService {
 
     public void sendResetPassword(String toEmail, String randomPassword) {
         this.sendMessage(toEmail, RANDOM_PASSWORD_SUBJECT,
-                    RANDOM_PASSWORD_BODY
-                            + System.lineSeparator()
-                            + System.lineSeparator()
-                            + randomPassword
-                            + System.lineSeparator()
-                            + System.lineSeparator()
-                            + RANDOM_PASSWORD_BODY_2
-                            + System.lineSeparator()
-                            + redirectPath
-                            + System.lineSeparator()
-                            + RANDOM_PASSWORD_BODY_3);
+                RANDOM_PASSWORD_BODY
+                        + System.lineSeparator()
+                        + System.lineSeparator()
+                        + randomPassword
+                        + System.lineSeparator()
+                        + System.lineSeparator()
+                        + RANDOM_PASSWORD_BODY_2
+                        + System.lineSeparator()
+                        + redirectPath
+                        + System.lineSeparator()
+                        + RANDOM_PASSWORD_BODY_3);
     }
 
     private String formTextForAction(String toEmail, String body, String actionPath) {
