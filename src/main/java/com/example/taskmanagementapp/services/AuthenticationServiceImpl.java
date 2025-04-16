@@ -7,26 +7,34 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RANDOM_PASSWORD_STRENGTH;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.REFRESH;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.REFRESH_TOKEN;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.REGISTERED;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.REGISTERED_BUT_NOT_ACTIVATED;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RESET;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.SUCCESS_EMAIL;
 
 import com.example.taskmanagementapp.constants.security.SecurityConstants;
-import com.example.taskmanagementapp.dtos.authentication.request.GetLinkToResetPasswordDto;
 import com.example.taskmanagementapp.dtos.authentication.request.SetNewPasswordDto;
 import com.example.taskmanagementapp.dtos.authentication.request.UserLoginRequestDto;
+import com.example.taskmanagementapp.dtos.authentication.request.UserRegistrationRequestDto;
 import com.example.taskmanagementapp.dtos.authentication.response.AccessTokenDto;
 import com.example.taskmanagementapp.dtos.authentication.response.LinkToResetPasswordSuccessDto;
+import com.example.taskmanagementapp.dtos.authentication.response.PasswordChangedSuccess;
+import com.example.taskmanagementapp.dtos.authentication.response.RegistrationConfirmationSuccessDto;
 import com.example.taskmanagementapp.dtos.authentication.response.SendLinkToResetPasswordDto;
 import com.example.taskmanagementapp.dtos.authentication.response.UserLoginResponseDto;
+import com.example.taskmanagementapp.dtos.authentication.response.UserRegistrationResponseDto;
+import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.entities.tokens.ParamToken;
+import com.example.taskmanagementapp.exceptions.badrequest.RegistrationException;
 import com.example.taskmanagementapp.exceptions.conflictexpections.PasswordMismatch;
 import com.example.taskmanagementapp.exceptions.forbidden.LoginException;
 import com.example.taskmanagementapp.exceptions.gone.LinkExpiredException;
 import com.example.taskmanagementapp.exceptions.notfoundexceptions.EntityNotFoundException;
-import com.example.taskmanagementapp.repositories.user.UserRepository;
+import com.example.taskmanagementapp.mappers.UserMapper;
 import com.example.taskmanagementapp.repositories.paramtoken.ParamTokenRepository;
+import com.example.taskmanagementapp.repositories.role.RoleRepository;
+import com.example.taskmanagementapp.repositories.user.UserRepository;
 import com.example.taskmanagementapp.security.email.PasswordEmailService;
 import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
 import com.example.taskmanagementapp.security.jwtutils.strategy.JwtStrategy;
@@ -35,6 +43,7 @@ import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Arrays;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -49,12 +58,14 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
     private final JwtStrategy jwtStrategy;
     private final PasswordEmailService passwordEmailService;
     private final RandomStringUtil randomStringUtil;
     private final ParamTokenRepository paramTokenRepository;
+    private final RoleRepository roleRepository;
 
     @Override
     public UserLoginResponseDto authenticateUser(UserLoginRequestDto requestDto) {
@@ -99,7 +110,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public GetLinkToResetPasswordDto changePassword(HttpServletRequest httpServletRequest,
+    public PasswordChangedSuccess changePassword(HttpServletRequest httpServletRequest,
                                                 SetNewPasswordDto userSetNewPasswordRequestDto) {
         String token = parseToken(httpServletRequest);
         JwtAbstractUtil jwtAbstractUtil = jwtStrategy.getStrategy(ACCESS);
@@ -113,7 +124,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setPassword(passwordEncoder
                 .encode(userSetNewPasswordRequestDto.newPassword()));
         userRepository.save(user);
-        return new GetLinkToResetPasswordDto(PASSWORD_SET_SUCCESSFULLY);
+        return new PasswordChangedSuccess(PASSWORD_SET_SUCCESSFULLY);
     }
 
     @Override
@@ -129,16 +140,46 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         throw new LoginException("Something went wrong with your access");
     }
 
+    @Override
+    public UserRegistrationResponseDto register(UserRegistrationRequestDto requestDto) {
+        if (userRepository.existsByUsername(requestDto.username())) {
+            throw new RegistrationException("User with username "
+                    + requestDto.username() + " already exists");
+        }
+
+        if (userRepository.existsByEmail(requestDto.email())) {
+            throw new RegistrationException("User with email "
+                    + requestDto.email() + " already exists");
+        }
+
+        User user = userMapper.toUser(requestDto);
+        user.setPassword(passwordEncoder.encode(requestDto.password()));
+        assignUserRole(user);
+        userRepository.save(user);
+        passwordEmailService.sendActionMessage(user.getEmail(), CONFIRMATION);
+        return new UserRegistrationResponseDto(REGISTERED);
+    }
+
+    @Override
+    public RegistrationConfirmationSuccessDto confirmRegistration(String email) {
+        return null;//TODO
+    }
+
     private UserLoginResponseDto authenticateEmail(UserLoginRequestDto requestDto) {
         User currentUser = isCreatedByEmail(requestDto.emailOrUsername());
         isEnabled(currentUser);
-        return getTokens(currentUser.getUsername(), requestDto.password());
+        return getTokens(currentUser.getEmail(), requestDto.password());
+    }
+
+    private void assignUserRole(User user) {
+        Role userRole = roleRepository.findByName(Role.RoleName.ROLE_USER);
+        user.setRoles(Set.of(userRole));
     }
 
     private UserLoginResponseDto authenticateUsername(UserLoginRequestDto requestDto) {
         User currentUser = isCreatedByUsername(requestDto.emailOrUsername());
         isEnabled(currentUser);
-        return getTokens(currentUser.getUsername(), requestDto.password());
+        return getTokens(currentUser.getEmail(), requestDto.password());
     }
 
     private boolean isCurrentPasswordValid(User user,
@@ -161,7 +202,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private void isEnabled(User user) {
         if (!user.isEnabled()) {
-            passwordEmailService.sendActionMessage(user.getUsername(), CONFIRMATION);
+            passwordEmailService.sendActionMessage(user.getEmail(), CONFIRMATION);
             throw new LoginException(REGISTERED_BUT_NOT_ACTIVATED);
         }
     }
