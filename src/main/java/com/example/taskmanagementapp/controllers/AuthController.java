@@ -32,6 +32,7 @@ import static com.example.taskmanagementapp.constants.controllers.AuthController
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.SUCCESSFULLY_REFRESHED_TOKEN;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.SUCCESSFULLY_REGISTERED;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.SUCCESSFULLY_RESET_PASSWORD;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.REFRESH_TOKEN;
 
 import com.example.taskmanagementapp.constants.Constants;
 import com.example.taskmanagementapp.dtos.authentication.request.GetLinkToResetPasswordDto;
@@ -50,7 +51,9 @@ import com.example.taskmanagementapp.services.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -102,8 +105,11 @@ public class AuthController {
     @ApiResponse(responseCode = CODE_400, description = INVALID_ENTITY_VALUE)
     @ApiResponse(responseCode = CODE_403, description = ACCESS_DENIED)
     @PostMapping(LOGIN)
-    public UserLoginResponseDto login(@RequestBody @Valid UserLoginRequestDto request) {
-        return authenticationService.authenticateUser(request);
+    public UserLoginResponseDto login(@RequestBody @Valid UserLoginRequestDto request,
+                                      HttpServletResponse response) {
+        UserLoginResponseDto userLoginResponseDto = authenticationService.authenticateUser(request);
+        response.addCookie(new Cookie(REFRESH_TOKEN, userLoginResponseDto.refreshToken()));
+        return userLoginResponseDto;
     }
 
     @Operation(summary = INITIATE_PASSWORD_RESET_SUMMARY)
