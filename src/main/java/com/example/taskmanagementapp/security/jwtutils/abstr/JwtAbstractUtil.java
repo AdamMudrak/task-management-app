@@ -9,9 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.function.Function;
 import javax.crypto.SecretKey;
-import org.springframework.stereotype.Component;
 
-@Component
 public abstract class JwtAbstractUtil {
     protected final SecretKey secret;
     protected final long expiration;
