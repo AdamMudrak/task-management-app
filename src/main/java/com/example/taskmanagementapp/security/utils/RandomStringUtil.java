@@ -1,10 +1,9 @@
 package com.example.taskmanagementapp.security.utils;
 
-import org.springframework.stereotype.Component;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.RANDOM_STRING_BASE;
 
 import java.util.Random;
-
-import static com.example.budgetingapp.constants.security.SecurityConstants.RANDOM_STRING_BASE;
+import org.springframework.stereotype.Component;
 
 @Component
 public class RandomStringUtil {
