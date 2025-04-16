@@ -1,5 +1,7 @@
 package com.example.taskmanagementapp.entities.tokens;
 
+import static com.example.taskmanagementapp.constants.EntitiesConstants.PARAM_TOKENS;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -8,8 +10,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-
-import static com.example.budgetingapp.constants.entities.EntitiesConstants.PARAM_TOKENS;
 
 @Getter
 @Setter
