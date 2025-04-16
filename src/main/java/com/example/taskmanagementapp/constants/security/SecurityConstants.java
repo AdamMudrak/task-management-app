@@ -14,6 +14,8 @@ public class SecurityConstants {
 
     public static final String RANDOM_STRING_BASE =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    public static final String RANDOM_PASSWORD_REQUIRED_CHARS =
+            "Aa1!";
 
     public static final String JWT_ACCESS_EXPIRATION = "${jwt.access.expiration}";
     public static final String JWT_ACTION_EXPIRATION = "${jwt.action.expiration}";
@@ -95,4 +97,6 @@ public class SecurityConstants {
 
     public static final String FAILED = "Something went wrong... Please try again later.";
     public static final String REFRESH_TOKEN = "refreshToken";
+
+    public static final String BEARER = "Bearer ";
 }
