@@ -7,6 +7,7 @@ import static org.springframework.http.HttpStatus.GONE;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 
+import com.example.taskmanagementapp.exceptions.badrequest.RegistrationException;
 import com.example.taskmanagementapp.exceptions.conflictexpections.PasswordMismatch;
 import com.example.taskmanagementapp.exceptions.forbidden.LoginException;
 import com.example.taskmanagementapp.exceptions.gone.LinkExpiredException;
@@ -54,6 +55,12 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
                 .toList();
         body.put(ERRORS, errors);
         return new ResponseEntity<>(body, headers, statusCode);
+    }
+
+    @ExceptionHandler(RegistrationException.class)
+    protected ResponseEntity<Object> handleRegistrationException(
+            Exception ex, WebRequest request) {
+        return getUnifiedResponse(ex, BAD_REQUEST);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
