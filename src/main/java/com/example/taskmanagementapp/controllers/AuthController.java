@@ -142,7 +142,7 @@ public class AuthController {
         return authenticationService.changePassword(httpServletRequest, request);
     }
 
-    @Operation(summary = REFRESH_ACCESS_TOKEN_SUMMARY, hidden = true)
+    @Operation(summary = REFRESH_ACCESS_TOKEN_SUMMARY)
     @ApiResponse(responseCode = CODE_200, description =
             SUCCESSFULLY_REFRESHED_TOKEN)
     @ApiResponse(responseCode = CODE_403, description = ACCESS_DENIED)
