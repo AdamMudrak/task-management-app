@@ -1,15 +1,9 @@
 package com.example.taskmanagementapp.constants.security;
 
 public class SecurityConstants {
-    public static final String SUPPORT_EMAIL = "${mail.address}";
-    public static final String SEND_GRID_API_KEY = "${sendgrid.api.key}";
-    public static final String SUPPORT_EMAIL_SUBJECT = "A request from ";
-
-    public static final String PLUS = "+";
     public static final String SPLITERATOR = "&";
     public static final int STRENGTH = 10;
-    public static final int RANDOM_ACTION_JWT_STRENGTH = 24;
-    public static final int RANDOM_PASSWORD_STRENGTH = 32;
+    public static final int RANDOM_PASSWORD_STRENGTH = 28;
     public static final int RANDOM_LINK_STRENGTH = 128;
 
     public static final String RANDOM_STRING_BASE =
@@ -24,8 +18,6 @@ public class SecurityConstants {
     public static final String SERVER_PATH = "${server.path}";
     public static final String RESET_PATH = "${reset.path}";
     public static final String CONFIRMATION_PATH = "${confirmation.path}";
-    public static final String TOKEN = "${telegram.bot.token}";
-    public static final String BOT_TO_SERVER_REQUEST_URI = "${bot.to.server.request.uri}";
 
     public static final int BEGIN_INDEX = 7;
 
@@ -68,34 +60,11 @@ public class SecurityConstants {
             "User is registered successfully. "
                     + "Check your email to confirm registration. "
                     + "Your account will not be enabled until then.";
-    public static final String SUCCESS_EMAIL = "An email with reset link has been sent.";
+    public static final String REGISTRATION_CONFIRMED =
+            "Registration has been confirmed successfully.";
+    public static final String PASSWORD_RESET_SUCCESSFULLY =
+            "An email with reset link has been sent.";
 
-    public static final String BOT_NAME = "BudgetApplicationBot";
-    public static final String START = "/start";
-    public static final String STOP = "/stop";
-    public static final String STOPPED_SUCCESS = "The bot has been stopped!";
-    public static final String UNKNOWN_COMMAND = "Unknown command. Please use /start, "
-            + "or /stop commands or \"Share\" button";
-    public static final String KEYBOARD_BUTTON_TEXT = "Share";
-    public static final String PARSE_MODE = "MarkdownV2";
-    public static final String TELEGRAM_REGISTRATION =
-            "To register or login in our app, you'll need"
-                    + System.lineSeparator()
-                    + "to SHARE your phone number with us."
-                    + System.lineSeparator()
-                    + "This data is going to be used only in"
-                    + System.lineSeparator()
-                    + "registration purposes. You'll then receive"
-                    + System.lineSeparator()
-                    + "a password to login in the app."
-                    + System.lineSeparator()
-                    + System.lineSeparator()
-                    + "Please, push \"SHARE\" button.";
-
-    public static final String CONTENT_TYPE_HEADER = "Content-Type";
-    public static final String CONTENT_TYPE = "application/json";
-
-    public static final String FAILED = "Something went wrong... Please try again later.";
     public static final String REFRESH_TOKEN = "refreshToken";
 
     public static final String BEARER = "Bearer ";

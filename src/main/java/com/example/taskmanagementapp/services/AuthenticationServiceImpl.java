@@ -1,7 +1,9 @@
 package com.example.taskmanagementapp.services;
 
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACCESS;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACTION;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.CONFIRMATION;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.PASSWORD_RESET_SUCCESSFULLY;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.PASSWORD_SET_SUCCESSFULLY;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RANDOM_PASSWORD_REQUIRED_CHARS;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RANDOM_PASSWORD_STRENGTH;
@@ -9,16 +11,16 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.REFRESH_TOKEN;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.REGISTERED;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.REGISTERED_BUT_NOT_ACTIVATED;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.REGISTRATION_CONFIRMED;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RESET;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.SUCCESS_EMAIL;
 
 import com.example.taskmanagementapp.constants.security.SecurityConstants;
 import com.example.taskmanagementapp.dtos.authentication.request.SetNewPasswordDto;
 import com.example.taskmanagementapp.dtos.authentication.request.UserLoginRequestDto;
 import com.example.taskmanagementapp.dtos.authentication.request.UserRegistrationRequestDto;
 import com.example.taskmanagementapp.dtos.authentication.response.AccessTokenDto;
+import com.example.taskmanagementapp.dtos.authentication.response.ChangePasswordSuccessDto;
 import com.example.taskmanagementapp.dtos.authentication.response.LinkToResetPasswordSuccessDto;
-import com.example.taskmanagementapp.dtos.authentication.response.PasswordChangedSuccess;
 import com.example.taskmanagementapp.dtos.authentication.response.RegistrationConfirmationSuccessDto;
 import com.example.taskmanagementapp.dtos.authentication.response.SendLinkToResetPasswordDto;
 import com.example.taskmanagementapp.dtos.authentication.response.UserLoginResponseDto;
@@ -42,6 +44,7 @@ import com.example.taskmanagementapp.security.utils.RandomStringUtil;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import java.util.Arrays;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -77,16 +80,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public SendLinkToResetPasswordDto initiatePasswordReset(String emailOrUsername) {
+    public SendLinkToResetPasswordDto sendPasswordResetLink(String emailOrUsername) {
         User currentUser;
         if (emailOrUsername.contains("@")) {
-            currentUser = isCreatedByEmail(emailOrUsername);
+            currentUser = getIfExistsByEmail(emailOrUsername);
         } else {
-            currentUser = isCreatedByUsername(emailOrUsername);
+            currentUser = getIfExistsByUsername(emailOrUsername);
         }
         isEnabled(currentUser);
         passwordEmailService.sendActionMessage(currentUser.getEmail(), RESET);
-        return new SendLinkToResetPasswordDto(SUCCESS_EMAIL);
+        return new SendLinkToResetPasswordDto(PASSWORD_RESET_SUCCESSFULLY);
     }
 
     @Override
@@ -97,6 +100,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         } catch (JwtException e) {
             throw new LinkExpiredException("This link is expired. Please, submit another "
                     + " \"forgot password\" request");
+            /*This message doesn't represent real problem to
+            hide the fact of usage of JWT from the client.*/
         }
         String email = getEmailFromTokenSecure(token, jwtAbstractUtil);
         String randomPassword = randomStringUtil.generateRandomString(RANDOM_PASSWORD_STRENGTH)
@@ -106,12 +111,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setPassword(passwordEncoder.encode(randomPassword));
         userRepository.save(user);
         passwordEmailService.sendResetPassword(email, randomPassword);
-        return new LinkToResetPasswordSuccessDto("SUCCESS!!!");//TODO
+        return new LinkToResetPasswordSuccessDto(PASSWORD_RESET_SUCCESSFULLY);
     }
 
     @Override
-    public PasswordChangedSuccess changePassword(HttpServletRequest httpServletRequest,
-                                                SetNewPasswordDto userSetNewPasswordRequestDto) {
+    public ChangePasswordSuccessDto changePassword(HttpServletRequest httpServletRequest,
+                                                   SetNewPasswordDto userSetNewPasswordRequestDto) {
         String token = parseToken(httpServletRequest);
         JwtAbstractUtil jwtAbstractUtil = jwtStrategy.getStrategy(ACCESS);
         String email = jwtAbstractUtil.getUsername(token);
@@ -124,7 +129,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setPassword(passwordEncoder
                 .encode(userSetNewPasswordRequestDto.newPassword()));
         userRepository.save(user);
-        return new PasswordChangedSuccess(PASSWORD_SET_SUCCESSFULLY);
+        return new ChangePasswordSuccessDto(PASSWORD_SET_SUCCESSFULLY);
     }
 
     @Override
@@ -140,6 +145,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         throw new LoginException("Something went wrong with your access");
     }
 
+    @Transactional
     @Override
     public UserRegistrationResponseDto register(UserRegistrationRequestDto requestDto) {
         if (userRepository.existsByUsername(requestDto.username())) {
@@ -160,13 +166,30 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return new UserRegistrationResponseDto(REGISTERED);
     }
 
+    @Transactional
     @Override
-    public RegistrationConfirmationSuccessDto confirmRegistration(String email) {
-        return null;//TODO
+    public RegistrationConfirmationSuccessDto confirmRegistration(String token) {
+        JwtAbstractUtil jwtAbstractUtil = jwtStrategy.getStrategy(ACTION);
+        String email = jwtAbstractUtil.getUsername(token);
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new EntityNotFoundException("User with email "
+                        + email + " was not found"));
+        user.setEnabled(true);
+        userRepository.save(user);
+        ParamToken paramToken = paramTokenRepository.findByActionToken(token).orElseThrow(()
+                -> new EntityNotFoundException("No such request"));
+        paramTokenRepository.deleteById(paramToken.getId());
+        return new RegistrationConfirmationSuccessDto(REGISTRATION_CONFIRMED);
     }
 
     private UserLoginResponseDto authenticateEmail(UserLoginRequestDto requestDto) {
-        User currentUser = isCreatedByEmail(requestDto.emailOrUsername());
+        User currentUser = getIfExistsByEmail(requestDto.emailOrUsername());
+        isEnabled(currentUser);
+        return getTokens(currentUser.getEmail(), requestDto.password());
+    }
+
+    private UserLoginResponseDto authenticateUsername(UserLoginRequestDto requestDto) {
+        User currentUser = getIfExistsByUsername(requestDto.emailOrUsername());
         isEnabled(currentUser);
         return getTokens(currentUser.getEmail(), requestDto.password());
     }
@@ -176,25 +199,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setRoles(Set.of(userRole));
     }
 
-    private UserLoginResponseDto authenticateUsername(UserLoginRequestDto requestDto) {
-        User currentUser = isCreatedByUsername(requestDto.emailOrUsername());
-        isEnabled(currentUser);
-        return getTokens(currentUser.getEmail(), requestDto.password());
-    }
-
     private boolean isCurrentPasswordValid(User user,
                                            SetNewPasswordDto userSetNewPasswordRequestDto) {
         return passwordEncoder
                 .matches(userSetNewPasswordRequestDto.currentPassword(), user.getPassword());
     }
 
-    private User isCreatedByEmail(String email) {
+    private User getIfExistsByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new LoginException(
                         "Either login" + " or password is invalid"));
     }
 
-    private User isCreatedByUsername(String username) {
+    private User getIfExistsByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Either login" + " or password is invalid"));

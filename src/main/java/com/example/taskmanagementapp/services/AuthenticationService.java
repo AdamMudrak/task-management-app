@@ -4,8 +4,8 @@ import com.example.taskmanagementapp.dtos.authentication.request.SetNewPasswordD
 import com.example.taskmanagementapp.dtos.authentication.request.UserLoginRequestDto;
 import com.example.taskmanagementapp.dtos.authentication.request.UserRegistrationRequestDto;
 import com.example.taskmanagementapp.dtos.authentication.response.AccessTokenDto;
+import com.example.taskmanagementapp.dtos.authentication.response.ChangePasswordSuccessDto;
 import com.example.taskmanagementapp.dtos.authentication.response.LinkToResetPasswordSuccessDto;
-import com.example.taskmanagementapp.dtos.authentication.response.PasswordChangedSuccess;
 import com.example.taskmanagementapp.dtos.authentication.response.RegistrationConfirmationSuccessDto;
 import com.example.taskmanagementapp.dtos.authentication.response.SendLinkToResetPasswordDto;
 import com.example.taskmanagementapp.dtos.authentication.response.UserLoginResponseDto;
@@ -15,12 +15,12 @@ import jakarta.servlet.http.HttpServletRequest;
 public interface AuthenticationService {
     UserLoginResponseDto authenticateUser(UserLoginRequestDto requestDto);
 
-    SendLinkToResetPasswordDto initiatePasswordReset(String emailOrUsername);
+    SendLinkToResetPasswordDto sendPasswordResetLink(String emailOrUsername);
 
     LinkToResetPasswordSuccessDto confirmResetPassword(String token);
 
-    PasswordChangedSuccess changePassword(HttpServletRequest httpServletRequest,
-                                          SetNewPasswordDto userSetNewPasswordRequestDto);
+    ChangePasswordSuccessDto changePassword(HttpServletRequest httpServletRequest,
+                                            SetNewPasswordDto userSetNewPasswordRequestDto);
 
     AccessTokenDto refreshToken(HttpServletRequest httpServletRequest);
 

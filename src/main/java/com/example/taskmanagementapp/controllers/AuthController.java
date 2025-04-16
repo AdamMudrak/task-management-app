@@ -39,8 +39,8 @@ import com.example.taskmanagementapp.dtos.authentication.request.SetNewPasswordD
 import com.example.taskmanagementapp.dtos.authentication.request.UserLoginRequestDto;
 import com.example.taskmanagementapp.dtos.authentication.request.UserRegistrationRequestDto;
 import com.example.taskmanagementapp.dtos.authentication.response.AccessTokenDto;
+import com.example.taskmanagementapp.dtos.authentication.response.ChangePasswordSuccessDto;
 import com.example.taskmanagementapp.dtos.authentication.response.LinkToResetPasswordSuccessDto;
-import com.example.taskmanagementapp.dtos.authentication.response.PasswordChangedSuccess;
 import com.example.taskmanagementapp.dtos.authentication.response.RegistrationConfirmationSuccessDto;
 import com.example.taskmanagementapp.dtos.authentication.response.SendLinkToResetPasswordDto;
 import com.example.taskmanagementapp.dtos.authentication.response.UserLoginResponseDto;
@@ -113,7 +113,7 @@ public class AuthController {
     @PostMapping(FORGOT_PASSWORD)
     public SendLinkToResetPasswordDto initiatePasswordReset(@Valid @RequestBody
                                                             GetLinkToResetPasswordDto request) {
-        return authenticationService.initiatePasswordReset(request.emailOrUsername());
+        return authenticationService.sendPasswordResetLink(request.emailOrUsername());
     }
 
     @Operation(summary = RESET_PASSWORD_SUMMARY, hidden = true)
@@ -137,8 +137,8 @@ public class AuthController {
     @ApiResponse(responseCode = CODE_403, description = ACCESS_DENIED)
     @PreAuthorize(ROLE_USER)
     @PostMapping(CHANGE_PASSWORD)
-    public PasswordChangedSuccess changePassword(HttpServletRequest httpServletRequest,
-                                                 @RequestBody @Valid SetNewPasswordDto request) {
+    public ChangePasswordSuccessDto changePassword(HttpServletRequest httpServletRequest,
+                                                   @RequestBody @Valid SetNewPasswordDto request) {
         return authenticationService.changePassword(httpServletRequest, request);
     }
 

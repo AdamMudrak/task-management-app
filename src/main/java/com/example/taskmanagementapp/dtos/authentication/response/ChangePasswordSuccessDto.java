@@ -1,4 +1,4 @@
 package com.example.taskmanagementapp.dtos.authentication.response;
 
-public record PasswordChangedSuccess(String response) {
+public record ChangePasswordSuccessDto(String response) {
 }
