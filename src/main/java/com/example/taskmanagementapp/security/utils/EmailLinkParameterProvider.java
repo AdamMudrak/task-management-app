@@ -1,16 +1,16 @@
 package com.example.taskmanagementapp.security.utils;
 
-import com.example.budgetingapp.entities.tokens.ParamToken;
-import com.example.budgetingapp.repositories.paramtoken.ParamTokenRepository;
-import com.example.budgetingapp.security.jwtutils.abstr.JwtAbstractUtil;
-import com.example.budgetingapp.security.jwtutils.strategy.JwtStrategy;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACTION;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.RANDOM_LINK_STRENGTH;
+
+import com.example.taskmanagementapp.entities.tokens.ParamToken;
+import com.example.taskmanagementapp.repositories.paramtoken.ParamTokenRepository;
+import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
+import com.example.taskmanagementapp.security.jwtutils.strategy.JwtStrategy;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
-
-import static com.example.budgetingapp.constants.security.SecurityConstants.ACTION;
-import static com.example.budgetingapp.constants.security.SecurityConstants.RANDOM_LINK_STRENGTH;
 
 @Component
 @RequiredArgsConstructor

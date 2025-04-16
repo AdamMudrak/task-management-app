@@ -1,15 +1,14 @@
 package com.example.taskmanagementapp.security.utils;
 
-import com.example.budgetingapp.entities.tokens.ParamToken;
-import com.example.budgetingapp.exceptions.notfoundexceptions.ActionNotFoundException;
-import com.example.budgetingapp.repositories.paramtoken.ParamTokenRepository;
+import com.example.taskmanagementapp.entities.tokens.ParamToken;
+import com.example.taskmanagementapp.exceptions.notfoundexceptions.ActionNotFoundException;
+import com.example.taskmanagementapp.repositories.paramtoken.ParamTokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Map;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
-
-import java.util.Map;
 
 @Component
 @Getter

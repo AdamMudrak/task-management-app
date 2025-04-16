@@ -9,4 +9,8 @@ public class EntitiesConstants {
     public static final String ROLES = "roles";
     public static final String ROLE_ID = "role_id";
     public static final String BOOLEAN_TO_INT = "TINYINT(1)";
+
+    public static final String ACTION_TOKENS = "action_tokens";
+
+    public static final String PARAM_TOKENS = "param_tokens";
 }
