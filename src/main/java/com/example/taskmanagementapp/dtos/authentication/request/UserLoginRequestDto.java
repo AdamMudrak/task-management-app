@@ -22,4 +22,4 @@ public record UserLoginRequestDto(
         requiredMode = REQUIRED)
         @NotBlank
         @Password
-        String password) {}
+        String password){}

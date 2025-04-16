@@ -52,6 +52,4 @@ public record UserRegistrationRequestDto(
                 example = UserDtoConstants.LAST_NAME_EXAMPLE,
                 requiredMode = REQUIRED)
         @NotBlank
-        String lastName
-) {
-}
+        String lastName){}

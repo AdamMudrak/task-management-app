@@ -35,4 +35,4 @@ public record SetNewPasswordDto(
                 description = UserDtoConstants.REPEAT_PASSWORD_DESCRIPTION,
                 requiredMode = REQUIRED)
         @NotBlank
-        String repeatNewPassword) {}
+        String repeatNewPassword){}
