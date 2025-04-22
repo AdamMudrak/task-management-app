@@ -1,25 +1,24 @@
 package com.example.taskmanagementapp.security;
 
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACCESS;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.BEGIN_INDEX;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACCESS_TOKEN;
 
-import com.example.taskmanagementapp.constants.security.SecurityConstants;
 import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
 import com.example.taskmanagementapp.security.jwtutils.strategy.JwtStrategy;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
@@ -39,7 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
-        String token = getToken(request);
+        String token = findAccessCookie(request);
 
         if (token != null && jwtAbstractUtil.isValidToken(token)) {
             String username = jwtAbstractUtil.getUsername(token);
@@ -53,12 +52,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private String getToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (StringUtils.hasText(bearerToken)
-                && bearerToken.startsWith(SecurityConstants.BEARER)) {
-            return bearerToken.substring(BEGIN_INDEX);
+    private String findAccessCookie(HttpServletRequest httpServletRequest) {
+        Cookie cookie = null;
+        if (httpServletRequest != null
+                && httpServletRequest.getCookies() != null
+                && httpServletRequest.getCookies().length > 0) {
+            cookie = Arrays.stream(httpServletRequest.getCookies())
+                    .filter(refreshCookie -> refreshCookie.getName().equals(ACCESS_TOKEN))
+                    .findFirst().orElse(null);
         }
-        return null;
+        return cookie != null ? cookie.getValue() : null;
     }
 }
