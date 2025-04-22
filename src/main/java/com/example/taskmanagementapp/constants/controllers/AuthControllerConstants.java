@@ -16,7 +16,6 @@ public class AuthControllerConstants {
     public static final String FORGOT_PASSWORD = "/forgot-password";
     public static final String RESET_PASSWORD = "/reset-password";
     public static final String CHANGE_PASSWORD = "/change-password";
-    public static final String REFRESH_ACCESS_TOKEN = "/refresh-access-token";
 
     public static final String REGISTER_SUMMARY = "Register a new user in the app";
     public static final String SUCCESSFULLY_REGISTERED = "Successfully registered a new user";
@@ -39,9 +38,4 @@ public class AuthControllerConstants {
     public static final String CHANGE_PASSWORD_SUMMARY =
             "Change password while being logged in, either using a random or your own password";
     public static final String SUCCESSFULLY_CHANGE_PASSWORD = "Successfully changed password";
-
-    public static final String REFRESH_ACCESS_TOKEN_SUMMARY =
-            "Using a Refresh Token, get a new Access Token";
-    public static final String SUCCESSFULLY_REFRESHED_TOKEN =
-            "Successfully refreshed access token using refresh token";
 }
