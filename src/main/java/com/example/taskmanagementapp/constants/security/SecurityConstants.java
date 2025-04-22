@@ -1,6 +1,7 @@
 package com.example.taskmanagementapp.constants.security;
 
 public class SecurityConstants {
+    public static final int DIVIDER = 1000;
     public static final String SPLITERATOR = "&";
     public static final int STRENGTH = 10;
     public static final int RANDOM_PASSWORD_STRENGTH = 28;
