@@ -20,6 +20,7 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RESET;
 import static com.example.taskmanagementapp.constants.validation.ValidationConstants.COMPILED_PATTERN;
 
+import com.example.taskmanagementapp.dtos.authentication.TokenBearerDto;
 import com.example.taskmanagementapp.dtos.authentication.request.SetNewPasswordDto;
 import com.example.taskmanagementapp.dtos.authentication.request.UserLoginRequestDto;
 import com.example.taskmanagementapp.dtos.authentication.request.UserRegistrationRequestDto;
@@ -27,9 +28,8 @@ import com.example.taskmanagementapp.dtos.authentication.response.ChangePassword
 import com.example.taskmanagementapp.dtos.authentication.response.LinkToResetPasswordSuccessDto;
 import com.example.taskmanagementapp.dtos.authentication.response.LoginSuccessDto;
 import com.example.taskmanagementapp.dtos.authentication.response.RegistrationConfirmationSuccessDto;
+import com.example.taskmanagementapp.dtos.authentication.response.RegistrationSuccessDto;
 import com.example.taskmanagementapp.dtos.authentication.response.SendLinkToResetPasswordDto;
-import com.example.taskmanagementapp.dtos.authentication.response.TokenBearerDto;
-import com.example.taskmanagementapp.dtos.authentication.response.UserRegistrationResponseDto;
 import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.entities.tokens.ParamToken;
@@ -138,7 +138,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Transactional
     @Override
-    public UserRegistrationResponseDto register(UserRegistrationRequestDto requestDto) {
+    public RegistrationSuccessDto register(UserRegistrationRequestDto requestDto) {
         if (userRepository.existsByUsername(requestDto.username())) {
             throw new RegistrationException("User with username "
                     + requestDto.username() + " already exists");
@@ -154,7 +154,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         assignUserRole(user);
         userRepository.save(user);
         passwordEmailService.sendActionMessage(user.getEmail(), CONFIRMATION);
-        return new UserRegistrationResponseDto(REGISTERED);
+        return new RegistrationSuccessDto(REGISTERED);
     }
 
     @Transactional

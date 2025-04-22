@@ -7,8 +7,8 @@ import com.example.taskmanagementapp.dtos.authentication.response.ChangePassword
 import com.example.taskmanagementapp.dtos.authentication.response.LinkToResetPasswordSuccessDto;
 import com.example.taskmanagementapp.dtos.authentication.response.LoginSuccessDto;
 import com.example.taskmanagementapp.dtos.authentication.response.RegistrationConfirmationSuccessDto;
+import com.example.taskmanagementapp.dtos.authentication.response.RegistrationSuccessDto;
 import com.example.taskmanagementapp.dtos.authentication.response.SendLinkToResetPasswordDto;
-import com.example.taskmanagementapp.dtos.authentication.response.UserRegistrationResponseDto;
 import com.example.taskmanagementapp.entities.User;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -23,7 +23,7 @@ public interface AuthenticationService {
     ChangePasswordSuccessDto changePassword(User user,
                                             SetNewPasswordDto userSetNewPasswordRequestDto);
 
-    UserRegistrationResponseDto register(UserRegistrationRequestDto requestDto);
+    RegistrationSuccessDto register(UserRegistrationRequestDto requestDto);
 
     RegistrationConfirmationSuccessDto confirmRegistration(String token);
 }

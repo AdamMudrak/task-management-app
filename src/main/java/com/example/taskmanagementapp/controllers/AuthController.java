@@ -39,8 +39,8 @@ import com.example.taskmanagementapp.dtos.authentication.response.ChangePassword
 import com.example.taskmanagementapp.dtos.authentication.response.LinkToResetPasswordSuccessDto;
 import com.example.taskmanagementapp.dtos.authentication.response.LoginSuccessDto;
 import com.example.taskmanagementapp.dtos.authentication.response.RegistrationConfirmationSuccessDto;
+import com.example.taskmanagementapp.dtos.authentication.response.RegistrationSuccessDto;
 import com.example.taskmanagementapp.dtos.authentication.response.SendLinkToResetPasswordDto;
-import com.example.taskmanagementapp.dtos.authentication.response.UserRegistrationResponseDto;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.security.utils.RandomParamFromHttpRequestUtil;
 import com.example.taskmanagementapp.services.AuthenticationService;
@@ -76,7 +76,7 @@ public class AuthController {
     @ApiResponse(responseCode = CODE_400, description = INVALID_ENTITY_VALUE)
     @PostMapping(REGISTER)
     @ResponseStatus(HttpStatus.CREATED)
-    public UserRegistrationResponseDto register(
+    public RegistrationSuccessDto register(
             @RequestBody @Valid UserRegistrationRequestDto requestDto) {
         return authenticationService.register(requestDto);
     }

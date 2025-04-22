@@ -1,3 +1,3 @@
 package com.example.taskmanagementapp.dtos.authentication.response;
 
-public record UserRegistrationResponseDto(String response){}
+public record RegistrationSuccessDto(String response){}
