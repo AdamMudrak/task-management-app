@@ -252,7 +252,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 + "; Max-Age=" + accessExpiration / DIVIDER;
         httpServletResponse.addHeader("Set-Cookie", accessCookie);
 
-        String refreshCookie = REFRESH_TOKEN + "=" + tokenBearerDto.accessToken()
+        String refreshCookie = REFRESH_TOKEN + "=" + tokenBearerDto.refreshToken()
                 + "; Path=/"
                 + "; HttpOnly"
                 + "; Secure"
