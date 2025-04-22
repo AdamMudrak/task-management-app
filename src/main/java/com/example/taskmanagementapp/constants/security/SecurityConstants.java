@@ -26,6 +26,9 @@ public class SecurityConstants {
     public static final String ACTION = "ACTION";
     public static final String REFRESH = "REFRESH";
 
+    public static final String LOGIN_SUCCESS =
+            "User has been logged in successfully. Proceed with further actions";
+
     public static final String CONFIRM_REGISTRATION_SUBJECT =
             "Finish registration in Facio";
     public static final String CONFIRM_REGISTRATION_BODY = """
