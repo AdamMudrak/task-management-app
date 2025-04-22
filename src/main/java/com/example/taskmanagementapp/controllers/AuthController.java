@@ -19,8 +19,6 @@ import static com.example.taskmanagementapp.constants.controllers.AuthController
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.FORGOT_PASSWORD;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.INITIATE_PASSWORD_RESET_SUMMARY;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.LOGIN;
-import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.REFRESH_ACCESS_TOKEN;
-import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.REFRESH_ACCESS_TOKEN_SUMMARY;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.REGISTER;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.REGISTER_SUMMARY;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.RESET_PASSWORD;
@@ -29,35 +27,33 @@ import static com.example.taskmanagementapp.constants.controllers.AuthController
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.SUCCESSFULLY_CONFIRMED;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.SUCCESSFULLY_INITIATED_PASSWORD_RESET;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.SUCCESSFULLY_LOGGED_IN;
-import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.SUCCESSFULLY_REFRESHED_TOKEN;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.SUCCESSFULLY_REGISTERED;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.SUCCESSFULLY_RESET_PASSWORD;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.REFRESH_TOKEN;
 
 import com.example.taskmanagementapp.constants.Constants;
 import com.example.taskmanagementapp.dtos.authentication.request.GetLinkToResetPasswordDto;
 import com.example.taskmanagementapp.dtos.authentication.request.SetNewPasswordDto;
 import com.example.taskmanagementapp.dtos.authentication.request.UserLoginRequestDto;
 import com.example.taskmanagementapp.dtos.authentication.request.UserRegistrationRequestDto;
-import com.example.taskmanagementapp.dtos.authentication.response.AccessTokenDto;
 import com.example.taskmanagementapp.dtos.authentication.response.ChangePasswordSuccessDto;
 import com.example.taskmanagementapp.dtos.authentication.response.LinkToResetPasswordSuccessDto;
+import com.example.taskmanagementapp.dtos.authentication.response.LoginSuccessDto;
 import com.example.taskmanagementapp.dtos.authentication.response.RegistrationConfirmationSuccessDto;
 import com.example.taskmanagementapp.dtos.authentication.response.SendLinkToResetPasswordDto;
-import com.example.taskmanagementapp.dtos.authentication.response.UserLoginResponseDto;
 import com.example.taskmanagementapp.dtos.authentication.response.UserRegistrationResponseDto;
+import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.security.utils.RandomParamFromHttpRequestUtil;
 import com.example.taskmanagementapp.services.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -105,11 +101,9 @@ public class AuthController {
     @ApiResponse(responseCode = CODE_400, description = INVALID_ENTITY_VALUE)
     @ApiResponse(responseCode = CODE_403, description = ACCESS_DENIED)
     @PostMapping(LOGIN)
-    public UserLoginResponseDto login(@RequestBody @Valid UserLoginRequestDto request,
-                                      HttpServletResponse response) {
-        UserLoginResponseDto userLoginResponseDto = authenticationService.authenticateUser(request);
-        response.addCookie(new Cookie(REFRESH_TOKEN, userLoginResponseDto.refreshToken()));
-        return userLoginResponseDto;
+    public LoginSuccessDto login(@RequestBody @Valid UserLoginRequestDto request,
+                                 HttpServletResponse response) {
+        return authenticationService.authenticateUser(request, response);
     }
 
     @Operation(summary = INITIATE_PASSWORD_RESET_SUMMARY)
@@ -143,17 +137,8 @@ public class AuthController {
     @ApiResponse(responseCode = CODE_403, description = ACCESS_DENIED)
     @PreAuthorize(ROLE_USER)
     @PostMapping(CHANGE_PASSWORD)
-    public ChangePasswordSuccessDto changePassword(HttpServletRequest httpServletRequest,
+    public ChangePasswordSuccessDto changePassword(@AuthenticationPrincipal User user,
                                                    @RequestBody @Valid SetNewPasswordDto request) {
-        return authenticationService.changePassword(httpServletRequest, request);
-    }
-
-    @Operation(summary = REFRESH_ACCESS_TOKEN_SUMMARY)
-    @ApiResponse(responseCode = CODE_200, description =
-            SUCCESSFULLY_REFRESHED_TOKEN)
-    @ApiResponse(responseCode = CODE_403, description = ACCESS_DENIED)
-    @PostMapping(REFRESH_ACCESS_TOKEN)
-    public AccessTokenDto refreshToken(HttpServletRequest httpServletRequest) {
-        return authenticationService.refreshToken(httpServletRequest);
+        return authenticationService.changePassword(user, request);
     }
 }
