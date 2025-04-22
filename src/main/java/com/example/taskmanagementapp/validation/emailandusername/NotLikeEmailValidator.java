@@ -11,6 +11,6 @@ public class NotLikeEmailValidator implements ConstraintValidator<NotLikeEmail, 
 
     @Override
     public boolean isValid(String email, ConstraintValidatorContext constraintValidatorContext) {
-        return email != null && emailPattern.matcher(email).matches();
+        return email != null && !emailPattern.matcher(email).matches();
     }
 }
