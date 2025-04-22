@@ -19,11 +19,10 @@ public class SecurityConstants {
     public static final String RESET_PATH = "${get.random.password.path}";
     public static final String CONFIRMATION_PATH = "${registration.confirmation.path}";
 
-    public static final int BEGIN_INDEX = 7;
-
     public static final String RESET = "RESET";
     public static final String CONFIRMATION = "CONFIRMATION";
     public static final String ACCESS = "ACCESS";
+    public static final String ACCESS_TOKEN = "accessToken";
     public static final String ACTION = "ACTION";
     public static final String REFRESH = "REFRESH";
 
@@ -64,6 +63,4 @@ public class SecurityConstants {
             "An email with reset link has been sent.";
 
     public static final String REFRESH_TOKEN = "refreshToken";
-
-    public static final String BEARER = "Bearer ";
 }
