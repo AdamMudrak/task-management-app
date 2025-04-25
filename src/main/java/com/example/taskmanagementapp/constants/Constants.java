@@ -17,4 +17,6 @@ public class Constants {
     public static final String CODE_403 = "403";
 
     public static final String ROLE_EMPLOYEE = "hasRole('ROLE_EMPLOYEE')";
+    public static final String ROLE_MANAGER = "hasRole('ROLE_MANAGER')";
+    public static final String ROLE_SUPERVISOR = "hasRole('ROLE_SUPERVISOR')";
 }
