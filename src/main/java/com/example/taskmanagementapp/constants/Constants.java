@@ -16,5 +16,5 @@ public class Constants {
     public static final String CODE_401 = "401";
     public static final String CODE_403 = "403";
 
-    public static final String ROLE_USER = "hasRole('ROLE_USER')";
+    public static final String ROLE_EMPLOYEE = "hasRole('ROLE_EMPLOYEE')";
 }

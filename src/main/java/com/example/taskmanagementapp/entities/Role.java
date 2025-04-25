@@ -32,8 +32,8 @@ public class Role implements GrantedAuthority {
     }
 
     public enum RoleName {
-        ROLE_USER,
-        ROLE_ADMIN,
-        ROLE_SUPER_ADMIN
+        ROLE_EMPLOYEE,
+        ROLE_MANAGER,
+        ROLE_SUPERVISOR
     }
 }

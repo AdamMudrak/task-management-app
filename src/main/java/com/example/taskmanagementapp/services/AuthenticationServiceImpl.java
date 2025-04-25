@@ -109,8 +109,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         } catch (JwtException e) {
             throw new LinkExpiredException("This link is expired. Please, submit another "
                     + " \"forgot password\" request");
-            /*This message doesn't represent real problem to
-            hide the fact of usage of JWT from the client.*/
+            /*This message doesn't represent the real problem to
+            hide the usage of JWT from the client.*/
         }
         String email = getEmailFromTokenSecure(token, jwtAbstractUtil);
         String randomPassword = randomStringUtil.generateRandomString(RANDOM_PASSWORD_STRENGTH)
@@ -151,7 +151,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         User user = userMapper.toUser(requestDto);
         user.setPassword(passwordEncoder.encode(requestDto.password()));
-        assignUserRole(user);
+        assignBasicRole(user);
         userRepository.save(user);
         passwordEmailService.sendActionMessage(user.getEmail(), CONFIRMATION);
         return new RegistrationSuccessDto(REGISTERED);
@@ -185,9 +185,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return getTokens(currentUser.getUsername(), requestDto.password());
     }
 
-    private void assignUserRole(User user) {
-        Role userRole = roleRepository.findByName(Role.RoleName.ROLE_USER);
-        user.setRoles(Set.of(userRole));
+    private void assignBasicRole(User user) {
+        Role basicRole = roleRepository.findByName(Role.RoleName.ROLE_EMPLOYEE);
+        user.setRoles(Set.of(basicRole));
     }
 
     private boolean isCurrentPasswordValid(User user,
