@@ -11,3 +11,7 @@ databaseChangeLog:
       file: db/changelog/changes/05-create-param-tokens-table.yaml
   - include:
       file: db/changelog/changes/06-create-action-tokens-table.yaml
+  - include:
+      file: db/changelog/changes/07-add-test-users.yaml
+  - include:
+      file: db/changelog/changes/08-add-roles-to-test-users.yaml
