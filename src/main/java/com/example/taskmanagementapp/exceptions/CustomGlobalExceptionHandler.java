@@ -8,7 +8,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 
 import com.example.taskmanagementapp.exceptions.badrequest.RegistrationException;
-import com.example.taskmanagementapp.exceptions.conflictexpections.PasswordMismatch;
+import com.example.taskmanagementapp.exceptions.conflictexpections.PasswordMismatchException;
 import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
 import com.example.taskmanagementapp.exceptions.forbidden.LoginException;
 import com.example.taskmanagementapp.exceptions.gone.LinkExpiredException;
@@ -99,7 +99,7 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
         return getUnifiedResponse(ex, BAD_REQUEST);
     }
 
-    @ExceptionHandler(PasswordMismatch.class)
+    @ExceptionHandler(PasswordMismatchException.class)
     protected ResponseEntity<Object> handlePasswordMismatch(Exception ex) {
         return getUnifiedResponse(ex, CONFLICT);
     }
