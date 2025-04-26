@@ -1,6 +1,7 @@
 package com.example.taskmanagementapp.services;
 
 import com.example.taskmanagementapp.dtos.project.request.CreateProjectDto;
+import com.example.taskmanagementapp.dtos.project.request.ProjectStatusDto;
 import com.example.taskmanagementapp.dtos.project.request.UpdateProjectDto;
 import com.example.taskmanagementapp.dtos.project.response.ProjectDto;
 import com.example.taskmanagementapp.entities.User;
@@ -16,14 +17,15 @@ public interface ProjectService {
     ProjectDto getProjectById(User authenticatedUser, Long projectId) throws ForbiddenException;
 
     ProjectDto updateProjectById(User authenticatedUser, Long projectId,
-                                 UpdateProjectDto updateProjectDto) throws ForbiddenException,
+                                 UpdateProjectDto updateProjectDto,
+                                 ProjectStatusDto projectStatusDto) throws ForbiddenException,
                                                                             ConflictException;
 
     void deleteProjectById(User authenticatedUser, Long projectId) throws ForbiddenException;
 
     void assignEmployeeToProject(User authenticatedUser, Long projectId, Long employeeId)
-                                                                        throws ForbiddenException;
+            throws ForbiddenException, ConflictException;
 
     void removeEmployeeFromProject(User authenticatedUser, Long projectId, Long employeeId)
-                                                                        throws ForbiddenException;
+            throws ForbiddenException, ConflictException;
 }

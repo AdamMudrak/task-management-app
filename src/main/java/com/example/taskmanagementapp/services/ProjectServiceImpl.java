@@ -1,6 +1,7 @@
 package com.example.taskmanagementapp.services;
 
 import com.example.taskmanagementapp.dtos.project.request.CreateProjectDto;
+import com.example.taskmanagementapp.dtos.project.request.ProjectStatusDto;
 import com.example.taskmanagementapp.dtos.project.request.UpdateProjectDto;
 import com.example.taskmanagementapp.dtos.project.response.ProjectDto;
 import com.example.taskmanagementapp.entities.Project;
@@ -68,7 +69,8 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public ProjectDto updateProjectById(User user,
                                         Long projectId,
-                                        UpdateProjectDto updateProjectDto)
+                                        UpdateProjectDto updateProjectDto,
+                                        ProjectStatusDto projectStatusDto)
                                         throws ForbiddenException, ConflictException {
         Project project = projectRepository.findById(projectId).orElseThrow(
                 () -> new EntityNotFoundException("No project with id " + projectId));
@@ -76,7 +78,7 @@ public class ProjectServiceImpl implements ProjectService {
                 || isUserOwner(user, project);
         List<ConflictException> exceptions = new ArrayList<>();
         if (hasAccess) {
-            updatePresentField(project, updateProjectDto, exceptions);
+            updatePresentField(project, updateProjectDto, projectStatusDto, exceptions);
         } else {
             throw new ForbiddenException("You have no permission to access this project");
         }
@@ -100,14 +102,20 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public void assignEmployeeToProject(User user,
                                         Long projectId,
-                                        Long employeeId) throws ForbiddenException {
+                                        Long employeeId) throws ForbiddenException,
+                                                                ConflictException {
         Project project = projectRepository.findById(projectId).orElseThrow(
                 () -> new EntityNotFoundException("No project with id " + projectId));
         if (isUserSupervisor(user) || isUserOwner(user, project)) {
             User newEmployee = userRepository.findById(employeeId)
                     .orElseThrow(() -> new EntityNotFoundException("No employee with id "
                             + employeeId));
-            project.getEmployees().add(newEmployee);
+            if (!project.getEmployees().contains(newEmployee)) {
+                project.getEmployees().add(newEmployee);
+            } else {
+                throw new ConflictException("Employee " + newEmployee.getId()
+                        + " is already part of the project");
+            }
             projectRepository.save(project);
         } else {
             throw new ForbiddenException(
@@ -118,14 +126,20 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public void removeEmployeeFromProject(User user,
                                           Long projectId,
-                                          Long employeeId) throws ForbiddenException {
+                                          Long employeeId) throws ForbiddenException,
+                                                                    ConflictException {
         Project project = projectRepository.findById(projectId).orElseThrow(
                 () -> new EntityNotFoundException("No project with id " + projectId));
         if (isUserSupervisor(user) || isUserOwner(user, project)) {
             User newEmployee = userRepository.findById(employeeId)
                     .orElseThrow(() -> new EntityNotFoundException("No employee with id "
                             + employeeId));
-            project.getEmployees().remove(newEmployee);
+            if (project.getEmployees().contains(newEmployee)) {
+                project.getEmployees().remove(newEmployee);
+            } else {
+                throw new ConflictException("Employee " + newEmployee.getId()
+                        + " is not part of the project");
+            }
             projectRepository.save(project);
         } else {
             throw new ForbiddenException(
@@ -161,6 +175,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     private void updatePresentField(Project project,
                                     UpdateProjectDto updateProjectDto,
+                                    ProjectStatusDto projectStatusDto,
                                     List<ConflictException> exceptions) {
         if (updateProjectDto.name() != null
                 && !updateProjectDto.name().isBlank()
@@ -201,6 +216,7 @@ public class ProjectServiceImpl implements ProjectService {
                 project.setOwner(newOwner);
             }
         }
+        project.setStatus(Project.Status.valueOf(projectStatusDto.name()));
     }
 
     private ConflictException accumulateExceptions(List<ConflictException> exceptions) {
