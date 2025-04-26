@@ -1,5 +1,6 @@
 package com.example.taskmanagementapp.entities;
 
+import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.BOOLEAN_TO_INT;
 import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.EMPLOYEE_ID;
 import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.END_DATE;
 import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.IS_DELETED;
@@ -32,7 +33,7 @@ import org.hibernate.annotations.SQLDelete;
 @Setter
 @Entity
 @Table(name = PROJECTS)
-@SQLDelete(sql = "UPDATE orders SET is_deleted = TRUE WHERE id = ?")
+@SQLDelete(sql = "UPDATE projects SET is_deleted = TRUE WHERE id = ?")
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,7 +47,7 @@ public class Project {
     private LocalDate endDate;
     @Enumerated(EnumType.STRING)
     private Status status;
-    @Column(nullable = false, name = IS_DELETED)
+    @Column(nullable = false, name = IS_DELETED, columnDefinition = BOOLEAN_TO_INT)
     private boolean isDeleted = false;
     @ManyToOne
     @JoinColumn(nullable = false, name = OWNER_ID)
