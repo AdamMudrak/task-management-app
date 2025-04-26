@@ -1,11 +1,11 @@
 databaseChangeLog:
   - changeSet:
-      id: add-default-supervisor
+      id: add-test-users
       author: AdamMudrak
       changes:
         - sql:
             sql: |
-              INSERT INTO users (username, first_name, last_name, email, password, is_enabled)
+              INSERT INTO users (username, first_name, last_name, email, password, role_id, is_enabled)
               VALUES
               
               ('supervisor', 'John', 'Doe', 'example_supervisor@mail.com',
