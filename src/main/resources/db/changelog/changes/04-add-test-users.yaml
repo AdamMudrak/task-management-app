@@ -10,15 +10,18 @@ databaseChangeLog:
               
               ('supervisor', 'John', 'Doe', 'example_supervisor@mail.com',
               '$2a$10$8Fz373jOOTW3RB1HPZ4gGuaizhiHkP1we17lko.QsYmZkyZv0eUEi'
-              /* SupervisorPassword1! */
-              , 1),
+              /* SupervisorPassword1! */,
+              3,
+              1),
               
               ('manager', 'Richard', 'Roe', 'example_manager@mail.com',
               '$2a$10$kEL/PAvjXmDIzK6EjI6ts.iIOYbS8ZCDbNLoFBqyaEMFH.Pl53p82'
-              /* ManagerPassword1! */
-              , 1),
+              /* ManagerPassword1! */,
+              2,
+              1),
               
               ('employee', 'Mary', 'Major', 'example_employee@mail.com',
               '$2a$10$hkEhmrQzVV66am369NBZaOOwHZxv9Gsmy8waiO/vJ3QQa9uX5J28i'
-              /* EmployeePassword1! */
-              , 1);
+              /* EmployeePassword1! */,
+              1,
+              1);

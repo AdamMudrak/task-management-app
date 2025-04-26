@@ -37,6 +37,12 @@ databaseChangeLog:
                   name: last_name
                   type: varchar(64)
               - column:
+                  name: role_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: fk_role_id
+                    references: roles(id)
+              - column:
                   name: is_enabled
                   type: boolean
                   defaultValueBoolean: false
