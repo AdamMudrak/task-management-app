@@ -15,7 +15,7 @@ databaseChangeLog:
                     references: projects(id)
                     primaryKey: true
               - column:
-                  name: user_id
+                  name: employee_id
                   type: bigint
                   constraints:
                     nullable: true
