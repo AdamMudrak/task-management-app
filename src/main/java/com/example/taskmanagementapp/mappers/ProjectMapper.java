@@ -1,0 +1,38 @@
+package com.example.taskmanagementapp.mappers;
+
+import com.example.taskmanagementapp.config.MapperConfig;
+import com.example.taskmanagementapp.dtos.project.request.CreateProjectDto;
+import com.example.taskmanagementapp.dtos.project.request.ProjectStatusDto;
+import com.example.taskmanagementapp.dtos.project.response.ProjectDto;
+import com.example.taskmanagementapp.entities.Project;
+import com.example.taskmanagementapp.entities.User;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.mapstruct.AfterMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+
+@Mapper(config = MapperConfig.class)
+public interface ProjectMapper {
+    Project toCreateProject(CreateProjectDto createProjectDto);
+
+    @Mapping(target = "statusDto", ignore = true)
+    @Mapping(target = "employeeIds", ignore = true)
+    @Mapping(target = "ownerId", source = "owner.id")
+    ProjectDto toProjectDto(Project project);
+
+    List<ProjectDto> toProjectDtoList(List<Project> project);
+
+    @AfterMapping
+    default void setStatus(@MappingTarget ProjectDto projectDto, Project project) {
+        projectDto.setStatusDto(ProjectStatusDto.valueOf(project.getStatus().name()));
+    }
+
+    @AfterMapping
+    default void setEmployeeIds(@MappingTarget ProjectDto projectDto, Project project) {
+        projectDto.setEmployeeIds(project.getEmployees().stream()
+                .map(User::getId)
+                .collect(Collectors.toSet()));
+    }
+}
