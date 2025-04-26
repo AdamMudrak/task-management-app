@@ -1,11 +1,13 @@
 package com.example.taskmanagementapp.entities;
 
 import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.EMPLOYEE_ID;
+import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.END_DATE;
 import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.IS_DELETED;
 import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.OWNER_ID;
 import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.PROJECTS;
 import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.PROJECT_EMPLOYEES;
 import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.PROJECT_ID;
+import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.START_DATE;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -38,9 +40,9 @@ public class Project {
     @Column(nullable = false)
     private String name;
     private String description;
-    @Column(nullable = false)
+    @Column(nullable = false, name = START_DATE)
     private LocalDate startDate;
-    @Column(nullable = false)
+    @Column(nullable = false, name = END_DATE)
     private LocalDate endDate;
     @Enumerated(EnumType.STRING)
     private Status status;

@@ -20,5 +20,6 @@ public class EntitiesConstants {
     public static final String PROJECT_EMPLOYEES = "project_employees";
     public static final String PROJECT_ID = "project_id";
     public static final String EMPLOYEE_ID = "employee_id";
-
+    public static final String START_DATE = "start_date";
+    public static final String END_DATE = "end_date";
 }
