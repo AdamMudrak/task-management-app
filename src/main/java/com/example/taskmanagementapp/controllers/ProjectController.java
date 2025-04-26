@@ -70,7 +70,8 @@ public class ProjectController {
                 updateProjectDto, projectStatusDto);
     }
 
-    @PreAuthorize(ROLE_SUPERVISOR)
+    @PreAuthorize(ROLE_MANAGER + " or "
+            + ROLE_SUPERVISOR)
     @DeleteMapping("/{projectId}")
     void deleteProjectById(@AuthenticationPrincipal User user,
                            @PathVariable Long projectId) throws ForbiddenException {

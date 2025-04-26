@@ -92,10 +92,14 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public void deleteProjectById(User user,
                                   Long projectId) throws ForbiddenException {
-        if (isUserSupervisor(user)) {
+        Project project = projectRepository.findById(projectId).orElseThrow(
+                () -> new EntityNotFoundException("No project with id " + projectId));
+
+        if (isUserSupervisor(user)
+                || isUserOwner(user, project)) {
             projectRepository.deleteById(projectId);
         } else {
-            throw new ForbiddenException("To delete a project, contact your supervisor");
+            throw new ForbiddenException("You must be supervisor or owner to delete this project");
         }
     }
 
@@ -216,7 +220,9 @@ public class ProjectServiceImpl implements ProjectService {
                 project.setOwner(newOwner);
             }
         }
-        project.setStatus(Project.Status.valueOf(projectStatusDto.name()));
+        if (projectStatusDto != null) {
+            project.setStatus(Project.Status.valueOf(projectStatusDto.name()));
+        }
     }
 
     private ConflictException accumulateExceptions(List<ConflictException> exceptions) {
