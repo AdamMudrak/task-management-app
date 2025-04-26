@@ -1,5 +1,6 @@
 package com.example.taskmanagementapp.services;
 
+import com.example.taskmanagementapp.dtos.role.RoleNameDto;
 import com.example.taskmanagementapp.dtos.user.request.UpdateUserProfileDto;
 import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDto;
 import com.example.taskmanagementapp.entities.Role;
@@ -24,7 +25,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserProfileInfoDto updateUserRole(Long authenticatedUserId,
                                              Long employeeId,
-                                             Role.RoleName roleName) {
+                                             RoleNameDto roleNameDto) {
         if (authenticatedUserId.equals(employeeId)) {
             throw new IllegalArgumentException(
                     "To prevent unwanted damage, self-assigning of roles is restricted. "
@@ -33,7 +34,7 @@ public class UserServiceImpl implements UserService {
         }
         User employee = userRepository.findById(employeeId).orElseThrow(
                 () -> new EntityNotFoundException("Employee with id " + employeeId + " not found"));
-        Role role = roleRepository.findByName(roleName);
+        Role role = roleRepository.findByName(Role.RoleName.valueOf(roleNameDto.name()));
         employee.setRoles(new HashSet<>(List.of(role)));
         return userMapper.toUserProfileInfoDto(userRepository.save(employee));
     }

@@ -18,9 +18,9 @@ import static com.example.taskmanagementapp.constants.controllers.UserController
 import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.USER_API_DESCRIPTION;
 import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.USER_API_NAME;
 
+import com.example.taskmanagementapp.dtos.role.RoleNameDto;
 import com.example.taskmanagementapp.dtos.user.request.UpdateUserProfileDto;
 import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDto;
-import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -77,7 +77,7 @@ public class UserController {
     @PreAuthorize(ROLE_SUPERVISOR)
     UserProfileInfoDto updateUserRole(@AuthenticationPrincipal User user,
                                       @Positive @PathVariable Long employeeId,
-                                      Role.RoleName roleName) {
+                                      RoleNameDto roleName) {
         return userService.updateUserRole(user.getId(), employeeId, roleName);
     }
 
