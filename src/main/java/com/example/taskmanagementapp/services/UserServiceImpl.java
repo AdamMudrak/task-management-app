@@ -9,7 +9,6 @@ import com.example.taskmanagementapp.exceptions.notfoundexceptions.EntityNotFoun
 import com.example.taskmanagementapp.mappers.UserMapper;
 import com.example.taskmanagementapp.repositories.role.RoleRepository;
 import com.example.taskmanagementapp.repositories.user.UserRepository;
-import java.util.HashSet;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -35,7 +34,7 @@ public class UserServiceImpl implements UserService {
         User employee = userRepository.findById(employeeId).orElseThrow(
                 () -> new EntityNotFoundException("Employee with id " + employeeId + " not found"));
         Role role = roleRepository.findByName(Role.RoleName.valueOf(roleNameDto.name()));
-        employee.setRoles(new HashSet<>(List.of(role)));
+        employee.setRole(role);
         return userMapper.toUserProfileInfoDto(userRepository.save(employee));
     }
 
