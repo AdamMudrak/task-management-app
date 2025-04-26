@@ -13,4 +13,12 @@ public class EntitiesConstants {
     public static final String ACTION_TOKENS = "action_tokens";
 
     public static final String PARAM_TOKENS = "param_tokens";
+
+    public static final String PROJECTS = "projects";
+    public static final String IS_DELETED = "is_deleted";
+    public static final String OWNER_ID = "owner_id";
+    public static final String PROJECT_EMPLOYEES = "project_employees";
+    public static final String PROJECT_ID = "project_id";
+    public static final String EMPLOYEE_ID = "employee_id";
+
 }
