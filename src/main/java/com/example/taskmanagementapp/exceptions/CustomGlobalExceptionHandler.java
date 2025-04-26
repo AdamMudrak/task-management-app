@@ -9,6 +9,7 @@ import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 
 import com.example.taskmanagementapp.exceptions.badrequest.RegistrationException;
 import com.example.taskmanagementapp.exceptions.conflictexpections.PasswordMismatch;
+import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
 import com.example.taskmanagementapp.exceptions.forbidden.LoginException;
 import com.example.taskmanagementapp.exceptions.gone.LinkExpiredException;
 import com.example.taskmanagementapp.exceptions.notfoundexceptions.ActionNotFoundException;
@@ -57,9 +58,13 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
         return new ResponseEntity<>(body, headers, statusCode);
     }
 
+    @ExceptionHandler(ForbiddenException.class)
+    protected ResponseEntity<Object> handleForbiddenException(Exception ex) {
+        return getUnifiedResponse(ex, FORBIDDEN);
+    }
+
     @ExceptionHandler(RegistrationException.class)
-    protected ResponseEntity<Object> handleRegistrationException(
-            Exception ex, WebRequest request) {
+    protected ResponseEntity<Object> handleRegistrationException(Exception ex) {
         return getUnifiedResponse(ex, BAD_REQUEST);
     }
 
@@ -75,44 +80,37 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
-    protected ResponseEntity<Object> handleEntityNotFound(
-            RuntimeException ex) {
+    protected ResponseEntity<Object> handleEntityNotFound(RuntimeException ex) {
         return getUnifiedResponse(ex, NOT_FOUND);
     }
 
     @ExceptionHandler(ActionNotFoundException.class)
-    protected ResponseEntity<Object> handleActionNotFound(
-            Exception ex, WebRequest request) {
+    protected ResponseEntity<Object> handleActionNotFound(RuntimeException ex) {
         return getUnifiedResponse(ex, NOT_FOUND);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    protected ResponseEntity<Object> handleIllegalArgumentException(
-            Exception ex, WebRequest request) {
+    protected ResponseEntity<Object> handleIllegalArgumentException(RuntimeException ex) {
         return getUnifiedResponse(ex, BAD_REQUEST);
     }
 
     @ExceptionHandler(NumberFormatException.class)
-    protected ResponseEntity<Object> handleNumberFormatException(
-            Exception ex, WebRequest request) {
+    protected ResponseEntity<Object> handleNumberFormatException(RuntimeException ex) {
         return getUnifiedResponse(ex, BAD_REQUEST);
     }
 
     @ExceptionHandler(PasswordMismatch.class)
-    protected ResponseEntity<Object> handlePasswordMismatch(
-            Exception ex, WebRequest request) {
+    protected ResponseEntity<Object> handlePasswordMismatch(Exception ex) {
         return getUnifiedResponse(ex, CONFLICT);
     }
 
     @ExceptionHandler(LinkExpiredException.class)
-    protected ResponseEntity<Object> handleLinkExpired(
-            Exception ex, WebRequest request) {
+    protected ResponseEntity<Object> handleLinkExpired(RuntimeException ex) {
         return getUnifiedResponse(ex, GONE);
     }
 
     @ExceptionHandler(LoginException.class)
-    protected ResponseEntity<Object> handleLoginException(
-            Exception ex, WebRequest request) {
+    protected ResponseEntity<Object> handleLoginException(Exception ex) {
         return getUnifiedResponse(ex, FORBIDDEN);
     }
 
