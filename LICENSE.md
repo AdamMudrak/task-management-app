@@ -1,6 +1,6 @@
 # Non-Commercial Use License Agreement
 
-This License Agreement ("Agreement") is made between the author ("Licensor") and any person or entity ("Licensee") who uses the Moneta BudgetApp ("Software").
+This License Agreement ("Agreement") is made between the author ("Licensor") and any person or entity ("Licensee") who uses the Facio Task Management App("Software").
 
 ## 1. Grant of License
 The Licensor grants the Licensee a non-exclusive, non-transferable, worldwide, royalty-free license to use, copy, modify, and distribute the Software, provided that:

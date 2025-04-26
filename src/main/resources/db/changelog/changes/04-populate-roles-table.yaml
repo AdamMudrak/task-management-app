@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: populate-roles-table
+      author: AdamMudrak
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO roles (name)
+              VALUES ('ROLE_EMPLOYEE'), ('ROLE_MANAGER'), ('ROLE_SUPERVISOR');

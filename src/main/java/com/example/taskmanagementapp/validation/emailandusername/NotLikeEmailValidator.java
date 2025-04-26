@@ -1,0 +1,14 @@
+package com.example.taskmanagementapp.validation.emailandusername;
+
+import static com.example.taskmanagementapp.constants.validation.ValidationConstants.COMPILED_PATTERN;
+
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
+
+public class NotLikeEmailValidator implements ConstraintValidator<NotLikeEmail, String> {
+
+    @Override
+    public boolean isValid(String email, ConstraintValidatorContext constraintValidatorContext) {
+        return email != null && !COMPILED_PATTERN.matcher(email).matches();
+    }
+}
