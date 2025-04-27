@@ -3,6 +3,13 @@ package com.example.taskmanagementapp.controllers;
 import static com.example.taskmanagementapp.constants.Constants.ROLE_EMPLOYEE;
 import static com.example.taskmanagementapp.constants.Constants.ROLE_MANAGER;
 import static com.example.taskmanagementapp.constants.Constants.ROLE_SUPERVISOR;
+import static com.example.taskmanagementapp.constants.controllers.ProjectControllerConstants.ASSIGN_EMPLOYEE;
+import static com.example.taskmanagementapp.constants.controllers.ProjectControllerConstants.DELETED;
+import static com.example.taskmanagementapp.constants.controllers.ProjectControllerConstants.PROJECTS;
+import static com.example.taskmanagementapp.constants.controllers.ProjectControllerConstants.PROJECT_API_DESCRIPTION;
+import static com.example.taskmanagementapp.constants.controllers.ProjectControllerConstants.PROJECT_API_NAME;
+import static com.example.taskmanagementapp.constants.controllers.ProjectControllerConstants.PROJECT_ID;
+import static com.example.taskmanagementapp.constants.controllers.ProjectControllerConstants.REMOVE_EMPLOYEE;
 
 import com.example.taskmanagementapp.dtos.project.request.CreateProjectDto;
 import com.example.taskmanagementapp.dtos.project.request.ProjectStatusDto;
@@ -12,10 +19,13 @@ import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.conflictexpections.ConflictException;
 import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
 import com.example.taskmanagementapp.services.ProjectService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Positive;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,8 +37,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/projects")
+@RequestMapping(PROJECTS)
+@Tag(name = PROJECT_API_NAME,
+        description = PROJECT_API_DESCRIPTION)
 @RequiredArgsConstructor
+@Validated
 public class ProjectController {
     private final ProjectService projectService;
 
@@ -36,7 +49,7 @@ public class ProjectController {
             + ROLE_SUPERVISOR)
     @PostMapping
     ProjectDto createProject(@AuthenticationPrincipal User user,
-                             CreateProjectDto createProjectDto) {
+                             @RequestBody CreateProjectDto createProjectDto) {
         return projectService.createProject(user, createProjectDto);
     }
 
@@ -48,20 +61,28 @@ public class ProjectController {
         return projectService.getProjects(user);
     }
 
+    @PreAuthorize(ROLE_SUPERVISOR)
+    @GetMapping(DELETED)
+    List<ProjectDto> getDeletedProjects(@AuthenticationPrincipal User user)
+            throws ForbiddenException {
+        return projectService.getDeletedProjects(user);
+    }
+
     @PreAuthorize(ROLE_EMPLOYEE + " or "
             + ROLE_MANAGER + " or "
             + ROLE_SUPERVISOR)
-    @GetMapping("/{projectId}")
+    @GetMapping(PROJECT_ID)
     ProjectDto getProjectById(@AuthenticationPrincipal User user,
-                                       @PathVariable Long projectId) throws ForbiddenException {
+                                       @PathVariable @Positive Long projectId)
+                                                    throws ForbiddenException {
         return projectService.getProjectById(user, projectId);
     }
 
     @PreAuthorize(ROLE_MANAGER + " or "
             + ROLE_SUPERVISOR)
-    @PutMapping("/{projectId}")
+    @PutMapping(PROJECT_ID)
     ProjectDto updateProjectById(@AuthenticationPrincipal User user,
-                                 @PathVariable Long projectId,
+                                 @PathVariable @Positive Long projectId,
                                  @RequestBody UpdateProjectDto updateProjectDto,
                                  @RequestParam(value = "projectStatusDto", required = false)
                                  ProjectStatusDto projectStatusDto)
@@ -72,29 +93,29 @@ public class ProjectController {
 
     @PreAuthorize(ROLE_MANAGER + " or "
             + ROLE_SUPERVISOR)
-    @DeleteMapping("/{projectId}")
+    @DeleteMapping(PROJECT_ID)
     void deleteProjectById(@AuthenticationPrincipal User user,
-                           @PathVariable Long projectId) throws ForbiddenException {
+                           @PathVariable @Positive Long projectId) throws ForbiddenException {
         projectService.deleteProjectById(user, projectId);
     }
 
     @PreAuthorize(ROLE_MANAGER + " or "
             + ROLE_SUPERVISOR)
-    @PostMapping("assign-employee/{projectId}/{employeeId}")
-    void assignEmployeeToProject(@AuthenticationPrincipal User user,
-                                 @PathVariable Long projectId,
-                                 @PathVariable Long employeeId) throws ForbiddenException,
+    @PostMapping(ASSIGN_EMPLOYEE)
+    ProjectDto assignEmployeeToProject(@AuthenticationPrincipal User user,
+                                 @PathVariable @Positive Long projectId,
+                                 @PathVariable @Positive Long employeeId) throws ForbiddenException,
                                                                         ConflictException {
-        projectService.assignEmployeeToProject(user, projectId, employeeId);
+        return projectService.assignEmployeeToProject(user, projectId, employeeId);
     }
 
     @PreAuthorize(ROLE_MANAGER + " or "
             + ROLE_SUPERVISOR)
-    @PostMapping("remove-employee/{projectId}/{employeeId}")
-    void removeEmployeeFromProject(@AuthenticationPrincipal User user,
-                                 @PathVariable Long projectId,
-                                 @PathVariable Long employeeId) throws ForbiddenException,
+    @PostMapping(REMOVE_EMPLOYEE)
+    ProjectDto removeEmployeeFromProject(@AuthenticationPrincipal User user,
+                                 @PathVariable @Positive Long projectId,
+                                 @PathVariable @Positive Long employeeId) throws ForbiddenException,
             ConflictException {
-        projectService.removeEmployeeFromProject(user, projectId, employeeId);
+        return projectService.removeEmployeeFromProject(user, projectId, employeeId);
     }
 }
