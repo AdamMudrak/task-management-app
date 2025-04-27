@@ -14,6 +14,8 @@ public interface ProjectService {
 
     List<ProjectDto> getProjects(User authenticatedUser);
 
+    List<ProjectDto> getDeletedProjects(User authenticatedUser) throws ForbiddenException;
+
     ProjectDto getProjectById(User authenticatedUser, Long projectId) throws ForbiddenException;
 
     ProjectDto updateProjectById(User authenticatedUser, Long projectId,
@@ -23,9 +25,9 @@ public interface ProjectService {
 
     void deleteProjectById(User authenticatedUser, Long projectId) throws ForbiddenException;
 
-    void assignEmployeeToProject(User authenticatedUser, Long projectId, Long employeeId)
+    ProjectDto assignEmployeeToProject(User authenticatedUser, Long projectId, Long employeeId)
             throws ForbiddenException, ConflictException;
 
-    void removeEmployeeFromProject(User authenticatedUser, Long projectId, Long employeeId)
+    ProjectDto removeEmployeeFromProject(User authenticatedUser, Long projectId, Long employeeId)
             throws ForbiddenException, ConflictException;
 }

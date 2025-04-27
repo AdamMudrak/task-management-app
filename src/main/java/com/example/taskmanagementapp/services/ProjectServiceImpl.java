@@ -52,10 +52,22 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    public List<ProjectDto> getDeletedProjects(User authenticatedUser) throws ForbiddenException {
+        if (isUserSupervisor(authenticatedUser)) {
+            return projectMapper.toProjectDtoList(projectRepository.findAllDeleted());
+        } else {
+            throw new ForbiddenException("You have no permission to access deleted projects");
+        }
+    }
+
+    @Override
     public ProjectDto getProjectById(User user,
                                      Long projectId) throws ForbiddenException {
         Project project = projectRepository.findById(projectId).orElseThrow(
                 () -> new EntityNotFoundException("No project with id " + projectId));
+        if (project.isDeleted()) {
+            throw new ForbiddenException("Project with id " + projectId + " is deleted");
+        }
         boolean hasAccess = isUserSupervisor(user)
                 || isUserOwner(user, project)
                 || isUserAssignee(user, project);
@@ -104,7 +116,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public void assignEmployeeToProject(User user,
+    public ProjectDto assignEmployeeToProject(User user,
                                         Long projectId,
                                         Long employeeId) throws ForbiddenException,
                                                                 ConflictException {
@@ -120,7 +132,7 @@ public class ProjectServiceImpl implements ProjectService {
                 throw new ConflictException("Employee " + newEmployee.getId()
                         + " is already part of the project");
             }
-            projectRepository.save(project);
+            return projectMapper.toProjectDto(projectRepository.save(project));
         } else {
             throw new ForbiddenException(
                     "You should have MANAGER or SUPERVISOR access level to assign employee");
@@ -128,7 +140,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public void removeEmployeeFromProject(User user,
+    public ProjectDto removeEmployeeFromProject(User user,
                                           Long projectId,
                                           Long employeeId) throws ForbiddenException,
                                                                     ConflictException {
@@ -144,7 +156,7 @@ public class ProjectServiceImpl implements ProjectService {
                 throw new ConflictException("Employee " + newEmployee.getId()
                         + " is not part of the project");
             }
-            projectRepository.save(project);
+            return projectMapper.toProjectDto(projectRepository.save(project));
         } else {
             throw new ForbiddenException(
                     "You should have MANAGER or SUPERVISOR access level to remove employee");
@@ -158,11 +170,11 @@ public class ProjectServiceImpl implements ProjectService {
 
     private List<ProjectDto> getManagerProjects(Long authenticatedUserId) {
         return projectMapper.toProjectDtoList(
-                projectRepository.findByOwnerId(authenticatedUserId));
+                projectRepository.findByOwnerIdAndIsDeletedFalse(authenticatedUserId));
     }
 
     private List<ProjectDto> getAllProjects() {
-        return projectMapper.toProjectDtoList(projectRepository.findAll());
+        return projectMapper.toProjectDtoList(projectRepository.findAllNotDeleted());
     }
 
     private boolean isUserSupervisor(User user) {
