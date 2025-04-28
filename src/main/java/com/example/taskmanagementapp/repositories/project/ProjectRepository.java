@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface ProjectRepository extends JpaRepository<Project, Long> {
-    @Query(value = "SELECT * FROM project p "
+    @Query(value = "SELECT * FROM projects p "
             + "WHERE EXISTS ("
             + "SELECT 1 FROM project_employees pe "
             + "WHERE pe.project_id = p.id "

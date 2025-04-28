@@ -189,7 +189,9 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     private boolean isUserAssignee(User user, Project project) {
-        return project.getEmployees().contains(user);
+        return project.getEmployees().stream()
+                .map(User::getId)
+                .anyMatch(id -> user.getId().equals(id));
     }
 
     private void updatePresentField(Project project,
