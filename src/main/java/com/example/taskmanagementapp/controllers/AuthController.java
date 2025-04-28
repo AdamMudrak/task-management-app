@@ -1,11 +1,9 @@
 package com.example.taskmanagementapp.controllers;
 
-import static com.example.taskmanagementapp.constants.Constants.ACCESS_DENIED;
 import static com.example.taskmanagementapp.constants.Constants.AUTHORIZATION_REQUIRED;
 import static com.example.taskmanagementapp.constants.Constants.CODE_200;
 import static com.example.taskmanagementapp.constants.Constants.CODE_201;
 import static com.example.taskmanagementapp.constants.Constants.CODE_400;
-import static com.example.taskmanagementapp.constants.Constants.CODE_403;
 import static com.example.taskmanagementapp.constants.Constants.INVALID_ENTITY_VALUE;
 import static com.example.taskmanagementapp.constants.Constants.ROLE_EMPLOYEE;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.AUTH;
@@ -88,7 +86,6 @@ public class AuthController {
     @Operation(summary = CONFIRM_SUMMARY, hidden = true)
     @ApiResponse(responseCode = CODE_200, description =
             SUCCESSFULLY_CONFIRMED)
-    @ApiResponse(responseCode = CODE_403, description = ACCESS_DENIED)
     @GetMapping(CONFIRM_REGISTRATION)
     public RegistrationConfirmationSuccessDto confirmRegistration(
             HttpServletRequest httpServletRequest) {
@@ -103,7 +100,6 @@ public class AuthController {
     @ApiResponse(responseCode = CODE_200, description =
             SUCCESSFULLY_LOGGED_IN)
     @ApiResponse(responseCode = CODE_400, description = INVALID_ENTITY_VALUE)
-    @ApiResponse(responseCode = CODE_403, description = ACCESS_DENIED)
     @PostMapping(LOGIN)
     public LoginSuccessDto login(@RequestBody @Valid UserLoginRequestDto request,
                                  HttpServletResponse response) throws LoginException {
@@ -139,7 +135,6 @@ public class AuthController {
             SUCCESSFULLY_CHANGE_PASSWORD)
     @ApiResponse(responseCode = CODE_400, description = INVALID_ENTITY_VALUE)
     @ApiResponse(responseCode = Constants.CODE_401, description = AUTHORIZATION_REQUIRED)
-    @ApiResponse(responseCode = CODE_403, description = ACCESS_DENIED)
     @PreAuthorize(ROLE_EMPLOYEE)
     @PostMapping(CHANGE_PASSWORD)
     public ChangePasswordSuccessDto changePassword(@AuthenticationPrincipal User user,
