@@ -12,6 +12,7 @@ import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
 import com.example.taskmanagementapp.exceptions.notfoundexceptions.EntityNotFoundException;
 import com.example.taskmanagementapp.mappers.ProjectMapper;
 import com.example.taskmanagementapp.repositories.project.ProjectRepository;
+import com.example.taskmanagementapp.repositories.task.TaskRepository;
 import com.example.taskmanagementapp.repositories.user.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 public class ProjectServiceImpl implements ProjectService {
     private final ProjectMapper projectMapper;
     private final ProjectRepository projectRepository;
+    private final TaskRepository taskRepository;
     private final UserRepository userRepository;
 
     @Override
@@ -110,6 +112,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (isUserSupervisor(user)
                 || isUserOwner(user, project)) {
             projectRepository.deleteById(projectId);
+            taskRepository.deleteAllByProjectId(projectId);
         } else {
             throw new ForbiddenException("You must be supervisor or owner to delete this project");
         }
