@@ -48,3 +48,9 @@ databaseChangeLog:
                   constraints:
                     foreignKeyName: fk_assignee_id
                     references: users(id)
+              - column:
+                  name: is_deleted
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
