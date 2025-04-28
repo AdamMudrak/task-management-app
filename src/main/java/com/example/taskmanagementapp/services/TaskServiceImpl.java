@@ -66,16 +66,7 @@ public class TaskServiceImpl implements TaskService {
                 || isUserAssignee(authenticatedUser, project);
 
         if (hasAccess) {
-            switch (authenticatedUser.getRole().getName()) {
-                case ROLE_EMPLOYEE -> {
-                    return getAssigneeTasks(projectId, authenticatedUser.getId());
-                }
-                case ROLE_MANAGER, ROLE_SUPERVISOR -> {
-                    return getAllTasks(projectId);
-                }
-                default -> throw new EntityNotFoundException(
-                        "No such role " + authenticatedUser.getRole().getName());
-            }
+            return taskMapper.toTaskDtoList(taskRepository.findAllByProjectIdNonDeleted(projectId));
         } else {
             throw new ForbiddenException("You have no permission to access this project tasks");
         }
@@ -90,8 +81,7 @@ public class TaskServiceImpl implements TaskService {
         }
         if (isUserSupervisor(authenticatedUser)
                 || isUserOwner(authenticatedUser, task.getProject())
-                || (isUserAssignee(authenticatedUser, task.getProject())
-                && isUserTaskAssignee(authenticatedUser, task))) {
+                || isUserAssignee(authenticatedUser, task.getProject())) {
             return taskMapper.toTaskDto(task);
         } else {
             throw new ForbiddenException("You have no permission to access this task");
@@ -120,7 +110,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void deleteTask(User authenticatedUser, Long taskId) {
+    public void deleteTask(User authenticatedUser, Long taskId) throws ForbiddenException {
         Task task = taskRepository.findById(taskId).orElseThrow(
                 () -> new EntityNotFoundException("No task with id " + taskId));
 
@@ -129,6 +119,8 @@ public class TaskServiceImpl implements TaskService {
 
         if (hasAccess) {
             taskRepository.deleteById(taskId);
+        } else {
+            throw new ForbiddenException("You have no permission to delete this task");
         }
     }
 
@@ -141,20 +133,9 @@ public class TaskServiceImpl implements TaskService {
     }
 
     private boolean isUserAssignee(User user, Project project) {
-        return project.getEmployees().contains(user);
-    }
-
-    private boolean isUserTaskAssignee(User user, Task task) {
-        return task.getAssignee().getId().equals(user.getId());
-    }
-
-    private List<TaskDto> getAssigneeTasks(Long projectId, Long assigneeId) {
-        return taskMapper.toTaskDtoList(
-                taskRepository.findAllByProjectIdAndAssigneeIdNonDeleted(projectId, assigneeId));
-    }
-
-    private List<TaskDto> getAllTasks(Long projectId) {
-        return taskMapper.toTaskDtoList(taskRepository.findAllByProjectIdNonDeleted(projectId));
+        return project.getEmployees().stream()
+                .map(User::getId)
+                .anyMatch(id -> user.getId().equals(id));
     }
 
     private void updatePresentField(User authenticatedUser,
@@ -184,6 +165,9 @@ public class TaskServiceImpl implements TaskService {
 
             if (isUserSupervisor(authenticatedUser) || isUserOwner(authenticatedUser, project)) {
                 task.setProject(project);
+            } else {
+                throw new ForbiddenException(
+                        "You have no permission to modify project " + project.getId());
             }
         }
 
@@ -197,6 +181,7 @@ public class TaskServiceImpl implements TaskService {
                         + " to task " + task.getId()
                         + " since they are not in project " + task.getProject().getId());
             }
+            task.setAssignee(assignee);
         }
 
         if (taskStatusDto != null) {

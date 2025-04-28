@@ -27,5 +27,5 @@ public interface TaskService {
                        TaskPriorityDto taskPriorityDto) throws ForbiddenException;
 
     void deleteTask(User authenticatedUser,
-                    Long taskId);
+                    Long taskId) throws ForbiddenException;
 }

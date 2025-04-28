@@ -13,12 +13,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
             + " AND t.isDeleted = false")
     List<Task> findAllByProjectIdNonDeleted(Long projectId);
 
-    @Query("SELECT t FROM Task t "
-            + "WHERE t.project.id = :projectId "
-            + " AND t.assignee.id = :assigneeId "
-            + " AND t.isDeleted = false")
-    List<Task> findAllByProjectIdAndAssigneeIdNonDeleted(Long projectId, Long assigneeId);
-
     @Modifying
     @Transactional
     @Query("UPDATE Task t SET t.isDeleted = TRUE "
