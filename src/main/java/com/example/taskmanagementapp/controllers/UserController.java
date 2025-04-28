@@ -4,9 +4,12 @@ import static com.example.taskmanagementapp.constants.Constants.CODE_200;
 import static com.example.taskmanagementapp.constants.Constants.ROLE_EMPLOYEE;
 import static com.example.taskmanagementapp.constants.Constants.ROLE_MANAGER;
 import static com.example.taskmanagementapp.constants.Constants.ROLE_SUPERVISOR;
+import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.CHANGE_EMAIL_CONFIRMATION;
+import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.CHANGE_EMAIL_SUCCESS;
 import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.GET_PROFILE_INFO;
 import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.GET_PROFILE_INFO_SUMMARY;
 import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.PAGEABLE_EXAMPLE;
+import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.SUCCESSFULLY_CHANGED_EMAIL;
 import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.SUCCESSFULLY_RETRIEVED;
 import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.SUCCESSFULLY_UPDATED_PROFILE_INFO;
 import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.SUCCESSFULLY_UPDATED_ROLE;
@@ -21,12 +24,14 @@ import static com.example.taskmanagementapp.constants.controllers.UserController
 import com.example.taskmanagementapp.dtos.role.RoleNameDto;
 import com.example.taskmanagementapp.dtos.user.request.UpdateUserProfileDto;
 import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDto;
+import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDtoOnUpdate;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Positive;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -65,8 +70,8 @@ public class UserController {
     @PreAuthorize(ROLE_EMPLOYEE + " or "
             + ROLE_MANAGER + " or "
             + ROLE_SUPERVISOR)
-    UserProfileInfoDto updateProfileInfo(@AuthenticationPrincipal User user,
-                                         UpdateUserProfileDto updateUserProfileDto) {
+    UserProfileInfoDtoOnUpdate updateProfileInfo(@AuthenticationPrincipal User user,
+                                                 UpdateUserProfileDto updateUserProfileDto) {
         return userService.updateProfileInfo(user.getId(), updateUserProfileDto);
     }
 
@@ -86,5 +91,13 @@ public class UserController {
     @GetMapping
     List<UserProfileInfoDto> getAllUsers(@Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {
         return userService.getAllUsers(pageable);
+    }
+
+    @Operation(summary = CHANGE_EMAIL_CONFIRMATION, hidden = true)
+    @ApiResponse(responseCode = CODE_200, description =
+            SUCCESSFULLY_CHANGED_EMAIL)
+    @GetMapping(CHANGE_EMAIL_SUCCESS)
+    UserProfileInfoDto changeEmailSuccess(HttpServletRequest request) {
+        return userService.confirmEmailChange(request);
     }
 }
