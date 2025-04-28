@@ -27,6 +27,9 @@ public class UserControllerConstants {
     public static final String CHANGE_EMAIL_CONFIRMATION = "Confirm email change";
     public static final String SUCCESSFULLY_CHANGED_EMAIL = "Successfully changed email";
 
+    public static final String RETRIEVE_ALL_USERS = "Retrieve all users";
+    public static final String SUCCESSFULLY_RETRIEVE_ALL_USERS = "Successfully retrieved all users";
+
     public static final String PAGEABLE_EXAMPLE = """
             {"page": 0,
             "size": 5,

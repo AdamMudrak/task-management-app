@@ -9,8 +9,10 @@ import static com.example.taskmanagementapp.constants.controllers.UserController
 import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.GET_PROFILE_INFO;
 import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.GET_PROFILE_INFO_SUMMARY;
 import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.PAGEABLE_EXAMPLE;
+import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.RETRIEVE_ALL_USERS;
 import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.SUCCESSFULLY_CHANGED_EMAIL;
 import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.SUCCESSFULLY_RETRIEVED;
+import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.SUCCESSFULLY_RETRIEVE_ALL_USERS;
 import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.SUCCESSFULLY_UPDATED_PROFILE_INFO;
 import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.SUCCESSFULLY_UPDATED_ROLE;
 import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.UPDATE_PROFILE_INFO;
@@ -86,6 +88,9 @@ public class UserController {
         return userService.updateUserRole(user.getId(), employeeId, roleName);
     }
 
+    @Operation(summary = RETRIEVE_ALL_USERS)
+    @ApiResponse(responseCode = CODE_200, description =
+            SUCCESSFULLY_RETRIEVE_ALL_USERS)
     @PreAuthorize(ROLE_MANAGER + " or "
             + ROLE_SUPERVISOR)
     @GetMapping
