@@ -23,10 +23,18 @@ public class RandomParamFromHttpRequestUtil {
     public void parseRandomParameterAndToken(HttpServletRequest request) {
         Map<String, String[]> parameterMap = request.getParameterMap();
         for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
+            if (entry.getKey().equals("newEmail")) {
+                continue;
+            }
             setRandomParameter(entry.getKey());
             setToken(entry.getValue()[FIRST_PARAM_POSITION]);
             break;
         }
+    }
+
+    public String getNewEmail(HttpServletRequest request) {
+        Map<String, String[]> parameterMap = request.getParameterMap();
+        return parameterMap.get("newEmail")[FIRST_PARAM_POSITION];
     }
 
     public String getTokenFromRepo(String randomParam, String token) {
