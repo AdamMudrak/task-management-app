@@ -68,4 +68,12 @@ public class SecurityConstants {
             "An email with reset link has been sent.";
 
     public static final String REFRESH_TOKEN = "refreshToken";
+
+    public static final String CONFIRM_CHANGE_EMAIL_SUBJECT =
+            "Confirm email change in Facio";
+    public static final String CONFIRM_CHANGE_EMAIL_BODY = """
+            Good day! This email is here to help you confirm your
+            request of email change for your Facio account. Please,
+            use this link to confirm:""";
+    public static final String NEW_EMAIL_PARAMETER = "&newEmail";
 }
