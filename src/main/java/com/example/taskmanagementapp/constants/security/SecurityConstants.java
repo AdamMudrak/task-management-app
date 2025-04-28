@@ -76,4 +76,7 @@ public class SecurityConstants {
             request of email change for your Facio account. Please,
             use this link to confirm:""";
     public static final String NEW_EMAIL_PARAMETER = "&newEmail";
+
+    public static final String CONFIRM_NEW_EMAIL_MESSAGE =
+            "To confirm email change, please click the link sent to your new email.";
 }
