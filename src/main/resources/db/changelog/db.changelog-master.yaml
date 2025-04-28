@@ -21,3 +21,5 @@ databaseChangeLog:
       file: db/changelog/changes/10-add-test-project-employees.yaml
   - include:
       file: db/changelog/changes/11-create-tasks-table.yaml
+  - include:
+      file: db/changelog/changes/12-add-test-tasks.yaml

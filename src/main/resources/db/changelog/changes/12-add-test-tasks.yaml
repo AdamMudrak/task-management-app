@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-test-tasks
+      author: AdamMudrak
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO tasks (name, description, priority, status, due_date, project_id, assignee_id, is_deleted)
+              VALUES
+              ('Design UI Mockups', 'Create initial wireframes and UI designs.', 'HIGH', 'NOT_STARTED', '2025-05-20', 1, 3, false),
+              ('Implement Login Feature', 'Develop and test user authentication.', 'MEDIUM', 'IN_PROGRESS', '2025-06-01', 1, 3, false),
+              ('Setup Database Schema', 'Design and create database schema.', 'HIGH', 'COMPLETED', '2025-05-10', 2, 4, false),
+              ('Write Test Cases', 'Prepare unit and integration tests.', 'LOW', 'NOT_STARTED', '2025-07-01', 2, 5, false),
+              ('Deploy to Production', 'Prepare the final deployment.', 'HIGH', 'IN_PROGRESS', '2025-07-15', 2, 6, false),
+              ('Update Documentation', 'Refresh user manuals and technical docs.', 'MEDIUM', 'NOT_STARTED', '2025-08-01', 3, 5, false),
+              ('Fix Critical Bugs', 'Resolve all critical issues before launch.', 'HIGH', 'IN_PROGRESS', '2025-06-20', 1, 6, false),
+              ('Optimize Database Queries', 'Improve performance of DB queries.', 'MEDIUM', 'NOT_STARTED', '2025-07-10', 2, 6, false),
+              ('Prepare Presentation', 'Create slides for project status update.', 'LOW', 'NOT_STARTED', '2025-06-30', 3, 1, false),
+              ('Conduct Security Review', 'Perform security checks on platform.', 'HIGH', 'IN_PROGRESS', '2025-08-05', 5, 2, false),
+              ('Plan Sprint 1', 'Outline tasks and goals for first sprint.', 'MEDIUM', 'COMPLETED', '2025-05-05', 1, 1, false),
+              ('Review Codebase', 'Conduct thorough code review.', 'MEDIUM', 'IN_PROGRESS', '2025-06-25', 2, 2, false),
+              ('Migrate Legacy Data', 'Transfer data from old system.', 'HIGH', 'NOT_STARTED', '2025-07-20', 3, 2, false),
+              ('Set Up Monitoring Tools', 'Install and configure monitoring.', 'MEDIUM', 'NOT_STARTED', '2025-07-30', 4, 1, false),
+              ('Organize Team Meeting', 'Schedule and host kickoff meeting.', 'LOW', 'COMPLETED', '2025-05-15', 5, 1, false),
+              ('Implement Payment Gateway', 'Integrate payment systems.', 'HIGH', 'IN_PROGRESS', '2025-08-10', 2, 2, false),
+              ('Finalize Branding', 'Complete logo and branding assets.', 'LOW', 'COMPLETED', '2025-06-15', 4, 1, false);
