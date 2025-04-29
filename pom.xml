@@ -38,6 +38,7 @@
 		<springdoc-openapi-starter-webmvc-ui>2.8.6</springdoc-openapi-starter-webmvc-ui>
 		<sendgrid.version>4.10.3</sendgrid.version>
 		<jjwt.version>0.12.6</jjwt.version>
+		<dropbox.version>7.0.0</dropbox.version>
 	</properties>
 
 	<dependencies>
@@ -157,6 +158,12 @@
 			<groupId>org.testcontainers</groupId>
 			<artifactId>mysql</artifactId>
 			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.dropbox.core</groupId>
+			<artifactId>dropbox-core-sdk</artifactId>
+			<version>${dropbox.version}</version>
 		</dependency>
 	</dependencies>
 
