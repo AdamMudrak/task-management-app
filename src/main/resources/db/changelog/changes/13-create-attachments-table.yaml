@@ -1,0 +1,36 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-attachments-table
+      author: AdamMudrak
+      changes:
+        - createTable:
+            tableName: attachments
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: task_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: fk_task_id
+                    references: tasks(id)
+              - column:
+                  name: file_id
+                  type: varchar(512)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: file_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: upload_date
+                  type: date
+                  constraints:
+                    nullable: false
