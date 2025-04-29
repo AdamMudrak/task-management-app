@@ -1,0 +1,45 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-test-users
+      author: AdamMudrak
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO users (username, first_name, last_name, email, password, role_id, is_enabled)
+              VALUES
+              
+              ('supervisor', 'John', 'Doe', 'example_supervisor@mail.com',
+              '$2a$10$8Fz373jOOTW3RB1HPZ4gGuaizhiHkP1we17lko.QsYmZkyZv0eUEi'
+              /* SupervisorPassword1! */,
+              3,
+              1),
+              
+              ('manager', 'Richard', 'Roe', 'example_manager@mail.com',
+              '$2a$10$kEL/PAvjXmDIzK6EjI6ts.iIOYbS8ZCDbNLoFBqyaEMFH.Pl53p82'
+              /* ManagerPassword1! */,
+              2,
+              1),
+              
+              ('employee1', 'Mary', 'Major', 'example_employee@mail.com',
+              '$2a$10$hkEhmrQzVV66am369NBZaOOwHZxv9Gsmy8waiO/vJ3QQa9uX5J28i'
+              /* EmployeePassword1! */,
+              1,
+              1),
+              
+              ('employee2', 'Alice', 'Smith', 'alice.smith@mail.com',
+              '$2a$10$r69pvMziqBxle.nM90dvEeOT/L9Z5g0JcJM/fpPfpECxgd1UchW.C'
+              /* EmployeePassword2! */,
+              1,
+              1),
+
+              ('employee3', 'Bob', 'Johnson', 'bob.johnson@mail.com',
+              '$2a$10$W2lsA8ldQGeXvSjGQ/6T3uZQdRM.P.XfpL3AnaQEoJSo7tp3byFam'
+              /* EmployeePassword3! */,
+              1,
+              1),
+
+              ('employee4', 'Carol', 'Williams', 'carol.williams@mail.com',
+              '$2a$10$QJzzSwv3SDX/DmVNy4.9sOWx6zhInM0nZI4U8tlz7KYsj9Xdlm/Vm'
+              /* EmployeePassword4! */,
+              1,
+              1);

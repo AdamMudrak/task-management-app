@@ -3,6 +3,11 @@ package com.example.taskmanagementapp.constants.validation;
 import java.util.regex.Pattern;
 
 public class ValidationConstants {
+    public static final String INVALID_DATE_FORMAT = ": invalid date format. Should be YYYY-MM-dd.";
+    public static final String END_DATE_EARLIER_THAN_START_DATE = ": invalid date. "
+            + "endDate can't be earlier than startDate";
+    public static final String DATE_PATTERN = "^\\d{4}-\\d{2}-\\d{2}$";
+    public static final Pattern COMPILED_DATE_PATTERN = Pattern.compile(DATE_PATTERN);
 
     public static final String INVALID_EMAIL = ": invalid email. Try again.";
     public static final String INVALID_USERNAME = ": invalid username. Can't be like email.";

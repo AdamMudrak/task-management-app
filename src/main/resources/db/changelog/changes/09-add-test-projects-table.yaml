@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-test-projects
+      author: AdamMudrak
+      changes:
+        - sql:
+            sql: |
+              INSERT INTO projects (name, description, start_date, end_date, status, is_deleted, owner_id)
+              VALUES
+              ('Project Alpha', 'Research on new AI technology.', '2025-01-10', '2025-07-10', 'INITIATED', false, 1),
+              ('Project Beta', 'Developing a new e-commerce platform.', '2025-02-15', '2025-08-20', 'COMPLETED', false, 2),
+              ('Project Gamma', 'Internal HR system upgrade.', '2025-03-01', '2025-09-01', 'IN_PROGRESS', false, 1),
+              ('Project Delta', 'Website redesign for client.', '2025-04-05', '2025-10-05', 'COMPLETED', false, 2),
+              ('Project Epsilon', 'Cybersecurity audit project.', '2025-05-12', '2025-11-12', 'IN_PROGRESS', false, 1);

@@ -1,11 +1,12 @@
 package com.example.taskmanagementapp.mappers;
 
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.CONFIRM_NEW_EMAIL_MESSAGE;
+
 import com.example.taskmanagementapp.config.MapperConfig;
 import com.example.taskmanagementapp.dtos.authentication.request.UserRegistrationRequestDto;
 import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDto;
-import com.example.taskmanagementapp.entities.Role;
+import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDtoOnUpdate;
 import com.example.taskmanagementapp.entities.User;
-import java.util.stream.Collectors;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -15,14 +16,15 @@ import org.mapstruct.MappingTarget;
 public interface UserMapper {
     User toUser(UserRegistrationRequestDto requestDto);
 
-    @Mapping(target = "roles", ignore = true)
+    @Mapping(target = "role", source = "role.name")
     UserProfileInfoDto toUserProfileInfoDto(User user);
 
+    @Mapping(target = "role", source = "role.name")
+    @Mapping(target = "message", ignore = true)
+    UserProfileInfoDtoOnUpdate toUpdateUserProfileInfoDto(User user);
+
     @AfterMapping
-    default void setRoles(@MappingTarget UserProfileInfoDto userProfileInfoDto, User user) {
-        userProfileInfoDto.setRoles(user.getRoles().stream()
-                .map(Role::getName)
-                .map(Role.RoleName::toString)
-                .collect(Collectors.toSet()));
+    default void setMessage(@MappingTarget UserProfileInfoDtoOnUpdate userProfileInfoDto) {
+        userProfileInfoDto.setMessage(CONFIRM_NEW_EMAIL_MESSAGE);
     }
 }

@@ -21,7 +21,6 @@ public record UserRegistrationRequestDto(
         @NotBlank
         @NotLikeEmail
         String username,
-
         @Schema(name = UserDtoConstants.PASSWORD,
                 example = UserDtoConstants.PASSWORD_EXAMPLE,
                 description = UserDtoConstants.PASSWORD_DESCRIPTION,
@@ -29,27 +28,26 @@ public record UserRegistrationRequestDto(
         @Size(min = UserDtoConstants.MIN_PASSWORD_SIZE,
                 max = UserDtoConstants.MAX_PASSWORD_SIZE)
         @NotBlank
-        @Password String password,
-
+        @Password
+        String password,
         @Schema(name = UserDtoConstants.REPEAT_PASSWORD,
                 example = UserDtoConstants.PASSWORD_EXAMPLE,
                 description = UserDtoConstants.REPEAT_PASSWORD_DESCRIPTION,
                 requiredMode = REQUIRED)
         @NotBlank
-        @Password String repeatPassword,
-
+        @Password
+        String repeatPassword,
         @Schema(name = UserDtoConstants.EMAIL,
                 example = UserDtoConstants.EMAIL_EXAMPLE,
                 requiredMode = REQUIRED)
         @NotBlank
-        @Email String email,
-
+        @Email
+        String email,
         @Schema(name = UserDtoConstants.FIRST_NAME,
                 example = UserDtoConstants.FIRST_NAME_EXAMPLE,
                 requiredMode = REQUIRED)
         @NotBlank
         String firstName,
-
         @Schema(name = UserDtoConstants.LAST_NAME,
                 example = UserDtoConstants.LAST_NAME_EXAMPLE,
                 requiredMode = REQUIRED)

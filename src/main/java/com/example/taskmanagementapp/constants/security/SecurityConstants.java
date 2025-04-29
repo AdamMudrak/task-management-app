@@ -19,6 +19,7 @@ public class SecurityConstants {
     public static final String SERVER_PATH = "${server.path}";
     public static final String RESET_PATH = "${get.random.password.path}";
     public static final String CONFIRMATION_PATH = "${registration.confirmation.path}";
+    public static final String CHANGE_EMAIL_CONFIRMATION_PATH = "${change.email.confirmation.path}";
 
     public static final String RESET = "RESET";
     public static final String CONFIRMATION = "CONFIRMATION";
@@ -67,4 +68,15 @@ public class SecurityConstants {
             "An email with reset link has been sent.";
 
     public static final String REFRESH_TOKEN = "refreshToken";
+
+    public static final String CONFIRM_CHANGE_EMAIL_SUBJECT =
+            "Confirm email change in Facio";
+    public static final String CONFIRM_CHANGE_EMAIL_BODY = """
+            Good day! This email is here to help you confirm your
+            request of email change for your Facio account. Please,
+            use this link to confirm:""";
+    public static final String NEW_EMAIL_PARAMETER = "&newEmail";
+
+    public static final String CONFIRM_NEW_EMAIL_MESSAGE =
+            "To confirm email change, please click the link sent to your new email.";
 }

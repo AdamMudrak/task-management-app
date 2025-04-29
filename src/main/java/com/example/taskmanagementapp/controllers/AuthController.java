@@ -1,11 +1,9 @@
 package com.example.taskmanagementapp.controllers;
 
-import static com.example.taskmanagementapp.constants.Constants.ACCESS_DENIED;
 import static com.example.taskmanagementapp.constants.Constants.AUTHORIZATION_REQUIRED;
 import static com.example.taskmanagementapp.constants.Constants.CODE_200;
 import static com.example.taskmanagementapp.constants.Constants.CODE_201;
 import static com.example.taskmanagementapp.constants.Constants.CODE_400;
-import static com.example.taskmanagementapp.constants.Constants.CODE_403;
 import static com.example.taskmanagementapp.constants.Constants.INVALID_ENTITY_VALUE;
 import static com.example.taskmanagementapp.constants.Constants.ROLE_EMPLOYEE;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.AUTH;
@@ -42,6 +40,9 @@ import com.example.taskmanagementapp.dtos.authentication.response.RegistrationCo
 import com.example.taskmanagementapp.dtos.authentication.response.RegistrationSuccessDto;
 import com.example.taskmanagementapp.dtos.authentication.response.SendLinkToResetPasswordDto;
 import com.example.taskmanagementapp.entities.User;
+import com.example.taskmanagementapp.exceptions.badrequest.RegistrationException;
+import com.example.taskmanagementapp.exceptions.conflictexpections.PasswordMismatchException;
+import com.example.taskmanagementapp.exceptions.forbidden.LoginException;
 import com.example.taskmanagementapp.security.utils.RandomParamFromHttpRequestUtil;
 import com.example.taskmanagementapp.services.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -77,14 +78,14 @@ public class AuthController {
     @PostMapping(REGISTER)
     @ResponseStatus(HttpStatus.CREATED)
     public RegistrationSuccessDto register(
-            @RequestBody @Valid UserRegistrationRequestDto requestDto) {
+            @RequestBody @Valid UserRegistrationRequestDto requestDto)
+                                            throws RegistrationException {
         return authenticationService.register(requestDto);
     }
 
     @Operation(summary = CONFIRM_SUMMARY, hidden = true)
     @ApiResponse(responseCode = CODE_200, description =
             SUCCESSFULLY_CONFIRMED)
-    @ApiResponse(responseCode = CODE_403, description = ACCESS_DENIED)
     @GetMapping(CONFIRM_REGISTRATION)
     public RegistrationConfirmationSuccessDto confirmRegistration(
             HttpServletRequest httpServletRequest) {
@@ -99,10 +100,9 @@ public class AuthController {
     @ApiResponse(responseCode = CODE_200, description =
             SUCCESSFULLY_LOGGED_IN)
     @ApiResponse(responseCode = CODE_400, description = INVALID_ENTITY_VALUE)
-    @ApiResponse(responseCode = CODE_403, description = ACCESS_DENIED)
     @PostMapping(LOGIN)
     public LoginSuccessDto login(@RequestBody @Valid UserLoginRequestDto request,
-                                 HttpServletResponse response) {
+                                 HttpServletResponse response) throws LoginException {
         return authenticationService.authenticateUser(request, response);
     }
 
@@ -112,7 +112,8 @@ public class AuthController {
     @ApiResponse(responseCode = CODE_400, description = INVALID_ENTITY_VALUE)
     @PostMapping(FORGOT_PASSWORD)
     public SendLinkToResetPasswordDto initiatePasswordReset(@Valid @RequestBody
-                                                            GetLinkToResetPasswordDto request) {
+                                                            GetLinkToResetPasswordDto request)
+                                                                        throws LoginException {
         return authenticationService.sendPasswordResetLink(request.emailOrUsername());
     }
 
@@ -134,11 +135,11 @@ public class AuthController {
             SUCCESSFULLY_CHANGE_PASSWORD)
     @ApiResponse(responseCode = CODE_400, description = INVALID_ENTITY_VALUE)
     @ApiResponse(responseCode = Constants.CODE_401, description = AUTHORIZATION_REQUIRED)
-    @ApiResponse(responseCode = CODE_403, description = ACCESS_DENIED)
     @PreAuthorize(ROLE_EMPLOYEE)
     @PostMapping(CHANGE_PASSWORD)
     public ChangePasswordSuccessDto changePassword(@AuthenticationPrincipal User user,
-                                                   @RequestBody @Valid SetNewPasswordDto request) {
+                                                   @RequestBody @Valid SetNewPasswordDto request)
+                                                                throws PasswordMismatchException {
         return authenticationService.changePassword(user, request);
     }
 }

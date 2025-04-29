@@ -34,7 +34,7 @@ import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.entities.tokens.ParamToken;
 import com.example.taskmanagementapp.exceptions.badrequest.RegistrationException;
-import com.example.taskmanagementapp.exceptions.conflictexpections.PasswordMismatch;
+import com.example.taskmanagementapp.exceptions.conflictexpections.PasswordMismatchException;
 import com.example.taskmanagementapp.exceptions.forbidden.LoginException;
 import com.example.taskmanagementapp.exceptions.gone.LinkExpiredException;
 import com.example.taskmanagementapp.exceptions.notfoundexceptions.EntityNotFoundException;
@@ -49,7 +49,6 @@ import com.example.taskmanagementapp.security.utils.RandomStringUtil;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -78,7 +77,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public LoginSuccessDto authenticateUser(UserLoginRequestDto requestDto,
-                                            HttpServletResponse httpServletResponse) {
+                                            HttpServletResponse httpServletResponse)
+                                                                            throws LoginException {
         TokenBearerDto tokenBearer;
         if (COMPILED_PATTERN.matcher(requestDto.emailOrUsername()).matches()) {
             tokenBearer = authenticateEmail(requestDto);
@@ -89,12 +89,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public SendLinkToResetPasswordDto sendPasswordResetLink(String emailOrUsername) {
+    public SendLinkToResetPasswordDto sendPasswordResetLink(String emailOrUsername)
+            throws LoginException {
         User currentUser;
         if (COMPILED_PATTERN.matcher(emailOrUsername).matches()) {
-            currentUser = getIfExistsByEmail(emailOrUsername);
+            currentUser = userRepository.findByEmail(emailOrUsername)
+                    .orElseThrow(
+                            () -> new EntityNotFoundException("No user with email "
+                                    + emailOrUsername + " found"));
         } else {
-            currentUser = getIfExistsByUsername(emailOrUsername);
+            currentUser = userRepository.findByUsername(emailOrUsername)
+                    .orElseThrow(
+                            () -> new EntityNotFoundException("No user with username "
+                                    + emailOrUsername + " found"));
         }
         isEnabled(currentUser);
         passwordEmailService.sendActionMessage(currentUser.getEmail(), RESET);
@@ -125,9 +132,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public ChangePasswordSuccessDto changePassword(User user,
-                                                   SetNewPasswordDto userSetNewPasswordRequestDto) {
+                                                   SetNewPasswordDto userSetNewPasswordRequestDto)
+            throws PasswordMismatchException {
         if (!isCurrentPasswordValid(user, userSetNewPasswordRequestDto)) {
-            throw new PasswordMismatch("Wrong password. Try resetting "
+            throw new PasswordMismatchException("Wrong password. Try resetting "
                     + "password and using a new random password");
         }
         user.setPassword(passwordEncoder
@@ -138,7 +146,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Transactional
     @Override
-    public RegistrationSuccessDto register(UserRegistrationRequestDto requestDto) {
+    public RegistrationSuccessDto register(UserRegistrationRequestDto requestDto)
+            throws RegistrationException {
         if (userRepository.existsByUsername(requestDto.username())) {
             throw new RegistrationException("User with username "
                     + requestDto.username() + " already exists");
@@ -173,13 +182,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return new RegistrationConfirmationSuccessDto(REGISTRATION_CONFIRMED);
     }
 
-    private TokenBearerDto authenticateEmail(UserLoginRequestDto requestDto) {
+    private TokenBearerDto authenticateEmail(UserLoginRequestDto requestDto) throws LoginException {
         User currentUser = getIfExistsByEmail(requestDto.emailOrUsername());
         isEnabled(currentUser);
         return getTokens(currentUser.getUsername(), requestDto.password());
     }
 
-    private TokenBearerDto authenticateUsername(UserLoginRequestDto requestDto) {
+    private TokenBearerDto authenticateUsername(UserLoginRequestDto requestDto)
+            throws LoginException {
         User currentUser = getIfExistsByUsername(requestDto.emailOrUsername());
         isEnabled(currentUser);
         return getTokens(currentUser.getUsername(), requestDto.password());
@@ -187,7 +197,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private void assignBasicRole(User user) {
         Role basicRole = roleRepository.findByName(Role.RoleName.ROLE_EMPLOYEE);
-        user.setRoles(Set.of(basicRole));
+        user.setRole(basicRole);
     }
 
     private boolean isCurrentPasswordValid(User user,
@@ -196,7 +206,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .matches(userSetNewPasswordRequestDto.currentPassword(), user.getPassword());
     }
 
-    private User getIfExistsByEmail(String email) {
+    private User getIfExistsByEmail(String email) throws LoginException {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new LoginException(
                         "Either login" + " or password is invalid"));
@@ -208,7 +218,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         "Either login" + " or password is invalid"));
     }
 
-    private void isEnabled(User user) {
+    private void isEnabled(User user) throws LoginException {
         if (!user.isEnabled()) {
             passwordEmailService.sendActionMessage(user.getEmail(), CONFIRMATION);
             throw new LoginException(REGISTERED_BUT_NOT_ACTIVATED);
@@ -224,7 +234,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return email;
     }
 
-    private TokenBearerDto getTokens(String email, String password) {
+    private TokenBearerDto getTokens(String email, String password) throws LoginException {
         final Authentication authentication;
         try {
             authentication = authenticationManager

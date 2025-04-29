@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: create-users-table
+      id: create-projects-table
       author: AdamMudrak
       changes:
         - createTable:
-            tableName: users
+            tableName: projects
             columns:
               - column:
                   name: id
@@ -14,31 +14,37 @@ databaseChangeLog:
                     primaryKey: true
                     nullable: false
               - column:
-                  name: username
+                  name: name
                   type: varchar(64)
                   constraints:
                     nullable: false
-                    unique: true
               - column:
-                  name: password
-                  type: varchar(255)
+                  name: description
+                  type: varchar(2048)
+              - column:
+                  name: start_date
+                  type: date
                   constraints:
                     nullable: false
               - column:
-                  name: email
+                  name: end_date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
                   type: varchar(64)
                   constraints:
                     nullable: false
-                    unique: true
               - column:
-                  name: first_name
-                  type: varchar(64)
-              - column:
-                  name: last_name
-                  type: varchar(64)
-              - column:
-                  name: is_enabled
+                  name: is_deleted
                   type: boolean
                   defaultValueBoolean: false
                   constraints:
                     nullable: false
+              - column:
+                  name: owner_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: fk_owner_id
+                    references: users(id)

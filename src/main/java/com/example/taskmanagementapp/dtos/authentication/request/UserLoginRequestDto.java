@@ -15,7 +15,6 @@ public record UserLoginRequestDto(
         requiredMode = REQUIRED)
         @NotBlank
         String emailOrUsername,
-
         @Schema(name = UserDtoConstants.PASSWORD,
         example = UserDtoConstants.PASSWORD_EXAMPLE,
         description = UserDtoConstants.PASSWORD_DESCRIPTION,
