@@ -20,6 +20,7 @@ public record SetNewPasswordDto(
                 description = UserDtoConstants.PASSWORD_DESCRIPTION,
                 requiredMode = REQUIRED)
         @NotBlank
+        @Password
         String currentPassword,
         @Schema(name = UserDtoConstants.NEW_PASSWORD,
                 example = UserDtoConstants.PASSWORD_EXAMPLE,
@@ -35,4 +36,5 @@ public record SetNewPasswordDto(
                 description = UserDtoConstants.REPEAT_PASSWORD_DESCRIPTION,
                 requiredMode = REQUIRED)
         @NotBlank
+        @Password
         String repeatNewPassword){}

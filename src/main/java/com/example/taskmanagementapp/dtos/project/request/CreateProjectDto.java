@@ -3,6 +3,7 @@ package com.example.taskmanagementapp.dtos.project.request;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import com.example.taskmanagementapp.constants.dtos.ProjectDtoConstants;
+import com.example.taskmanagementapp.validation.date.Date;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -21,9 +22,11 @@ public record CreateProjectDto(@Schema(name = ProjectDtoConstants.NAME,
                                        example = ProjectDtoConstants.START_DATE_EXAMPLE,
                                        requiredMode = REQUIRED)
                                @NotBlank
+                               @Date
                                LocalDate startDate,
                                @Schema(name = ProjectDtoConstants.END_DATE,
                                        example = ProjectDtoConstants.END_DATE_EXAMPLE,
                                        requiredMode = REQUIRED)
                                @NotBlank
+                               @Date
                                LocalDate endDate) {}

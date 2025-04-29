@@ -5,6 +5,7 @@ import com.example.taskmanagementapp.validation.date.Date;
 import com.example.taskmanagementapp.validation.date.StartDateBeforeEndDate;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Positive;
 import java.time.LocalDate;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -23,4 +24,5 @@ public record UpdateProjectDto(@Schema(name = ProjectDtoConstants.NAME,
                                        example = ProjectDtoConstants.END_DATE_EXAMPLE)
                                @Date
                                LocalDate endDate,
+                               @Positive
                                Long ownerId) {}
