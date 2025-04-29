@@ -17,6 +17,7 @@ import com.example.taskmanagementapp.repositories.user.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -37,16 +38,16 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public List<ProjectDto> getProjects(User user) {
+    public List<ProjectDto> getProjects(User user, Pageable pageable) {
         switch (user.getRole().getName()) {
             case ROLE_EMPLOYEE -> {
-                return getEmployeeProjects(user.getId());
+                return getEmployeeProjects(user.getId(), pageable);
             }
             case ROLE_MANAGER -> {
-                return getManagerProjects(user.getId());
+                return getManagerProjects(user.getId(), pageable);
             }
             case ROLE_SUPERVISOR -> {
-                return getAllProjects();
+                return getAllProjects(pageable);
             }
             default -> throw new EntityNotFoundException(
                     "No such role " + user.getRole().getName());
@@ -54,9 +55,11 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public List<ProjectDto> getDeletedProjects(User authenticatedUser) throws ForbiddenException {
+    public List<ProjectDto> getDeletedProjects(User authenticatedUser, Pageable pageable)
+                                                                        throws ForbiddenException {
         if (isUserSupervisor(authenticatedUser)) {
-            return projectMapper.toProjectDtoList(projectRepository.findAllDeleted());
+            return projectMapper.toProjectDtoList(
+                    projectRepository.findAllDeleted(pageable).getContent());
         } else {
             throw new ForbiddenException("You have no permission to access deleted projects");
         }
@@ -166,18 +169,19 @@ public class ProjectServiceImpl implements ProjectService {
         }
     }
 
-    private List<ProjectDto> getEmployeeProjects(Long authenticatedUserId) {
+    private List<ProjectDto> getEmployeeProjects(Long authenticatedUserId, Pageable pageable) {
         return projectMapper.toProjectDtoList(
-                projectRepository.findByEmployeeId(authenticatedUserId));
+                projectRepository.findAllByEmployeeId(authenticatedUserId, pageable).getContent());
     }
 
-    private List<ProjectDto> getManagerProjects(Long authenticatedUserId) {
+    private List<ProjectDto> getManagerProjects(Long authenticatedUserId, Pageable pageable) {
         return projectMapper.toProjectDtoList(
-                projectRepository.findByOwnerIdAndIsDeletedFalse(authenticatedUserId));
+                projectRepository.findAllByOwnerId(authenticatedUserId, pageable).getContent());
     }
 
-    private List<ProjectDto> getAllProjects() {
-        return projectMapper.toProjectDtoList(projectRepository.findAllNotDeleted());
+    private List<ProjectDto> getAllProjects(Pageable pageable) {
+        return projectMapper.toProjectDtoList(
+                projectRepository.findAllNonDeleted(pageable).getContent());
     }
 
     private boolean isUserSupervisor(User user) {

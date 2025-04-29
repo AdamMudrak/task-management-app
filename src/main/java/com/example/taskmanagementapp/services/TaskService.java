@@ -8,6 +8,7 @@ import com.example.taskmanagementapp.dtos.task.response.TaskDto;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
 import java.util.List;
+import org.springframework.data.domain.Pageable;
 
 public interface TaskService {
     TaskDto createTask(User authenticatedUser,
@@ -15,7 +16,7 @@ public interface TaskService {
                        TaskPriorityDto taskPriorityDto) throws ForbiddenException;
 
     List<TaskDto> getTasksForProject(User authenticatedUser,
-                                     Long projectId) throws ForbiddenException;
+                                     Long projectId, Pageable pageable) throws ForbiddenException;
 
     TaskDto getTask(User authenticatedUser,
                     Long taskId) throws ForbiddenException;

@@ -17,6 +17,7 @@ import com.example.taskmanagementapp.repositories.task.TaskRepository;
 import com.example.taskmanagementapp.repositories.user.UserRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -54,7 +55,9 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskDto> getTasksForProject(User authenticatedUser, Long projectId)
+    public List<TaskDto> getTasksForProject(User authenticatedUser,
+                                            Long projectId,
+                                            Pageable pageable)
             throws ForbiddenException {
         Project project = projectRepository.findById(projectId).orElseThrow(
                 () -> new EntityNotFoundException("No project with id " + projectId));
@@ -66,7 +69,8 @@ public class TaskServiceImpl implements TaskService {
                 || isUserAssignee(authenticatedUser, project);
 
         if (hasAccess) {
-            return taskMapper.toTaskDtoList(taskRepository.findAllByProjectIdNonDeleted(projectId));
+            return taskMapper.toTaskDtoList(
+                    taskRepository.findAllByProjectIdNonDeleted(projectId, pageable).getContent());
         } else {
             throw new ForbiddenException("You have no permission to access this project tasks");
         }

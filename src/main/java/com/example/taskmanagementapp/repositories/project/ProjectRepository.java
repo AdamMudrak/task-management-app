@@ -1,29 +1,29 @@
 package com.example.taskmanagementapp.repositories.project;
 
 import com.example.taskmanagementapp.entities.Project;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface ProjectRepository extends JpaRepository<Project, Long> {
-    @Query(value = "SELECT * FROM projects p "
+    @Query("SELECT p FROM Project p "
             + "WHERE EXISTS ("
-            + "SELECT 1 FROM project_employees pe "
-            + "WHERE pe.project_id = p.id "
-            + "AND pe.employee_id = :employeeId) "
-            + "AND p.is_deleted = 0", nativeQuery = true)
-    List<Project> findByEmployeeId(Long employeeId);
+            + "SELECT 1 FROM p.employees pe "
+            + "WHERE pe.id = :employeeId) "
+            + "AND p.isDeleted = false")
+    Page<Project> findAllByEmployeeId(Long employeeId, Pageable pageable);
 
     @Query("SELECT p FROM Project p "
             + "WHERE p.owner.id = :ownerId "
             + " AND p.isDeleted = false ")
-    List<Project> findByOwnerIdAndIsDeletedFalse(Long ownerId);
+    Page<Project> findAllByOwnerId(Long ownerId, Pageable pageable);
 
     @Query("SELECT p FROM Project p "
             + "WHERE p.isDeleted = false")
-    List<Project> findAllNotDeleted();
+    Page<Project> findAllNonDeleted(Pageable pageable);
 
     @Query("SELECT p FROM Project p "
             + "WHERE p.isDeleted = true")
-    List<Project> findAllDeleted();
+    Page<Project> findAllDeleted(Pageable pageable);
 }

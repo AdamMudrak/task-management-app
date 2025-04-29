@@ -1,7 +1,8 @@
 package com.example.taskmanagementapp.repositories.task;
 
 import com.example.taskmanagementapp.entities.Task;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -11,7 +12,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     @Query("SELECT t FROM Task t "
             + "WHERE t.project.id = :projectId "
             + " AND t.isDeleted = false")
-    List<Task> findAllByProjectIdNonDeleted(Long projectId);
+    Page<Task> findAllByProjectIdNonDeleted(Long projectId, Pageable pageable);
 
     @Modifying
     @Transactional

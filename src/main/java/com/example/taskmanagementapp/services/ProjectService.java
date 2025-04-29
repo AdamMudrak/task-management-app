@@ -8,13 +8,15 @@ import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.conflictexpections.ConflictException;
 import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
 import java.util.List;
+import org.springframework.data.domain.Pageable;
 
 public interface ProjectService {
     ProjectDto createProject(User authenticatedUser, CreateProjectDto createProjectDto);
 
-    List<ProjectDto> getProjects(User authenticatedUser);
+    List<ProjectDto> getProjects(User authenticatedUser, Pageable pageable);
 
-    List<ProjectDto> getDeletedProjects(User authenticatedUser) throws ForbiddenException;
+    List<ProjectDto> getDeletedProjects(User authenticatedUser, Pageable pageable)
+            throws ForbiddenException;
 
     ProjectDto getProjectById(User authenticatedUser, Long projectId) throws ForbiddenException;
 
