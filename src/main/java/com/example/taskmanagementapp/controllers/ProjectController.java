@@ -17,6 +17,7 @@ import static com.example.taskmanagementapp.constants.controllers.ProjectControl
 import static com.example.taskmanagementapp.constants.controllers.ProjectControllerConstants.GET_ALL_DELETED_PROJECTS;
 import static com.example.taskmanagementapp.constants.controllers.ProjectControllerConstants.GET_ALL_PROJECTS;
 import static com.example.taskmanagementapp.constants.controllers.ProjectControllerConstants.GET_PROJECT_BY_ID;
+import static com.example.taskmanagementapp.constants.controllers.ProjectControllerConstants.PAGEABLE_EXAMPLE;
 import static com.example.taskmanagementapp.constants.controllers.ProjectControllerConstants.PROJECTS;
 import static com.example.taskmanagementapp.constants.controllers.ProjectControllerConstants.PROJECT_API_DESCRIPTION;
 import static com.example.taskmanagementapp.constants.controllers.ProjectControllerConstants.PROJECT_API_NAME;
@@ -41,11 +42,13 @@ import com.example.taskmanagementapp.exceptions.conflictexpections.ConflictExcep
 import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
 import com.example.taskmanagementapp.services.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Positive;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -90,8 +93,9 @@ public class ProjectController {
             + ROLE_MANAGER + " or "
             + ROLE_SUPERVISOR)
     @GetMapping
-    List<ProjectDto> getAllProjects(@AuthenticationPrincipal User user) {
-        return projectService.getProjects(user);
+    List<ProjectDto> getAllProjects(@AuthenticationPrincipal User user,
+                                    @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {
+        return projectService.getProjects(user, pageable);
     }
 
     @Operation(summary = GET_ALL_DELETED_PROJECTS)
@@ -99,9 +103,10 @@ public class ProjectController {
             SUCCESSFULLY_GET_ALL_DELETED_PROJECTS)
     @PreAuthorize(ROLE_SUPERVISOR)
     @GetMapping(DELETED)
-    List<ProjectDto> getDeletedProjects(@AuthenticationPrincipal User user)
+    List<ProjectDto> getDeletedProjects(@AuthenticationPrincipal User user,
+                                        @Parameter(example = PAGEABLE_EXAMPLE)Pageable pageable)
             throws ForbiddenException {
-        return projectService.getDeletedProjects(user);
+        return projectService.getDeletedProjects(user, pageable);
     }
 
     @Operation(summary = GET_PROJECT_BY_ID)

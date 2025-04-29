@@ -35,4 +35,8 @@ public class TaskControllerConstants {
             "Delete task by id. Only owners(MANAGERs) and SUPERVISORs can delete tasks";
     public static final String SUCCESSFULLY_DELETED_TASK_BY_ID =
             "Successfully deleted task by id";
+    public static final String PAGEABLE_EXAMPLE = """
+            {"page": 0,
+            "size": 5,
+             "sort": "name,ASC"}""";
 }

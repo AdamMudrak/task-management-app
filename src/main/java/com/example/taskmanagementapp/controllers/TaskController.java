@@ -12,6 +12,7 @@ import static com.example.taskmanagementapp.constants.controllers.TaskController
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.GET_ALL_PROJECT_TASKS;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.GET_TASKS_BY_PROJECT_ID;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.GET_TASK_BY_ID;
+import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.PAGEABLE_EXAMPLE;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.SUCCESSFULLY_CREATED_TASK;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.SUCCESSFULLY_DELETED_TASK_BY_ID;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.SUCCESSFULLY_GET_TASKS_BY_PROJECT_ID;
@@ -32,11 +33,13 @@ import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
 import com.example.taskmanagementapp.services.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Positive;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -80,8 +83,10 @@ public class TaskController {
             + ROLE_MANAGER + " or "
             + ROLE_SUPERVISOR)
     List<TaskDto> getTasksByProjectId(@AuthenticationPrincipal User user,
-                           @PathVariable @Positive Long projectId) throws ForbiddenException {
-        return taskService.getTasksForProject(user, projectId);
+                                      @PathVariable @Positive Long projectId,
+                                      @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable)
+            throws ForbiddenException {
+        return taskService.getTasksForProject(user, projectId, pageable);
     }
 
     @Operation(summary = GET_TASK_BY_ID)

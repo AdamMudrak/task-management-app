@@ -57,4 +57,8 @@ public class ProjectControllerConstants {
             + "SUPERVISOR can add everybody everywhere";
     public static final String SUCCESSFULLY_DELETED_EMPLOYEE_FROM_PROJECT =
             "Successfully deleted employee from project";
+    public static final String PAGEABLE_EXAMPLE = """
+            {"page": 0,
+            "size": 5,
+             "sort": "name,ASC"}""";
 }
