@@ -43,8 +43,7 @@ public class TaskServiceImpl implements TaskService {
         if (!userRepository.existsById(assigneeId)) {
             throw new EntityNotFoundException("No user with id " + assigneeId);
         }
-        if (accessLevelUtil.isUserSupervisor(authenticatedUser)
-                || accessLevelUtil.isUserOwner(authenticatedUser, project)) {
+        if (accessLevelUtil.hasAdminAccess(authenticatedUser, project)) {
             Task createTask = taskMapper.toCreateTask(createTaskDto);
             createTask.setStatus(Task.Status.NOT_STARTED);
             createTask.setPriority(Task.Priority.valueOf(taskPriorityDto.name()));
@@ -65,9 +64,7 @@ public class TaskServiceImpl implements TaskService {
             throw new ForbiddenException("Project with id " + projectId + " is deleted");
         }
 
-        if (accessLevelUtil.isUserSupervisor(authenticatedUser)
-                || accessLevelUtil.isUserOwner(authenticatedUser, project)
-                || accessLevelUtil.isUserAssignee(authenticatedUser, project)) {
+        if (accessLevelUtil.hasAnyAccess(authenticatedUser, project)) {
             return taskMapper.toTaskDtoList(
                     taskRepository.findAllByProjectIdNonDeleted(projectId, pageable).getContent());
         } else {
@@ -82,9 +79,7 @@ public class TaskServiceImpl implements TaskService {
         if (task.isDeleted()) {
             throw new ForbiddenException("Task with id " + taskId + " is deleted");
         }
-        if (accessLevelUtil.isUserSupervisor(authenticatedUser)
-                || accessLevelUtil.isUserOwner(authenticatedUser, task.getProject())
-                || accessLevelUtil.isUserAssignee(authenticatedUser, task.getProject())) {
+        if (accessLevelUtil.hasAnyAccess(authenticatedUser, task.getProject())) {
             return taskMapper.toTaskDto(task);
         } else {
             throw new ForbiddenException("You have no permission to access this task");
@@ -101,8 +96,7 @@ public class TaskServiceImpl implements TaskService {
             throw new ForbiddenException("Task with id " + taskId + " is deleted");
         }
 
-        if (accessLevelUtil.isUserSupervisor(authenticatedUser)
-                || accessLevelUtil.isUserOwner(authenticatedUser, task.getProject())) {
+        if (accessLevelUtil.hasAdminAccess(authenticatedUser, task.getProject())) {
             updatePresentField(authenticatedUser, task, updateTaskDto,
                     taskStatusDto, taskPriorityDto);
             return taskMapper.toTaskDto(taskRepository.save(task));
@@ -116,8 +110,7 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(taskId).orElseThrow(
                 () -> new EntityNotFoundException("No task with id " + taskId));
 
-        if (accessLevelUtil.isUserSupervisor(authenticatedUser)
-                || accessLevelUtil.isUserOwner(authenticatedUser, task.getProject())) {
+        if (accessLevelUtil.hasAdminAccess(authenticatedUser, task.getProject())) {
             taskRepository.deleteById(taskId);
         } else {
             throw new ForbiddenException("You have no permission to delete this task");
@@ -149,8 +142,7 @@ public class TaskServiceImpl implements TaskService {
                     () -> new EntityNotFoundException(
                             "No project with id " + updateTaskDto.projectId()));
 
-            if (accessLevelUtil.isUserSupervisor(authenticatedUser)
-                    || accessLevelUtil.isUserOwner(authenticatedUser, project)) {
+            if (accessLevelUtil.hasAdminAccess(authenticatedUser, project)) {
                 task.setProject(project);
             } else {
                 throw new ForbiddenException(

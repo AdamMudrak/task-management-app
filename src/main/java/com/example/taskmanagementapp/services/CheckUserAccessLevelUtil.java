@@ -20,4 +20,15 @@ class CheckUserAccessLevelUtil {
                 .map(User::getId)
                 .anyMatch(id -> user.getId().equals(id));
     }
+
+    boolean hasAnyAccess(User user, Project project) {
+        return isUserSupervisor(user)
+                || isUserOwner(user, project)
+                || isUserAssignee(user, project);
+    }
+
+    boolean hasAdminAccess(User user, Project project) {
+        return isUserSupervisor(user)
+                || isUserOwner(user, project);
+    }
 }

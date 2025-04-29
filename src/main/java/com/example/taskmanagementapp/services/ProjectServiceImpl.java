@@ -74,9 +74,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (project.isDeleted()) {
             throw new ForbiddenException("Project with id " + projectId + " is deleted");
         }
-        if (accessLevelUtil.isUserSupervisor(user)
-                || accessLevelUtil.isUserOwner(user, project)
-                || accessLevelUtil.isUserAssignee(user, project)) {
+        if (accessLevelUtil.hasAnyAccess(user, project)) {
             return projectMapper.toProjectDto(project);
         } else {
             throw new ForbiddenException("You have no permission to access this project");
@@ -92,8 +90,7 @@ public class ProjectServiceImpl implements ProjectService {
         Project project = projectRepository.findById(projectId).orElseThrow(
                 () -> new EntityNotFoundException("No project with id " + projectId));
         List<ConflictException> exceptions = new ArrayList<>();
-        if (accessLevelUtil.isUserSupervisor(user)
-                || accessLevelUtil.isUserOwner(user, project)) {
+        if (accessLevelUtil.hasAdminAccess(user, project)) {
             updatePresentField(project, updateProjectDto, projectStatusDto, exceptions);
         } else {
             throw new ForbiddenException("You have no permission to access this project");
@@ -111,8 +108,7 @@ public class ProjectServiceImpl implements ProjectService {
         Project project = projectRepository.findById(projectId).orElseThrow(
                 () -> new EntityNotFoundException("No project with id " + projectId));
 
-        if (accessLevelUtil.isUserSupervisor(user)
-                || accessLevelUtil.isUserOwner(user, project)) {
+        if (accessLevelUtil.hasAdminAccess(user, project)) {
             projectRepository.deleteById(projectId);
             taskRepository.deleteAllByProjectId(projectId);
         } else {
@@ -127,7 +123,7 @@ public class ProjectServiceImpl implements ProjectService {
                                                                 ConflictException {
         Project project = projectRepository.findById(projectId).orElseThrow(
                 () -> new EntityNotFoundException("No project with id " + projectId));
-        if (accessLevelUtil.isUserSupervisor(user) || accessLevelUtil.isUserOwner(user, project)) {
+        if (accessLevelUtil.hasAdminAccess(user, project)) {
             User newEmployee = userRepository.findById(employeeId)
                     .orElseThrow(() -> new EntityNotFoundException("No employee with id "
                             + employeeId));
@@ -151,7 +147,7 @@ public class ProjectServiceImpl implements ProjectService {
                                                                     ConflictException {
         Project project = projectRepository.findById(projectId).orElseThrow(
                 () -> new EntityNotFoundException("No project with id " + projectId));
-        if (accessLevelUtil.isUserSupervisor(user) || accessLevelUtil.isUserOwner(user, project)) {
+        if (accessLevelUtil.hasAdminAccess(user, project)) {
             User newEmployee = userRepository.findById(employeeId)
                     .orElseThrow(() -> new EntityNotFoundException("No employee with id "
                             + employeeId));
