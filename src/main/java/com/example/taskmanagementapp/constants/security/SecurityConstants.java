@@ -20,6 +20,7 @@ public class SecurityConstants {
     public static final String RESET_PATH = "${get.random.password.path}";
     public static final String CONFIRMATION_PATH = "${registration.confirmation.path}";
     public static final String CHANGE_EMAIL_CONFIRMATION_PATH = "${change.email.confirmation.path}";
+    public static final String DROPBOX_ACCESS_TOKEN = "${dropbox.access.token}";
 
     public static final String RESET = "RESET";
     public static final String CONFIRMATION = "CONFIRMATION";
