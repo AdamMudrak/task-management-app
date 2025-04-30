@@ -31,6 +31,6 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: upload_date
-                  type: date
+                  type: datetime
                   constraints:
                     nullable: false

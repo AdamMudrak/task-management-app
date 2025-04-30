@@ -14,7 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -34,5 +34,5 @@ public class Attachment {
     @Column(nullable = false, name = FILE_NAME)
     private String fileName;
     @Column(nullable = false, name = UPLOAD_DATE)
-    private LocalDate uploadDate;
+    private LocalDateTime uploadDate;
 }
