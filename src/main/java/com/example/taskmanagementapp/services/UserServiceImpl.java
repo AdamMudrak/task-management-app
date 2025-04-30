@@ -9,6 +9,7 @@ import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDtoOnUpda
 import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.entities.tokens.ParamToken;
+import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
 import com.example.taskmanagementapp.exceptions.notfoundexceptions.EntityNotFoundException;
 import com.example.taskmanagementapp.mappers.UserMapper;
 import com.example.taskmanagementapp.repositories.paramtoken.ParamTokenRepository;
@@ -39,7 +40,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserProfileInfoDto updateUserRole(Long authenticatedUserId,
                                              Long employeeId,
-                                             RoleNameDto roleNameDto) {
+                                             RoleNameDto roleNameDto) throws ForbiddenException {
         if (authenticatedUserId.equals(employeeId)) {
             throw new IllegalArgumentException(
                     "To prevent unwanted damage, self-assigning of roles is restricted. "
@@ -48,6 +49,9 @@ public class UserServiceImpl implements UserService {
         }
         User employee = userRepository.findById(employeeId).orElseThrow(
                 () -> new EntityNotFoundException("Employee with id " + employeeId + " not found"));
+        if (employee.getRole().getName().equals(Role.RoleName.ROLE_SUPERVISOR)) {
+            throw new ForbiddenException("SUPERVISOR role can be revoked only via SQL directly");
+        }
         Role role = roleRepository.findByName(Role.RoleName.valueOf(roleNameDto.name()));
         employee.setRole(role);
         return userMapper.toUserProfileInfoDto(userRepository.save(employee));
