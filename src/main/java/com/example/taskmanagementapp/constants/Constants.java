@@ -17,4 +17,7 @@ public class Constants {
     public static final String ROLE_EMPLOYEE = "hasRole('ROLE_EMPLOYEE')";
     public static final String ROLE_MANAGER = "hasRole('ROLE_MANAGER')";
     public static final String ROLE_SUPERVISOR = "hasRole('ROLE_SUPERVISOR')";
+
+    public static final String GREEN = "\033[0;32m";// GREEN
+    public static final String RESET = "\033[0m";//Reset
 }
