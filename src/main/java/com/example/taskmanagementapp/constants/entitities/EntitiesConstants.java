@@ -23,4 +23,10 @@ public class EntitiesConstants {
     public static final String DUE_DATE = "due_date";
     public static final String ASSIGNEE_ID = "assignee_id";
     public static final String TASKS = "tasks";
+
+    public static final String ATTACHMENTS = "attachments";
+    public static final String TASK_ID = "task_id";
+    public static final String FILE_ID = "file_id";
+    public static final String FILE_NAME = "file_name";
+    public static final String UPLOAD_DATE = "upload_date";
 }
