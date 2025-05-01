@@ -31,6 +31,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     private final TaskRepository taskRepository;
     private final CheckUserAccessLevelUtil accessLevelUtil;
     private final AttachmentMapper attachmentMapper;
+    private final TransliterationUtil transliterationService;
 
     @Override
     public List<AttachmentDto> uploadAttachmentForTask(User authenticatedUser,
@@ -69,14 +70,14 @@ public class AttachmentServiceImpl implements AttachmentService {
                                                         throws IOException, DbxException {
         List<Attachment> attachments = new ArrayList<>();
         for (MultipartFile uploadFile : uploadFiles) {
-            String fileName = uploadFile.getOriginalFilename();
+            String fileName = transliterationService
+                    .transliterate(uploadFile.getOriginalFilename());
             try (InputStream stream = uploadFile.getInputStream()) {
                 client.files().uploadBuilder(TASK_PATH + task.getId() + PATH_SPLITERATOR
                         + fileName).uploadAndFinish(stream);
             }
-            String sharedLink =
-                    getOrCreateSharedLink(client, TASK_PATH + task.getId() + PATH_SPLITERATOR
-                    + fileName);
+            String sharedLink = makeDropboxLinkToRawFile(getOrCreateSharedLink(client,
+                    TASK_PATH + task.getId() + PATH_SPLITERATOR + fileName));
             Attachment thisAttachment = attachmentMapper.toAttachment(
                     task, sharedLink, fileName);
             attachments.add(attachmentRepository.save(thisAttachment));
@@ -104,4 +105,7 @@ public class AttachmentServiceImpl implements AttachmentService {
         }
     }
 
+    private String makeDropboxLinkToRawFile(String link) {
+        return link.replace("dl=0", "raw=1");
+    }
 }
