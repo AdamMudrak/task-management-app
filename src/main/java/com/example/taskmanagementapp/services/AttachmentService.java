@@ -1,12 +1,19 @@
 package com.example.taskmanagementapp.services;
 
-import com.example.taskmanagementapp.dtos.attachment.request.UploadAttachmentDto;
+import com.dropbox.core.DbxException;
 import com.example.taskmanagementapp.dtos.attachment.response.AttachmentDto;
 import com.example.taskmanagementapp.entities.User;
+import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
+import java.io.IOException;
 import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface AttachmentService {
-    void uploadAttachmentForTask(User authenticatedUser, UploadAttachmentDto uploadAttachmentDto);
+    List<AttachmentDto> uploadAttachmentForTask(User authenticatedUser,
+                                   Long taskId,
+                                   MultipartFile[] files) throws ForbiddenException,
+                                                        IOException, DbxException;
 
-    List<AttachmentDto> getAttachmentsForTask(Long taskId);
+    List<AttachmentDto> getAttachmentForTask(User authenticatedUser, Long taskId)
+            throws IOException, DbxException, ForbiddenException;
 }
