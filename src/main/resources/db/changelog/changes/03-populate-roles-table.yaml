@@ -6,4 +6,4 @@ databaseChangeLog:
         - sql:
             sql: |
               INSERT INTO roles (name)
-              VALUES ('ROLE_EMPLOYEE'), ('ROLE_MANAGER'), ('ROLE_SUPERVISOR');
+              VALUES ('ROLE_USER'), ('ROLE_ADMIN');

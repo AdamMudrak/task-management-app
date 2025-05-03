@@ -8,15 +8,9 @@ databaseChangeLog:
               INSERT INTO users (username, first_name, last_name, email, password, role_id, is_enabled)
               VALUES
               
-              ('supervisor', 'John', 'Doe', 'example_supervisor@mail.com',
+              ('admin', 'John', 'Doe', 'example_admin@mail.com',
               '$2a$10$8Fz373jOOTW3RB1HPZ4gGuaizhiHkP1we17lko.QsYmZkyZv0eUEi'
               /* SupervisorPassword1! */,
-              3,
-              1),
-              
-              ('manager', 'Richard', 'Roe', 'example_manager@mail.com',
-              '$2a$10$kEL/PAvjXmDIzK6EjI6ts.iIOYbS8ZCDbNLoFBqyaEMFH.Pl53p82'
-              /* ManagerPassword1! */,
               2,
               1),
               
