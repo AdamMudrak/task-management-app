@@ -1,4 +1,4 @@
-package com.example.taskmanagementapp.services;
+package com.example.taskmanagementapp.services.impl;
 
 import com.example.taskmanagementapp.dtos.project.request.CreateProjectDto;
 import com.example.taskmanagementapp.dtos.project.request.ProjectStatusDto;
@@ -14,10 +14,10 @@ import com.example.taskmanagementapp.mappers.ProjectMapper;
 import com.example.taskmanagementapp.repositories.project.ProjectRepository;
 import com.example.taskmanagementapp.repositories.task.TaskRepository;
 import com.example.taskmanagementapp.repositories.user.UserRepository;
+import com.example.taskmanagementapp.security.utils.CheckUserAccessLevelUtil;
+import com.example.taskmanagementapp.services.ProjectService;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.example.taskmanagementapp.security.utils.CheckUserAccessLevelUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

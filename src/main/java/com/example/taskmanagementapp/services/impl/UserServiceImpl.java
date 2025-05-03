@@ -1,4 +1,4 @@
-package com.example.taskmanagementapp.services;
+package com.example.taskmanagementapp.services.impl;
 
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACTION;
 
@@ -19,6 +19,7 @@ import com.example.taskmanagementapp.security.email.ChangeEmailService;
 import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
 import com.example.taskmanagementapp.security.jwtutils.strategy.JwtStrategy;
 import com.example.taskmanagementapp.security.utils.RandomParamFromHttpRequestUtil;
+import com.example.taskmanagementapp.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

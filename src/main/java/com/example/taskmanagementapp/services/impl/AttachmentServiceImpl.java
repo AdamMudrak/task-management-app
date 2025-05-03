@@ -1,4 +1,4 @@
-package com.example.taskmanagementapp.services;
+package com.example.taskmanagementapp.services.impl;
 
 import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.DbxClientV2;
@@ -13,13 +13,13 @@ import com.example.taskmanagementapp.exceptions.notfoundexceptions.EntityNotFoun
 import com.example.taskmanagementapp.mappers.AttachmentMapper;
 import com.example.taskmanagementapp.repositories.attachment.AttachmentRepository;
 import com.example.taskmanagementapp.repositories.task.TaskRepository;
+import com.example.taskmanagementapp.security.utils.CheckUserAccessLevelUtil;
+import com.example.taskmanagementapp.services.AttachmentService;
+import com.example.taskmanagementapp.services.util.TransliterationUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.example.taskmanagementapp.security.utils.CheckUserAccessLevelUtil;
-import com.example.taskmanagementapp.services.util.TransliterationUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
