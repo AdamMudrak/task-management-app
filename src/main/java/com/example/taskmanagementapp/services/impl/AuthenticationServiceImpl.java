@@ -76,6 +76,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Value(JWT_REFRESH_EXPIRATION)
     private Long refreshExpiration;
 
+    //TODO pay special attention to reworking ALL impls
     @Override
     public LoginSuccessDto authenticateUser(UserLoginRequestDto requestDto,
                                             HttpServletResponse httpServletResponse)
@@ -197,7 +198,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     private void assignBasicRole(User user) {
-        Role basicRole = roleRepository.findByName(Role.RoleName.ROLE_EMPLOYEE);
+        Role basicRole = roleRepository.findByName(Role.RoleName.ROLE_USER);
         user.setRole(basicRole);
     }
 

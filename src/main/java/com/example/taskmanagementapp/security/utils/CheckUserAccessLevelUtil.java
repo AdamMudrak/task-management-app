@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CheckUserAccessLevelUtil {
     public boolean isUserSupervisor(User user) {
-        return user.getRole().getName().equals(Role.RoleName.ROLE_SUPERVISOR);
+        return user.getRole().getName().equals(Role.RoleName.ROLE_ADMIN);
     }
 
     public boolean isUserOwner(User user, Project project) {

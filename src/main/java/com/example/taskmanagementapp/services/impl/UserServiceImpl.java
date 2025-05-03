@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
         }
         User employee = userRepository.findById(employeeId).orElseThrow(
                 () -> new EntityNotFoundException("Employee with id " + employeeId + " not found"));
-        if (employee.getRole().getName().equals(Role.RoleName.ROLE_SUPERVISOR)) {
+        if (employee.getRole().getName().equals(Role.RoleName.ROLE_ADMIN)) {
             throw new ForbiddenException("SUPERVISOR role can be revoked only via SQL directly");
         }
         Role role = roleRepository.findByName(Role.RoleName.valueOf(roleNameDto.name()));

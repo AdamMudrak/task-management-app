@@ -43,14 +43,11 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public List<ProjectDto> getProjects(User user, Pageable pageable) {
         switch (user.getRole().getName()) {
-            case ROLE_EMPLOYEE -> {
+            case ROLE_USER -> {
                 return getEmployeeProjects(user.getId(), pageable);
             }
-            case ROLE_MANAGER -> {
+            case ROLE_ADMIN -> {
                 return getManagerProjects(user.getId(), pageable);
-            }
-            case ROLE_SUPERVISOR -> {
-                return getAllProjects(pageable);
             }
             default -> throw new EntityNotFoundException(
                     "No such role " + user.getRole().getName());
@@ -216,8 +213,7 @@ public class ProjectServiceImpl implements ProjectService {
             User newOwner = userRepository.findById(updateProjectDto.ownerId())
                     .orElseThrow(() -> new EntityNotFoundException("No user with id "
                             + updateProjectDto.ownerId()));
-            if (!newOwner.getRole().getName().equals(Role.RoleName.ROLE_MANAGER)
-                    && !newOwner.getRole().getName().equals(Role.RoleName.ROLE_SUPERVISOR)) {
+            if (!newOwner.getRole().getName().equals(Role.RoleName.ROLE_ADMIN)) {
                 exceptions.add(new ConflictException(
                         "New owner should have MANAGER or SUPERVISOR access level"));
             } else {
