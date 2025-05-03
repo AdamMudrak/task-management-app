@@ -27,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @RequiredArgsConstructor
 public class AttachmentServiceImpl implements AttachmentService {
+    //TODO Вынести эти константы
     private static final String TASK_PATH = "/task";
     private static final String PATH_SPLITERATOR = "/";
     private final DbxClientV2 client;
@@ -55,6 +56,7 @@ public class AttachmentServiceImpl implements AttachmentService {
         }
     }
 
+    @Override
     public List<AttachmentDto> getAttachmentForTask(User authenticatedUser, Long taskId)
             throws ForbiddenException {
         Task task = taskRepository.findById(taskId).orElseThrow(
@@ -63,6 +65,25 @@ public class AttachmentServiceImpl implements AttachmentService {
         if (accessLevelUtil.hasAnyAccess(authenticatedUser, task.getProject())) {
             return attachmentMapper.toAttachmentDtoList(
                     attachmentRepository.findAllByTaskId(taskId));
+        } else {
+            throw new ForbiddenException("You have no permission to get attachment for task "
+                    + task.getId() + " since you are not in project " + task.getProject().getId());
+        }
+    }
+
+    @Override
+    public void deleteAttachmentFromTask(User authenticatedUser, Long taskId, Long attachmentId)
+            throws DbxException, ForbiddenException {
+        Task task = taskRepository.findById(taskId).orElseThrow(
+                () -> new EntityNotFoundException("Task with id "
+                        + taskId + " not found"));
+        Attachment attachment = attachmentRepository.findById(attachmentId).orElseThrow(
+                () -> new EntityNotFoundException("Attachment with id "
+                + attachmentId + " not found"));
+        if (accessLevelUtil.hasAnyAccess(authenticatedUser, task.getProject())) {
+            client.files().deleteV2(TASK_PATH + task.getId()
+                    + PATH_SPLITERATOR + attachment.getFileName());
+            attachmentRepository.deleteById(attachmentId);
         } else {
             throw new ForbiddenException("You have no permission to get attachment for task "
                     + task.getId() + " since you are not in project " + task.getProject().getId());

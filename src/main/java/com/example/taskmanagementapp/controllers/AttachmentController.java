@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+
+//TODO добавить тут константы
 @RestController
 @RequestMapping("/attachments")
 @RequiredArgsConstructor
@@ -48,9 +51,16 @@ public class AttachmentController {
             + ROLE_MANAGER + " or "
             + ROLE_SUPERVISOR)
     @GetMapping("/{taskId}")
-    public Object getAttachment(@AuthenticationPrincipal User user,
+    public List<AttachmentDto> getAttachment(@AuthenticationPrincipal User user,
                                                         @PathVariable @Positive Long taskId)
             throws ForbiddenException, IOException, DbxException {
         return attachmentService.getAttachmentForTask(user, taskId);
+    }
+
+    @DeleteMapping("/{taskId}/{attachmentId}")
+    public void deleteAttachment(@AuthenticationPrincipal User user,
+                                 @PathVariable @Positive Long taskId,
+                                 @PathVariable @Positive Long attachmentId) throws DbxException, ForbiddenException {
+        attachmentService.deleteAttachmentFromTask(user, taskId, attachmentId);
     }
 }

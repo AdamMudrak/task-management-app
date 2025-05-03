@@ -16,4 +16,7 @@ public interface AttachmentService {
 
     List<AttachmentDto> getAttachmentForTask(User authenticatedUser, Long taskId)
             throws IOException, DbxException, ForbiddenException;
+
+    void deleteAttachmentFromTask(User authenticatedUser, Long taskId, Long attachmentId)
+            throws DbxException, ForbiddenException;
 }
