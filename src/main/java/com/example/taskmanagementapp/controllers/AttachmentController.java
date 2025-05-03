@@ -60,7 +60,8 @@ public class AttachmentController {
     @DeleteMapping("/{taskId}/{attachmentId}")
     public void deleteAttachment(@AuthenticationPrincipal User user,
                                  @PathVariable @Positive Long taskId,
-                                 @PathVariable @Positive Long attachmentId) throws DbxException, ForbiddenException {
+                                 @PathVariable @Positive Long attachmentId)
+            throws DbxException, ForbiddenException {
         attachmentService.deleteAttachmentFromTask(user, taskId, attachmentId);
     }
 }
