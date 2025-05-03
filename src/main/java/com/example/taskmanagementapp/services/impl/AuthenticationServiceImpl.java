@@ -1,4 +1,4 @@
-package com.example.taskmanagementapp.services;
+package com.example.taskmanagementapp.services.impl;
 
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACCESS;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACCESS_TOKEN;
@@ -46,6 +46,7 @@ import com.example.taskmanagementapp.security.email.PasswordEmailService;
 import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
 import com.example.taskmanagementapp.security.jwtutils.strategy.JwtStrategy;
 import com.example.taskmanagementapp.security.utils.RandomStringUtil;
+import com.example.taskmanagementapp.services.AuthenticationService;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;

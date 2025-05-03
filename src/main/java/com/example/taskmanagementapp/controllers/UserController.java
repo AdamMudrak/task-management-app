@@ -28,6 +28,7 @@ import com.example.taskmanagementapp.dtos.user.request.UpdateUserProfileDto;
 import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDto;
 import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDtoOnUpdate;
 import com.example.taskmanagementapp.entities.User;
+import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
 import com.example.taskmanagementapp.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -84,7 +85,7 @@ public class UserController {
     @PreAuthorize(ROLE_SUPERVISOR)
     UserProfileInfoDto updateUserRole(@AuthenticationPrincipal User user,
                                       @Positive @PathVariable Long employeeId,
-                                      RoleNameDto roleName) {
+                                      RoleNameDto roleName) throws ForbiddenException {
         return userService.updateUserRole(user.getId(), employeeId, roleName);
     }
 

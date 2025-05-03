@@ -1,4 +1,4 @@
-package com.example.taskmanagementapp.services;
+package com.example.taskmanagementapp.services.impl;
 
 import com.example.taskmanagementapp.dtos.task.request.CreateTaskDto;
 import com.example.taskmanagementapp.dtos.task.request.TaskPriorityDto;
@@ -6,7 +6,6 @@ import com.example.taskmanagementapp.dtos.task.request.TaskStatusDto;
 import com.example.taskmanagementapp.dtos.task.request.UpdateTaskDto;
 import com.example.taskmanagementapp.dtos.task.response.TaskDto;
 import com.example.taskmanagementapp.entities.Project;
-import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.Task;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
@@ -15,6 +14,8 @@ import com.example.taskmanagementapp.mappers.TaskMapper;
 import com.example.taskmanagementapp.repositories.project.ProjectRepository;
 import com.example.taskmanagementapp.repositories.task.TaskRepository;
 import com.example.taskmanagementapp.repositories.user.UserRepository;
+import com.example.taskmanagementapp.security.utils.CheckUserAccessLevelUtil;
+import com.example.taskmanagementapp.services.TaskService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +28,7 @@ public class TaskServiceImpl implements TaskService {
     private final TaskMapper taskMapper;
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
+    private final CheckUserAccessLevelUtil accessLevelUtil;
 
     @Override
     public TaskDto createTask(User authenticatedUser,
@@ -43,8 +45,7 @@ public class TaskServiceImpl implements TaskService {
         if (!userRepository.existsById(assigneeId)) {
             throw new EntityNotFoundException("No user with id " + assigneeId);
         }
-        if (isUserSupervisor(authenticatedUser)
-                || isUserOwner(authenticatedUser, project)) {
+        if (accessLevelUtil.hasAdminAccess(authenticatedUser, project)) {
             Task createTask = taskMapper.toCreateTask(createTaskDto);
             createTask.setStatus(Task.Status.NOT_STARTED);
             createTask.setPriority(Task.Priority.valueOf(taskPriorityDto.name()));
@@ -64,11 +65,8 @@ public class TaskServiceImpl implements TaskService {
         if (project.isDeleted()) {
             throw new ForbiddenException("Project with id " + projectId + " is deleted");
         }
-        boolean hasAccess = isUserSupervisor(authenticatedUser)
-                || isUserOwner(authenticatedUser, project)
-                || isUserAssignee(authenticatedUser, project);
 
-        if (hasAccess) {
+        if (accessLevelUtil.hasAnyAccess(authenticatedUser, project)) {
             return taskMapper.toTaskDtoList(
                     taskRepository.findAllByProjectIdNonDeleted(projectId, pageable).getContent());
         } else {
@@ -83,9 +81,7 @@ public class TaskServiceImpl implements TaskService {
         if (task.isDeleted()) {
             throw new ForbiddenException("Task with id " + taskId + " is deleted");
         }
-        if (isUserSupervisor(authenticatedUser)
-                || isUserOwner(authenticatedUser, task.getProject())
-                || isUserAssignee(authenticatedUser, task.getProject())) {
+        if (accessLevelUtil.hasAnyAccess(authenticatedUser, task.getProject())) {
             return taskMapper.toTaskDto(task);
         } else {
             throw new ForbiddenException("You have no permission to access this task");
@@ -101,10 +97,8 @@ public class TaskServiceImpl implements TaskService {
         if (task.isDeleted()) {
             throw new ForbiddenException("Task with id " + taskId + " is deleted");
         }
-        boolean hasAccess = isUserSupervisor(authenticatedUser)
-                || isUserOwner(authenticatedUser, task.getProject());
 
-        if (hasAccess) {
+        if (accessLevelUtil.hasAdminAccess(authenticatedUser, task.getProject())) {
             updatePresentField(authenticatedUser, task, updateTaskDto,
                     taskStatusDto, taskPriorityDto);
             return taskMapper.toTaskDto(taskRepository.save(task));
@@ -118,28 +112,11 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(taskId).orElseThrow(
                 () -> new EntityNotFoundException("No task with id " + taskId));
 
-        boolean hasAccess = isUserSupervisor(authenticatedUser)
-                || isUserOwner(authenticatedUser, task.getProject());
-
-        if (hasAccess) {
+        if (accessLevelUtil.hasAdminAccess(authenticatedUser, task.getProject())) {
             taskRepository.deleteById(taskId);
         } else {
             throw new ForbiddenException("You have no permission to delete this task");
         }
-    }
-
-    private boolean isUserSupervisor(User user) {
-        return user.getRole().getName().equals(Role.RoleName.ROLE_SUPERVISOR);
-    }
-
-    private boolean isUserOwner(User user, Project project) {
-        return user.getId().equals(project.getOwner().getId());
-    }
-
-    private boolean isUserAssignee(User user, Project project) {
-        return project.getEmployees().stream()
-                .map(User::getId)
-                .anyMatch(id -> user.getId().equals(id));
     }
 
     private void updatePresentField(User authenticatedUser,
@@ -167,7 +144,7 @@ public class TaskServiceImpl implements TaskService {
                     () -> new EntityNotFoundException(
                             "No project with id " + updateTaskDto.projectId()));
 
-            if (isUserSupervisor(authenticatedUser) || isUserOwner(authenticatedUser, project)) {
+            if (accessLevelUtil.hasAdminAccess(authenticatedUser, project)) {
                 task.setProject(project);
             } else {
                 throw new ForbiddenException(

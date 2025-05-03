@@ -21,6 +21,11 @@ public class SecurityConstants {
     public static final String CONFIRMATION_PATH = "${registration.confirmation.path}";
     public static final String CHANGE_EMAIL_CONFIRMATION_PATH = "${change.email.confirmation.path}";
 
+    public static final String DROPBOX_REFRESH_TOKEN = "${dropbox.refresh.token}";
+    public static final String DROPBOX_KEY = "${dropbox.key}";
+    public static final String DROPBOX_SECRET = "${dropbox.secret}";
+    public static final String DROPBOX_CLIENT_IDENTIFIER = "dropbox/taskmanagementapp";
+
     public static final String RESET = "RESET";
     public static final String CONFIRMATION = "CONFIRMATION";
     public static final String ACCESS = "ACCESS";

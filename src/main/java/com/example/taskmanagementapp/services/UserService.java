@@ -4,6 +4,7 @@ import com.example.taskmanagementapp.dtos.role.RoleNameDto;
 import com.example.taskmanagementapp.dtos.user.request.UpdateUserProfileDto;
 import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDto;
 import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDtoOnUpdate;
+import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
@@ -11,7 +12,7 @@ import org.springframework.data.domain.Pageable;
 public interface UserService {
     UserProfileInfoDto updateUserRole(Long authenticatedUserId,
                                       Long employeeId,
-                                      RoleNameDto roleNameDto);
+                                      RoleNameDto roleNameDto) throws ForbiddenException;
 
     UserProfileInfoDto getProfileInfo(Long authenticatedUserId);
 
