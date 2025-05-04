@@ -18,8 +18,8 @@ public interface TaskService {
     List<TaskDto> getTasksForProject(User authenticatedUser,
                                      Long projectId, Pageable pageable) throws ForbiddenException;
 
-    TaskDto getTask(User authenticatedUser,
-                    Long taskId) throws ForbiddenException;
+    TaskDto getTaskById(User authenticatedUser,
+                        Long taskId) throws ForbiddenException;
 
     TaskDto updateTask(User authenticatedUser,
                        UpdateTaskDto updateTaskDto,

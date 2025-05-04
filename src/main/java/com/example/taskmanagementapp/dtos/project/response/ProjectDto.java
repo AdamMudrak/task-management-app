@@ -17,4 +17,5 @@ public final class ProjectDto {
     private ProjectStatusDto statusDto;
     private Long ownerId;
     private Set<Long> employeeIds;
+    private Set<Long> managerIds;
 }

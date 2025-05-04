@@ -4,10 +4,12 @@ import static com.example.taskmanagementapp.constants.entitities.EntitiesConstan
 import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.EMPLOYEE_ID;
 import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.END_DATE;
 import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.IS_DELETED;
+import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.MANAGER_ID;
 import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.OWNER_ID;
 import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.PROJECTS;
 import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.PROJECT_EMPLOYEES;
 import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.PROJECT_ID;
+import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.PROJECT_MANAGERS;
 import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.START_DATE;
 
 import jakarta.persistence.Column;
@@ -52,6 +54,12 @@ public class Project {
     @ManyToOne
     @JoinColumn(nullable = false, name = OWNER_ID)
     private User owner;
+    @ManyToMany
+    @JoinTable(
+            name = PROJECT_MANAGERS,
+            joinColumns = @JoinColumn(name = PROJECT_ID),
+            inverseJoinColumns = @JoinColumn(name = MANAGER_ID))
+    private Set<User> managers = new HashSet<>();
     @ManyToMany
     @JoinTable(
             name = PROJECT_EMPLOYEES,

@@ -48,3 +48,9 @@ databaseChangeLog:
                   defaultValueBoolean: false
                   constraints:
                     nullable: false
+              - column:
+                  name: is_account_non_locked
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false

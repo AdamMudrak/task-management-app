@@ -20,9 +20,6 @@ public class AuthControllerConstants {
     public static final String REGISTER_SUMMARY = "Register a new user in the app";
     public static final String SUCCESSFULLY_REGISTERED = "Successfully registered a new user";
 
-    public static final String CONFIRM_SUMMARY = "Confirm registration of a new user in the app";
-    public static final String SUCCESSFULLY_CONFIRMED = "Successfully confirmed registration";
-
     public static final String SUCCESSFULLY_LOGGED_IN = "Successfully logged in in the app";
 
     public static final String EMAIL_LOGIN_SUMMARY = "Log in using existing email account";
@@ -31,9 +28,6 @@ public class AuthControllerConstants {
             "Initiate password reset via a link sent to your email";
     public static final String SUCCESSFULLY_INITIATED_PASSWORD_RESET =
             "Successfully initiated password reset";
-
-    public static final String RESET_PASSWORD_SUMMARY = "Reset password using the link sent";
-    public static final String SUCCESSFULLY_RESET_PASSWORD = "Successfully reset password";
 
     public static final String CHANGE_PASSWORD_SUMMARY =
             "Change password while being logged in, either using a random or your own password";

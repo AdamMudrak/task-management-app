@@ -1,11 +1,16 @@
 package com.example.taskmanagementapp.services.impl;
 
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACTION;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.ASSIGNEE_ID;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.IS_NEW_MANAGER;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.PROJECT_ID;
+
 import com.example.taskmanagementapp.dtos.project.request.CreateProjectDto;
 import com.example.taskmanagementapp.dtos.project.request.ProjectStatusDto;
 import com.example.taskmanagementapp.dtos.project.request.UpdateProjectDto;
+import com.example.taskmanagementapp.dtos.project.response.AssignEmployeeResponseDto;
 import com.example.taskmanagementapp.dtos.project.response.ProjectDto;
 import com.example.taskmanagementapp.entities.Project;
-import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.conflictexpections.ConflictException;
 import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
@@ -14,8 +19,12 @@ import com.example.taskmanagementapp.mappers.ProjectMapper;
 import com.example.taskmanagementapp.repositories.project.ProjectRepository;
 import com.example.taskmanagementapp.repositories.task.TaskRepository;
 import com.example.taskmanagementapp.repositories.user.UserRepository;
-import com.example.taskmanagementapp.security.utils.CheckUserAccessLevelUtil;
+import com.example.taskmanagementapp.security.email.AcceptAssignmentToProjectEmailService;
+import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
+import com.example.taskmanagementapp.security.jwtutils.strategy.JwtStrategy;
+import com.example.taskmanagementapp.security.utils.ParamFromHttpRequestUtil;
 import com.example.taskmanagementapp.services.ProjectService;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +38,9 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
-    private final CheckUserAccessLevelUtil accessLevelUtil;
+    private final AcceptAssignmentToProjectEmailService emailService;
+    private final ParamFromHttpRequestUtil paramFromHttpRequestUtil;
+    private final JwtStrategy jwtStrategy;
 
     @Override
     public ProjectDto createProject(User user,
@@ -41,42 +52,33 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public List<ProjectDto> getProjects(User user, Pageable pageable) {
-        switch (user.getRole().getName()) {
-            case ROLE_EMPLOYEE -> {
-                return getEmployeeProjects(user.getId(), pageable);
-            }
-            case ROLE_MANAGER -> {
-                return getManagerProjects(user.getId(), pageable);
-            }
-            case ROLE_SUPERVISOR -> {
-                return getAllProjects(pageable);
-            }
-            default -> throw new EntityNotFoundException(
-                    "No such role " + user.getRole().getName());
-        }
+    public List<ProjectDto> getAssignedProjects(Long userId, Pageable pageable) {
+        return projectMapper.toProjectDtoList(
+                projectRepository.findAllByEmployeeId(userId, pageable)
+                        .getContent());
     }
 
     @Override
-    public List<ProjectDto> getDeletedProjects(User authenticatedUser, Pageable pageable)
-                                                                        throws ForbiddenException {
-        if (accessLevelUtil.isUserSupervisor(authenticatedUser)) {
-            return projectMapper.toProjectDtoList(
-                    projectRepository.findAllDeleted(pageable).getContent());
-        } else {
-            throw new ForbiddenException("You have no permission to access deleted projects");
-        }
+    public List<ProjectDto> getCreatedProjects(Long userId, Pageable pageable) {
+        return projectMapper.toProjectDtoList(
+                        projectRepository.findAllByOwnerId(userId, pageable)
+                                .getContent());
+    }
+
+    @Override
+    public List<ProjectDto> getDeletedCreatedProjects(Long userId, Pageable pageable) {
+        return projectMapper.toProjectDtoList(
+                projectRepository.findAllByOwnerIdDeleted(userId, pageable)
+                        .getContent());
     }
 
     @Override
     public ProjectDto getProjectById(User user,
                                      Long projectId) throws ForbiddenException {
-        Project project = projectRepository.findById(projectId).orElseThrow(
-                () -> new EntityNotFoundException("No project with id " + projectId));
-        if (project.isDeleted()) {
-            throw new ForbiddenException("Project with id " + projectId + " is deleted");
-        }
-        if (accessLevelUtil.hasAnyAccess(user, project)) {
+        Project project = projectRepository.findByIdNotDeleted(projectId).orElseThrow(
+                () -> new EntityNotFoundException("No active project with id " + projectId));
+        if (projectRepository.isUserEmployee(projectId, user.getId())
+                || projectRepository.isUserOwner(projectId, user.getId())) {
             return projectMapper.toProjectDto(project);
         } else {
             throw new ForbiddenException("You have no permission to access this project");
@@ -89,11 +91,13 @@ public class ProjectServiceImpl implements ProjectService {
                                         UpdateProjectDto updateProjectDto,
                                         ProjectStatusDto projectStatusDto)
                                         throws ForbiddenException, ConflictException {
-        Project project = projectRepository.findById(projectId).orElseThrow(
-                () -> new EntityNotFoundException("No project with id " + projectId));
+        Project project = projectRepository.findByIdNotDeleted(projectId).orElseThrow(
+                () -> new EntityNotFoundException("No active project with id " + projectId));
         List<ConflictException> exceptions = new ArrayList<>();
-        if (accessLevelUtil.hasAdminAccess(user, project)) {
-            updatePresentField(project, updateProjectDto, projectStatusDto, exceptions);
+        if (projectRepository.isUserManager(projectId, user.getId())
+                || projectRepository.isUserOwner(projectId, user.getId())) {
+            updatePresentField(user.getId(), project,
+                    updateProjectDto, projectStatusDto, exceptions);
         } else {
             throw new ForbiddenException("You have no permission to access this project");
         }
@@ -107,81 +111,105 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public void deleteProjectById(User user,
                                   Long projectId) throws ForbiddenException {
-        Project project = projectRepository.findById(projectId).orElseThrow(
-                () -> new EntityNotFoundException("No project with id " + projectId));
-
-        if (accessLevelUtil.hasAdminAccess(user, project)) {
+        if (!projectRepository.existsByIdNotDeleted(projectId)) {
+            throw new EntityNotFoundException("No active project with id " + projectId);
+        }
+        if (projectRepository.isUserOwner(projectId, user.getId())) {
             projectRepository.deleteById(projectId);
             taskRepository.deleteAllByProjectId(projectId);
         } else {
-            throw new ForbiddenException("You must be supervisor or owner to delete this project");
+            throw new ForbiddenException("You must be owner to delete this project");
         }
     }
 
     @Override
-    public ProjectDto assignEmployeeToProject(User user,
-                                        Long projectId,
-                                        Long employeeId) throws ForbiddenException,
-                                                                ConflictException {
-        Project project = projectRepository.findById(projectId).orElseThrow(
-                () -> new EntityNotFoundException("No project with id " + projectId));
-        if (accessLevelUtil.hasAdminAccess(user, project)) {
+    public AssignEmployeeResponseDto assignEmployeeToProject(User user,
+                                                             Long projectId,
+                                                             Long employeeId,
+                                                             boolean isNewEmployeeManager)
+                                                        throws ForbiddenException {
+        if (user.getId().equals(employeeId)) {
+            throw new ForbiddenException("You cannot assign yourself to a project");
+        }
+        Project project = projectRepository.findByIdNotDeleted(projectId).orElseThrow(
+                () -> new EntityNotFoundException("No active project with id " + projectId));
+        if (projectRepository.isUserManager(projectId, user.getId())
+                || projectRepository.isUserOwner(projectId, user.getId())) {
             User newEmployee = userRepository.findById(employeeId)
                     .orElseThrow(() -> new EntityNotFoundException("No employee with id "
                             + employeeId));
-            if (!project.getEmployees().contains(newEmployee)) {
-                project.getEmployees().add(newEmployee);
-            } else {
-                throw new ConflictException("Employee " + newEmployee.getId()
-                        + " is already part of the project");
-            }
-            return projectMapper.toProjectDto(projectRepository.save(project));
+            emailService.sendChangeEmail(user.getEmail(), newEmployee.getEmail(), project.getName(),
+                    projectId, employeeId, isNewEmployeeManager);
+            return new AssignEmployeeResponseDto("Employee " + employeeId
+                    + " has been invited to project " + projectId);
         } else {
             throw new ForbiddenException(
-                    "You should have MANAGER or SUPERVISOR access level to assign employee");
+                    "You should be owner or manager of this project "
+                            + "to assign new employees and managers");
         }
+    }
+
+    @Override
+    public ProjectDto acceptAssignmentToProject(HttpServletRequest request) {
+        paramFromHttpRequestUtil.parseRandomParameterAndToken(request);
+        String token = paramFromHttpRequestUtil.getTokenFromRepo(
+                paramFromHttpRequestUtil.getRandomParameter(),
+                paramFromHttpRequestUtil.getToken());
+        JwtAbstractUtil jwtActionUtil = jwtStrategy.getStrategy(ACTION);
+        jwtActionUtil.isValidToken(token);
+
+        Long projectId = Long.valueOf(paramFromHttpRequestUtil
+                .getNamedParameter(request, PROJECT_ID));
+        Project project = projectRepository.findByIdNotDeleted(projectId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "No active project with id " + projectId));
+
+        Long assigneeId = Long.valueOf(paramFromHttpRequestUtil
+                .getNamedParameter(request, ASSIGNEE_ID));
+        User assignee = userRepository.findById(assigneeId).orElseThrow(
+                () -> new EntityNotFoundException("No user with id " + assigneeId));
+
+        boolean isNewEmployeeManager = Boolean.parseBoolean(
+                paramFromHttpRequestUtil.getNamedParameter(request, IS_NEW_MANAGER));
+
+        project.getEmployees().add(assignee);
+        if (isNewEmployeeManager) {
+            project.getManagers().add(assignee);
+        }
+        return projectMapper.toProjectDto(projectRepository.save(project));
     }
 
     @Override
     public ProjectDto removeEmployeeFromProject(User user,
                                           Long projectId,
-                                          Long employeeId) throws ForbiddenException,
-                                                                    ConflictException {
-        Project project = projectRepository.findById(projectId).orElseThrow(
-                () -> new EntityNotFoundException("No project with id " + projectId));
-        if (accessLevelUtil.hasAdminAccess(user, project)) {
-            User newEmployee = userRepository.findById(employeeId)
+                                          Long employeeId) throws ForbiddenException {
+        if (user.getId().equals(employeeId)) {
+            throw new ForbiddenException("You cannot remove yourself from a project");
+        }
+        Project project = projectRepository.findByIdNotDeleted(projectId).orElseThrow(
+                () -> new EntityNotFoundException("No active project with id " + projectId));
+        if (projectRepository.isUserManager(projectId, user.getId())
+                || projectRepository.isUserOwner(projectId, user.getId())) {
+            User removedEmployee = userRepository.findById(employeeId)
                     .orElseThrow(() -> new EntityNotFoundException("No employee with id "
                             + employeeId));
-            if (project.getEmployees().contains(newEmployee)) {
-                project.getEmployees().remove(newEmployee);
-            } else {
-                throw new ConflictException("Employee " + newEmployee.getId()
-                        + " is not part of the project");
+            if (project.getManagers().contains(removedEmployee)) {
+                if (!projectRepository.isUserOwner(projectId, user.getId())) {
+                    throw new ForbiddenException("Only project owner can delete managers");
+                }
             }
+            project.getEmployees().remove(removedEmployee);
+            project.getManagers().remove(removedEmployee);
             return projectMapper.toProjectDto(projectRepository.save(project));
         } else {
             throw new ForbiddenException(
-                    "You should have MANAGER or SUPERVISOR access level to remove employee");
+                    "You should be owner or manager of this project "
+                            + "to assign new employees and managers");
         }
     }
 
-    private List<ProjectDto> getEmployeeProjects(Long authenticatedUserId, Pageable pageable) {
-        return projectMapper.toProjectDtoList(
-                projectRepository.findAllByEmployeeId(authenticatedUserId, pageable).getContent());
-    }
-
-    private List<ProjectDto> getManagerProjects(Long authenticatedUserId, Pageable pageable) {
-        return projectMapper.toProjectDtoList(
-                projectRepository.findAllByOwnerId(authenticatedUserId, pageable).getContent());
-    }
-
-    private List<ProjectDto> getAllProjects(Pageable pageable) {
-        return projectMapper.toProjectDtoList(
-                projectRepository.findAllNonDeleted(pageable).getContent());
-    }
-
-    private void updatePresentField(Project project,
+    private void updatePresentField(Long currentUserId,
+                                    Project project,
                                     UpdateProjectDto updateProjectDto,
                                     ProjectStatusDto projectStatusDto,
                                     List<ConflictException> exceptions) {
@@ -213,15 +241,13 @@ public class ProjectServiceImpl implements ProjectService {
         }
         if (updateProjectDto.ownerId() != null
                 && !updateProjectDto.ownerId().equals(project.getOwner().getId())) {
-            User newOwner = userRepository.findById(updateProjectDto.ownerId())
-                    .orElseThrow(() -> new EntityNotFoundException("No user with id "
-                            + updateProjectDto.ownerId()));
-            if (!newOwner.getRole().getName().equals(Role.RoleName.ROLE_MANAGER)
-                    && !newOwner.getRole().getName().equals(Role.RoleName.ROLE_SUPERVISOR)) {
-                exceptions.add(new ConflictException(
-                        "New owner should have MANAGER or SUPERVISOR access level"));
-            } else {
+            if (project.getOwner().getId().equals(currentUserId)) {
+                User newOwner = userRepository.findById(updateProjectDto.ownerId())
+                        .orElseThrow(() -> new EntityNotFoundException("No user with id "
+                                + updateProjectDto.ownerId()));
                 project.setOwner(newOwner);
+            } else {
+                exceptions.add(new ConflictException("Only owner can assign new owner"));
             }
         }
         if (projectStatusDto != null) {

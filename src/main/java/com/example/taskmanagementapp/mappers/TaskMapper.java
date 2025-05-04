@@ -4,7 +4,6 @@ import com.example.taskmanagementapp.config.MapperConfig;
 import com.example.taskmanagementapp.dtos.task.request.CreateTaskDto;
 import com.example.taskmanagementapp.dtos.task.request.TaskPriorityDto;
 import com.example.taskmanagementapp.dtos.task.request.TaskStatusDto;
-import com.example.taskmanagementapp.dtos.task.request.UpdateTaskDto;
 import com.example.taskmanagementapp.dtos.task.response.TaskDto;
 import com.example.taskmanagementapp.entities.Task;
 import java.util.List;
@@ -18,10 +17,6 @@ public interface TaskMapper {
     @Mapping(target = "project.id", source = "projectId")
     @Mapping(target = "assignee.id", source = "assigneeId")
     Task toCreateTask(CreateTaskDto createTaskDto);
-
-    @Mapping(target = "project.id", source = "projectId")
-    @Mapping(target = "assignee.id", source = "assigneeId")
-    Task toUpdateTask(UpdateTaskDto updateTaskDto);
 
     @Mapping(target = "projectId", source = "project.id")
     @Mapping(target = "assigneeId", source = "assignee.id")

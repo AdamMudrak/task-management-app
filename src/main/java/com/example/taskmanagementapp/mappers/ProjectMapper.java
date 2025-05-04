@@ -19,6 +19,7 @@ public interface ProjectMapper {
 
     @Mapping(target = "statusDto", ignore = true)
     @Mapping(target = "employeeIds", ignore = true)
+    @Mapping(target = "managerIds", ignore = true)
     @Mapping(target = "ownerId", source = "owner.id")
     ProjectDto toProjectDto(Project project);
 
@@ -32,6 +33,13 @@ public interface ProjectMapper {
     @AfterMapping
     default void setEmployeeIds(@MappingTarget ProjectDto projectDto, Project project) {
         projectDto.setEmployeeIds(project.getEmployees().stream()
+                .map(User::getId)
+                .collect(Collectors.toSet()));
+    }
+
+    @AfterMapping
+    default void setManagerIds(@MappingTarget ProjectDto projectDto, Project project) {
+        projectDto.setManagerIds(project.getManagers().stream()
                 .map(User::getId)
                 .collect(Collectors.toSet()));
     }

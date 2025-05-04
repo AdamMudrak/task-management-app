@@ -13,6 +13,8 @@ public class UserControllerConstants {
     public static final String UPDATE_PROFILE_INFO = "/me";
     public static final String UPDATE_USER_ROLE = "/{employeeId}/role";
     public static final String CHANGE_EMAIL_SUCCESS = "/change-email-success";
+    public static final String CHANGE_USER_ACCOUNT_STATUS_PATH =
+            "/change-user-account-status/{userId}";
 
     public static final String GET_PROFILE_INFO_SUMMARY = "Retrieve profile info";
     public static final String SUCCESSFULLY_RETRIEVED = "Successfully retrieved profile info";
@@ -24,11 +26,12 @@ public class UserControllerConstants {
     public static final String UPDATE_USER_ROLE_SUMMARY = "Update user role";
     public static final String SUCCESSFULLY_UPDATED_ROLE = "Successfully updated user role";
 
-    public static final String CHANGE_EMAIL_CONFIRMATION = "Confirm email change";
-    public static final String SUCCESSFULLY_CHANGED_EMAIL = "Successfully changed email";
-
     public static final String RETRIEVE_ALL_USERS = "Retrieve all users";
     public static final String SUCCESSFULLY_RETRIEVE_ALL_USERS = "Successfully retrieved all users";
+
+    public static final String CHANGE_USER_ACCOUNT_STATUS = "Enable or disable user account";
+    public static final String SUCCESSFULLY_CHANGED_STATUS =
+            "Successfully changed user account status";
 
     public static final String PAGEABLE_EXAMPLE = """
             {"page": 0,

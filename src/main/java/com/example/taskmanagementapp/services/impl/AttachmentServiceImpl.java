@@ -1,5 +1,8 @@
 package com.example.taskmanagementapp.services.impl;
 
+import static com.example.taskmanagementapp.constants.services.attachment.AttachmentServiceConstants.PATH_SPLITERATOR;
+import static com.example.taskmanagementapp.constants.services.attachment.AttachmentServiceConstants.TASK_PATH;
+
 import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.sharing.CreateSharedLinkWithSettingsErrorException;
@@ -12,8 +15,8 @@ import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
 import com.example.taskmanagementapp.exceptions.notfoundexceptions.EntityNotFoundException;
 import com.example.taskmanagementapp.mappers.AttachmentMapper;
 import com.example.taskmanagementapp.repositories.attachment.AttachmentRepository;
+import com.example.taskmanagementapp.repositories.project.ProjectRepository;
 import com.example.taskmanagementapp.repositories.task.TaskRepository;
-import com.example.taskmanagementapp.security.utils.CheckUserAccessLevelUtil;
 import com.example.taskmanagementapp.services.AttachmentService;
 import com.example.taskmanagementapp.services.util.TransliterationUtil;
 import java.io.IOException;
@@ -27,13 +30,10 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @RequiredArgsConstructor
 public class AttachmentServiceImpl implements AttachmentService {
-    //TODO Вынести эти константы
-    private static final String TASK_PATH = "/task";
-    private static final String PATH_SPLITERATOR = "/";
     private final DbxClientV2 client;
     private final AttachmentRepository attachmentRepository;
     private final TaskRepository taskRepository;
-    private final CheckUserAccessLevelUtil accessLevelUtil;
+    private final ProjectRepository projectRepository;
     private final AttachmentMapper attachmentMapper;
     private final TransliterationUtil transliterationService;
 
@@ -43,13 +43,17 @@ public class AttachmentServiceImpl implements AttachmentService {
                                           MultipartFile[] uploadFiles) throws ForbiddenException,
                                                                                     IOException,
                                                                                     DbxException {
-        Task task = taskRepository.findById(taskId).orElseThrow(
-                () -> new EntityNotFoundException("Task with id "
+        Task task = taskRepository.findByIdNotDeleted(taskId).orElseThrow(
+                () -> new EntityNotFoundException("Active task with id "
                         + taskId + " not found"));
+        Long thisTaskProjectId = task.getProject().getId();
+        Long thisUserId = authenticatedUser.getId();
 
-        if (accessLevelUtil.hasAnyAccess(authenticatedUser, task.getProject())) {
+        if (projectRepository.isUserOwner(thisTaskProjectId, thisUserId)
+                || projectRepository.isUserEmployee(thisTaskProjectId, thisUserId)
+                || projectRepository.isUserManager(thisTaskProjectId, thisUserId)) {
             List<Attachment> attachments = uploadFilesToDropbox(uploadFiles, task);
-            return attachmentMapper.toAttachmentDtoList(attachments);
+            return attachmentMapper.toAttachmentDtoList(attachmentRepository.saveAll(attachments));
         } else {
             throw new ForbiddenException("You have no permission to add attachment to task "
                     + task.getId() + " since you are not in project " + task.getProject().getId());
@@ -59,14 +63,19 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Override
     public List<AttachmentDto> getAttachmentForTask(User authenticatedUser, Long taskId)
             throws ForbiddenException {
-        Task task = taskRepository.findById(taskId).orElseThrow(
-                () -> new EntityNotFoundException("Task with id "
+        Task task = taskRepository.findByIdNotDeleted(taskId).orElseThrow(
+                () -> new EntityNotFoundException("Active task with id "
                         + taskId + " not found"));
-        if (accessLevelUtil.hasAnyAccess(authenticatedUser, task.getProject())) {
+        Long thisTaskProjectId = task.getProject().getId();
+        Long thisUserId = authenticatedUser.getId();
+
+        if (projectRepository.isUserOwner(thisTaskProjectId, thisUserId)
+                || projectRepository.isUserEmployee(thisTaskProjectId, thisUserId)
+                || projectRepository.isUserManager(thisTaskProjectId, thisUserId)) {
             return attachmentMapper.toAttachmentDtoList(
                     attachmentRepository.findAllByTaskId(taskId));
         } else {
-            throw new ForbiddenException("You have no permission to get attachment for task "
+            throw new ForbiddenException("You have no permission to get attachments for task "
                     + task.getId() + " since you are not in project " + task.getProject().getId());
         }
     }
@@ -74,18 +83,24 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Override
     public void deleteAttachmentFromTask(User authenticatedUser, Long taskId, Long attachmentId)
             throws DbxException, ForbiddenException {
-        Task task = taskRepository.findById(taskId).orElseThrow(
-                () -> new EntityNotFoundException("Task with id "
+        Task task = taskRepository.findByIdNotDeleted(taskId).orElseThrow(
+                () -> new EntityNotFoundException("Active task with id "
                         + taskId + " not found"));
         Attachment attachment = attachmentRepository.findById(attachmentId).orElseThrow(
                 () -> new EntityNotFoundException("Attachment with id "
                 + attachmentId + " not found"));
-        if (accessLevelUtil.hasAnyAccess(authenticatedUser, task.getProject())) {
+
+        Long thisTaskProjectId = task.getProject().getId();
+        Long thisUserId = authenticatedUser.getId();
+
+        if (projectRepository.isUserOwner(thisTaskProjectId, thisUserId)
+                || projectRepository.isUserEmployee(thisTaskProjectId, thisUserId)
+                || projectRepository.isUserManager(thisTaskProjectId, thisUserId)) {
             client.files().deleteV2(TASK_PATH + task.getId()
                     + PATH_SPLITERATOR + attachment.getFileName());
             attachmentRepository.deleteById(attachmentId);
         } else {
-            throw new ForbiddenException("You have no permission to get attachment for task "
+            throw new ForbiddenException("You have no permission to delete attachment from task "
                     + task.getId() + " since you are not in project " + task.getProject().getId());
         }
     }
@@ -104,7 +119,7 @@ public class AttachmentServiceImpl implements AttachmentService {
                     TASK_PATH + task.getId() + PATH_SPLITERATOR + fileName));
             Attachment thisAttachment = attachmentMapper.toAttachment(
                     task, sharedLink, fileName);
-            attachments.add(attachmentRepository.save(thisAttachment));
+            attachments.add(thisAttachment);
         }
         return attachments;
     }
