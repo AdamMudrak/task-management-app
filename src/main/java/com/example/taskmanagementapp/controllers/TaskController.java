@@ -4,9 +4,7 @@ import static com.example.taskmanagementapp.constants.Constants.CODE_200;
 import static com.example.taskmanagementapp.constants.Constants.CODE_201;
 import static com.example.taskmanagementapp.constants.Constants.CODE_400;
 import static com.example.taskmanagementapp.constants.Constants.INVALID_ENTITY_VALUE;
-import static com.example.taskmanagementapp.constants.Constants.ROLE_EMPLOYEE;
-import static com.example.taskmanagementapp.constants.Constants.ROLE_MANAGER;
-import static com.example.taskmanagementapp.constants.Constants.ROLE_SUPERVISOR;
+import static com.example.taskmanagementapp.constants.Constants.ROLE_USER;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.CREATE_TASK;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.DELETE_TASK_BY_ID;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.GET_ALL_PROJECT_TASKS;
@@ -67,8 +65,7 @@ public class TaskController {
     @ApiResponse(responseCode = CODE_201, description = SUCCESSFULLY_CREATED_TASK)
     @ApiResponse(responseCode = CODE_400, description = INVALID_ENTITY_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize(ROLE_MANAGER + " or "
-            + ROLE_SUPERVISOR)
+    @PreAuthorize(ROLE_USER)
     @PostMapping
     TaskDto createTask(@AuthenticationPrincipal User user,
                        @RequestBody CreateTaskDto createTaskDto,
@@ -79,9 +76,7 @@ public class TaskController {
     @Operation(summary = GET_TASKS_BY_PROJECT_ID)
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_GET_TASKS_BY_PROJECT_ID)
     @GetMapping(GET_ALL_PROJECT_TASKS)
-    @PreAuthorize(ROLE_EMPLOYEE + " or "
-            + ROLE_MANAGER + " or "
-            + ROLE_SUPERVISOR)
+    @PreAuthorize(ROLE_USER)
     List<TaskDto> getTasksByProjectId(@AuthenticationPrincipal User user,
                                       @PathVariable @Positive Long projectId,
                                       @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable)
@@ -92,19 +87,16 @@ public class TaskController {
     @Operation(summary = GET_TASK_BY_ID)
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_GET_TASK_BY_ID)
     @GetMapping(TASK_BY_ID)
-    @PreAuthorize(ROLE_EMPLOYEE + " or "
-            + ROLE_MANAGER + " or "
-            + ROLE_SUPERVISOR)
+    @PreAuthorize(ROLE_USER)
     TaskDto getTaskById(@AuthenticationPrincipal User user,
                            @PathVariable Long taskId) throws ForbiddenException {
-        return taskService.getTask(user, taskId);
+        return taskService.getTaskById(user, taskId);
     }
 
     @Operation(summary = UPDATE_TASK_BY_ID)
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_UPDATED_TASK_BY_ID)
     @PutMapping(TASK_BY_ID)
-    @PreAuthorize(ROLE_MANAGER + " or "
-            + ROLE_SUPERVISOR)
+    @PreAuthorize(ROLE_USER)
     TaskDto updateTaskById(@AuthenticationPrincipal User user,
                            @RequestBody UpdateTaskDto updateTaskDto,
                            @PathVariable @Positive Long taskId,
@@ -117,8 +109,7 @@ public class TaskController {
     @Operation(summary = DELETE_TASK_BY_ID)
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_DELETED_TASK_BY_ID)
     @DeleteMapping(TASK_BY_ID)
-    @PreAuthorize(ROLE_MANAGER + " or "
-            + ROLE_SUPERVISOR)
+    @PreAuthorize(ROLE_USER)
     void deleteTaskById(@AuthenticationPrincipal User user,
                         @PathVariable @Positive Long taskId) throws ForbiddenException {
         taskService.deleteTask(user, taskId);
