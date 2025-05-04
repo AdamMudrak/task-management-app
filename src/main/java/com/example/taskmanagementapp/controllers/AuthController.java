@@ -5,7 +5,7 @@ import static com.example.taskmanagementapp.constants.Constants.CODE_200;
 import static com.example.taskmanagementapp.constants.Constants.CODE_201;
 import static com.example.taskmanagementapp.constants.Constants.CODE_400;
 import static com.example.taskmanagementapp.constants.Constants.INVALID_ENTITY_VALUE;
-import static com.example.taskmanagementapp.constants.Constants.ROLE_EMPLOYEE;
+import static com.example.taskmanagementapp.constants.Constants.ROLE_USER;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.AUTH;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.AUTH_API_DESCRIPTION;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.AUTH_API_NAME;
@@ -135,7 +135,7 @@ public class AuthController {
             SUCCESSFULLY_CHANGE_PASSWORD)
     @ApiResponse(responseCode = CODE_400, description = INVALID_ENTITY_VALUE)
     @ApiResponse(responseCode = Constants.CODE_401, description = AUTHORIZATION_REQUIRED)
-    @PreAuthorize(ROLE_EMPLOYEE)
+    @PreAuthorize(ROLE_USER)
     @PostMapping(CHANGE_PASSWORD)
     public ChangePasswordSuccessDto changePassword(@AuthenticationPrincipal User user,
                                                    @RequestBody @Valid SetNewPasswordDto request)

@@ -1,8 +1,7 @@
 package com.example.taskmanagementapp.controllers;
 
-import static com.example.taskmanagementapp.constants.Constants.ROLE_EMPLOYEE;
-import static com.example.taskmanagementapp.constants.Constants.ROLE_MANAGER;
-import static com.example.taskmanagementapp.constants.Constants.ROLE_SUPERVISOR;
+import static com.example.taskmanagementapp.constants.Constants.ROLE_ADMIN;
+import static com.example.taskmanagementapp.constants.Constants.ROLE_USER;
 
 import com.dropbox.core.DbxException;
 import com.example.taskmanagementapp.dtos.attachment.response.AttachmentDto;
@@ -34,9 +33,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class AttachmentController {
     private final AttachmentService attachmentService;
 
-    @PreAuthorize(ROLE_EMPLOYEE + " or "
-            + ROLE_MANAGER + " or "
-            + ROLE_SUPERVISOR)
+    @PreAuthorize(ROLE_USER + " or "
+            + ROLE_ADMIN)
     @PostMapping(path = "/{taskId}",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -47,9 +45,8 @@ public class AttachmentController {
         return attachmentService.uploadAttachmentForTask(user, taskId, attachmentFile);
     }
 
-    @PreAuthorize(ROLE_EMPLOYEE + " or "
-            + ROLE_MANAGER + " or "
-            + ROLE_SUPERVISOR)
+    @PreAuthorize(ROLE_USER + " or "
+            + ROLE_ADMIN)
     @GetMapping("/{taskId}")
     public List<AttachmentDto> getAttachment(@AuthenticationPrincipal User user,
                                                         @PathVariable @Positive Long taskId)
@@ -57,6 +54,8 @@ public class AttachmentController {
         return attachmentService.getAttachmentForTask(user, taskId);
     }
 
+    @PreAuthorize(ROLE_USER + " or "
+            + ROLE_ADMIN)
     @DeleteMapping("/{taskId}/{attachmentId}")
     public void deleteAttachment(@AuthenticationPrincipal User user,
                                  @PathVariable @Positive Long taskId,
