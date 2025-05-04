@@ -1,6 +1,7 @@
 package com.example.taskmanagementapp.services.impl;
 
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACTION;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.NEW_EMAIL;
 
 import com.example.taskmanagementapp.dtos.role.RoleNameDto;
 import com.example.taskmanagementapp.dtos.user.request.UpdateUserProfileDto;
@@ -19,7 +20,7 @@ import com.example.taskmanagementapp.repositories.user.UserRepository;
 import com.example.taskmanagementapp.security.email.ChangeEmailService;
 import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
 import com.example.taskmanagementapp.security.jwtutils.strategy.JwtStrategy;
-import com.example.taskmanagementapp.security.utils.RandomParamFromHttpRequestUtil;
+import com.example.taskmanagementapp.security.utils.ParamFromHttpRequestUtil;
 import com.example.taskmanagementapp.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -32,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final ChangeEmailService changeEmailService;
-    private final RandomParamFromHttpRequestUtil randomParamFromHttpRequestUtil;
+    private final ParamFromHttpRequestUtil randomParamFromHttpRequestUtil;
     private final ParamTokenRepository paramTokenRepository;
     private final JwtStrategy jwtStrategy;
     private final UserRepository userRepository;
@@ -139,7 +140,8 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new EntityNotFoundException("User with email "
                         + email + " was not found"));
-        user.setEmail(randomParamFromHttpRequestUtil.getNewEmail(httpServletRequest));
+        user.setEmail(randomParamFromHttpRequestUtil.getNamedParameter(httpServletRequest,
+                NEW_EMAIL));
 
         ParamToken paramToken = paramTokenRepository.findByActionToken(token).orElseThrow(()
                 -> new EntityNotFoundException("No such request"));

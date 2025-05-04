@@ -43,7 +43,7 @@ import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.badrequest.RegistrationException;
 import com.example.taskmanagementapp.exceptions.conflictexpections.PasswordMismatchException;
 import com.example.taskmanagementapp.exceptions.forbidden.LoginException;
-import com.example.taskmanagementapp.security.utils.RandomParamFromHttpRequestUtil;
+import com.example.taskmanagementapp.security.utils.ParamFromHttpRequestUtil;
 import com.example.taskmanagementapp.services.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -69,7 +69,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(AUTH)
 public class AuthController {
     private final AuthenticationService authenticationService;
-    private final RandomParamFromHttpRequestUtil randomParamFromHttpRequestUtil;
+    private final ParamFromHttpRequestUtil randomParamFromHttpRequestUtil;
 
     @Operation(summary = REGISTER_SUMMARY)
     @ApiResponse(responseCode = CODE_201, description =
