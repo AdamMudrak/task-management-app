@@ -20,10 +20,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     Page<Project> findAllByOwnerId(Long ownerId, Pageable pageable);
 
     @Query("SELECT p FROM Project p "
-            + "WHERE p.isDeleted = false")
-    Page<Project> findAllNonDeleted(Pageable pageable);
-
-    @Query("SELECT p FROM Project p "
-            + "WHERE p.isDeleted = true")
-    Page<Project> findAllDeleted(Pageable pageable);
+            + "WHERE p.owner.id = :ownerId "
+            + " AND p.isDeleted = true ")
+    Page<Project> findAllByOwnerIdDeleted(Long ownerId, Pageable pageable);
 }
