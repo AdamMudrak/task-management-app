@@ -220,6 +220,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     private void isEnabled(User user) throws LoginException {
+        if (!user.isAccountNonLocked()) {
+            throw new LoginException("Your account is locked. Consider contacting support team");
+        }
         if (!user.isEnabled()) {
             passwordEmailService.sendActionMessage(user.getEmail(), CONFIRMATION);
             throw new LoginException(REGISTERED_BUT_NOT_ACTIVATED);

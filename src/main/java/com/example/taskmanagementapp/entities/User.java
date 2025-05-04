@@ -1,6 +1,10 @@
 package com.example.taskmanagementapp.entities;
 
 import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.BOOLEAN_TO_INT;
+import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.FIRST_NAME;
+import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.IS_ACCOUNT_NON_LOCKED;
+import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.IS_ENABLED;
+import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.LAST_NAME;
 import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.ROLE_ID;
 import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.USERS;
 
@@ -34,15 +38,17 @@ public class User implements UserDetails {
     private String password;
     @Column(unique = true, nullable = false)
     private String email;
-    @Column(nullable = false, name = "first_name")
+    @Column(nullable = false, name = FIRST_NAME)
     private String firstName;
-    @Column(nullable = false, name = "last_name")
+    @Column(nullable = false, name = LAST_NAME)
     private String lastName;
     @ManyToOne
     @JoinColumn(name = ROLE_ID)
     private Role role;
-    @Column(nullable = false, columnDefinition = BOOLEAN_TO_INT)
+    @Column(nullable = false, columnDefinition = BOOLEAN_TO_INT, name = IS_ENABLED)
     private boolean isEnabled;
+    @Column(nullable = false, columnDefinition = BOOLEAN_TO_INT, name = IS_ACCOUNT_NON_LOCKED)
+    private boolean isAccountNonLocked = true;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -54,5 +60,10 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return isEnabled;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return isAccountNonLocked;
     }
 }

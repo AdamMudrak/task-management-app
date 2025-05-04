@@ -19,6 +19,8 @@ public interface UserService {
     UserProfileInfoDtoOnUpdate updateProfileInfo(Long authenticatedUserId,
                                                  UpdateUserProfileDto updateUserProfileDto);
 
+    void disableUser(Long disabledUserId);
+
     List<UserProfileInfoDto> getAllUsers(Pageable pageable);
 
     UserProfileInfoDto confirmEmailChange(HttpServletRequest httpServletRequest);

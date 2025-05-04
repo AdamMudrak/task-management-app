@@ -95,6 +95,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void disableUser(Long disabledUserId) {
+        User thisUser = userRepository.findById(disabledUserId).orElseThrow(
+                () -> new EntityNotFoundException("User with id " + disabledUserId + " not found"));
+        thisUser.setEnabled(false);
+        thisUser.setAccountNonLocked(false);
+    }
+
+    @Override
     public List<UserProfileInfoDto> getAllUsers(Pageable pageable) {
         return userRepository.findAll(pageable).map(userMapper::toUserProfileInfoDto).getContent();
     }
