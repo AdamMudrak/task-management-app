@@ -3,6 +3,10 @@ package com.example.taskmanagementapp.constants.entitities;
 public class EntitiesConstants {
 
     public static final String USERS = "users";
+    public static final String FIRST_NAME = "first_name";
+    public static final String LAST_NAME = "last_name";
+    public static final String IS_ENABLED = "is_enabled";
+    public static final String IS_ACCOUNT_NON_LOCKED = "is_account_non_locked";
 
     public static final String ROLES = "roles";
     public static final String ROLE_ID = "role_id";
