@@ -13,7 +13,6 @@ import com.example.taskmanagementapp.mappers.ProjectMapper;
 import com.example.taskmanagementapp.repositories.project.ProjectRepository;
 import com.example.taskmanagementapp.repositories.task.TaskRepository;
 import com.example.taskmanagementapp.repositories.user.UserRepository;
-import com.example.taskmanagementapp.security.utils.CheckUserAccessLevelUtil;
 import com.example.taskmanagementapp.services.ProjectService;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +27,6 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
-    private final CheckUserAccessLevelUtil accessLevelUtil;
 
     @Override
     public ProjectDto createProject(User user,
@@ -63,10 +61,10 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public ProjectDto getProjectById(User user,
                                      Long projectId) throws ForbiddenException {
-        Project project = projectRepository.findById(projectId).orElseThrow(
-                () -> new EntityNotFoundException("No project with id " + projectId));
-        isProjectDeleted(project);
-        if (accessLevelUtil.hasAnyAccess(user, project)) {
+        Project project = projectRepository.findByIdNotDeleted(projectId).orElseThrow(
+                () -> new EntityNotFoundException("No active project with id " + projectId));
+        if (projectRepository.isUserEmployee(projectId, user.getId())
+                || projectRepository.isUserOwner(projectId, user.getId())) {
             return projectMapper.toProjectDto(project);
         } else {
             throw new ForbiddenException("You have no permission to access this project");
@@ -79,11 +77,11 @@ public class ProjectServiceImpl implements ProjectService {
                                         UpdateProjectDto updateProjectDto,
                                         ProjectStatusDto projectStatusDto)
                                         throws ForbiddenException, ConflictException {
-        Project project = projectRepository.findById(projectId).orElseThrow(
-                () -> new EntityNotFoundException("No project with id " + projectId));
-        isProjectDeleted(project);
+        Project project = projectRepository.findByIdNotDeleted(projectId).orElseThrow(
+                () -> new EntityNotFoundException("No active project with id " + projectId));
         List<ConflictException> exceptions = new ArrayList<>();
-        if (accessLevelUtil.hasManagerialAccess(user, project)) {
+        if (projectRepository.isUserManager(projectId, user.getId())
+                || projectRepository.isUserOwner(projectId, user.getId())) {
             updatePresentField(user.getId(), project,
                     updateProjectDto, projectStatusDto, exceptions);
         } else {
@@ -99,10 +97,10 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public void deleteProjectById(User user,
                                   Long projectId) throws ForbiddenException {
-        Project project = projectRepository.findById(projectId).orElseThrow(
-                () -> new EntityNotFoundException("No project with id " + projectId));
-        isProjectDeleted(project);
-        if (accessLevelUtil.isUserOwner(user, project)) {
+        if (!projectRepository.existsByIdNotDeleted(projectId)) {
+            throw new EntityNotFoundException("No active project with id " + projectId);
+        }
+        if (projectRepository.isUserOwner(projectId, user.getId())) {
             projectRepository.deleteById(projectId);
             taskRepository.deleteAllByProjectId(projectId);
         } else {
@@ -115,10 +113,10 @@ public class ProjectServiceImpl implements ProjectService {
                                         Long projectId,
                                         Long employeeId,
                                         boolean isNewEmployeeManager) throws ForbiddenException {
-        Project project = projectRepository.findById(projectId).orElseThrow(
-                () -> new EntityNotFoundException("No project with id " + projectId));
-        isProjectDeleted(project);
-        if (accessLevelUtil.hasManagerialAccess(user, project)) {
+        Project project = projectRepository.findByIdNotDeleted(projectId).orElseThrow(
+                () -> new EntityNotFoundException("No active project with id " + projectId));
+        if (projectRepository.isUserManager(projectId, user.getId())
+                || projectRepository.isUserOwner(projectId, user.getId())) {
             User newEmployee = userRepository.findById(employeeId)
                     .orElseThrow(() -> new EntityNotFoundException("No employee with id "
                             + employeeId));
@@ -138,14 +136,15 @@ public class ProjectServiceImpl implements ProjectService {
     public ProjectDto removeEmployeeFromProject(User user,
                                           Long projectId,
                                           Long employeeId) throws ForbiddenException {
-        Project project = projectRepository.findById(projectId).orElseThrow(
-                () -> new EntityNotFoundException("No project with id " + projectId));
-        if (accessLevelUtil.hasManagerialAccess(user, project)) {
+        Project project = projectRepository.findByIdNotDeleted(projectId).orElseThrow(
+                () -> new EntityNotFoundException("No active project with id " + projectId));
+        if (projectRepository.isUserManager(projectId, user.getId())
+                || projectRepository.isUserOwner(projectId, user.getId())) {
             User removedEmployee = userRepository.findById(employeeId)
                     .orElseThrow(() -> new EntityNotFoundException("No employee with id "
                             + employeeId));
             if (project.getManagers().contains(removedEmployee)) {
-                accessLevelUtil.isUserOwner(user, project);
+                projectRepository.isUserOwner(projectId, user.getId());
             } else {
                 throw new ForbiddenException("Only project owner can delete managers");
             }
@@ -212,11 +211,5 @@ public class ProjectServiceImpl implements ProjectService {
             exceptionMessages.append(e.getMessage()).append(System.lineSeparator());
         }
         return new ConflictException(exceptionMessages.toString());
-    }
-
-    private void isProjectDeleted(Project project) throws ForbiddenException {
-        if (project.isDeleted()) {
-            throw new ForbiddenException("Project with id " + project.getId() + " is deleted");
-        }
     }
 }
