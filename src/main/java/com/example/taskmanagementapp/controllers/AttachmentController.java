@@ -2,6 +2,9 @@ package com.example.taskmanagementapp.controllers;
 
 import static com.example.taskmanagementapp.constants.Constants.ROLE_ADMIN;
 import static com.example.taskmanagementapp.constants.Constants.ROLE_USER;
+import static com.example.taskmanagementapp.constants.controllers.AttachmentControllerConstants.ATTACHMENTS;
+import static com.example.taskmanagementapp.constants.controllers.AttachmentControllerConstants.TASK_ID;
+import static com.example.taskmanagementapp.constants.controllers.AttachmentControllerConstants.TASK_ID_ATTACHMENT_ID;
 
 import com.dropbox.core.DbxException;
 import com.example.taskmanagementapp.dtos.attachment.response.AttachmentDto;
@@ -24,10 +27,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-
-//TODO добавить тут константы
 @RestController
-@RequestMapping("/attachments")
+@RequestMapping(ATTACHMENTS)
 @RequiredArgsConstructor
 @Validated
 public class AttachmentController {
@@ -35,7 +36,7 @@ public class AttachmentController {
 
     @PreAuthorize(ROLE_USER + " or "
             + ROLE_ADMIN)
-    @PostMapping(path = "/{taskId}",
+    @PostMapping(path = TASK_ID,
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
     public List<AttachmentDto> addAttachment(@AuthenticationPrincipal User user,
@@ -47,7 +48,7 @@ public class AttachmentController {
 
     @PreAuthorize(ROLE_USER + " or "
             + ROLE_ADMIN)
-    @GetMapping("/{taskId}")
+    @GetMapping(TASK_ID)
     public List<AttachmentDto> getAttachment(@AuthenticationPrincipal User user,
                                                         @PathVariable @Positive Long taskId)
             throws ForbiddenException, IOException, DbxException {
@@ -56,7 +57,7 @@ public class AttachmentController {
 
     @PreAuthorize(ROLE_USER + " or "
             + ROLE_ADMIN)
-    @DeleteMapping("/{taskId}/{attachmentId}")
+    @DeleteMapping(TASK_ID_ATTACHMENT_ID)
     public void deleteAttachment(@AuthenticationPrincipal User user,
                                  @PathVariable @Positive Long taskId,
                                  @PathVariable @Positive Long attachmentId)
