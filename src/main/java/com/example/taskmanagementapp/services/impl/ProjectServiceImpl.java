@@ -190,9 +190,9 @@ public class ProjectServiceImpl implements ProjectService {
                     .orElseThrow(() -> new EntityNotFoundException("No employee with id "
                             + employeeId));
             if (project.getManagers().contains(removedEmployee)) {
-                projectRepository.isUserOwner(projectId, user.getId());
-            } else {
-                throw new ForbiddenException("Only project owner can delete managers");
+                if (!projectRepository.isUserOwner(projectId, user.getId())) {
+                    throw new ForbiddenException("Only project owner can delete managers");
+                }
             }
             project.getEmployees().remove(removedEmployee);
             project.getManagers().remove(removedEmployee);
