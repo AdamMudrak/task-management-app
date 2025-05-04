@@ -7,8 +7,11 @@ import static com.example.taskmanagementapp.constants.Constants.CODE_400;
 import static com.example.taskmanagementapp.constants.Constants.INVALID_ENTITY_VALUE;
 import static com.example.taskmanagementapp.constants.Constants.ROLE_ADMIN;
 import static com.example.taskmanagementapp.constants.Constants.ROLE_USER;
+import static com.example.taskmanagementapp.constants.controllers.ProjectControllerConstants.ACCEPT_INVITE;
 import static com.example.taskmanagementapp.constants.controllers.ProjectControllerConstants.ADD_EMPLOYEE_TO_PROJECT;
+import static com.example.taskmanagementapp.constants.controllers.ProjectControllerConstants.ASSIGNED;
 import static com.example.taskmanagementapp.constants.controllers.ProjectControllerConstants.ASSIGN_EMPLOYEE;
+import static com.example.taskmanagementapp.constants.controllers.ProjectControllerConstants.CREATED;
 import static com.example.taskmanagementapp.constants.controllers.ProjectControllerConstants.CREATE_PROJECT;
 import static com.example.taskmanagementapp.constants.controllers.ProjectControllerConstants.DELETED;
 import static com.example.taskmanagementapp.constants.controllers.ProjectControllerConstants.DELETE_EMPLOYEE_FROM_PROJECT;
@@ -46,6 +49,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Positive;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -92,7 +96,7 @@ public class ProjectController {
             SUCCESSFULLY_GET_ALL_ASSIGNED_PROJECTS)
     @PreAuthorize(ROLE_USER + " or "
             + ROLE_ADMIN)
-    @GetMapping
+    @GetMapping(ASSIGNED)
     List<ProjectDto> getAssignedProjects(@AuthenticationPrincipal User user,
                                     @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {
         return projectService.getAssignedProjects(user.getId(), pageable);
@@ -103,7 +107,7 @@ public class ProjectController {
             SUCCESSFULLY_GET_ALL_CREATED_PROJECTS)
     @PreAuthorize(ROLE_USER + " or "
             + ROLE_ADMIN)
-    @GetMapping
+    @GetMapping(CREATED)
     List<ProjectDto> getCreatedProjects(@AuthenticationPrincipal User user,
                                          @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {
         return projectService.getCreatedProjects(user.getId(), pageable);
@@ -160,18 +164,25 @@ public class ProjectController {
     }
 
     @Operation(summary = ADD_EMPLOYEE_TO_PROJECT)
-    @ApiResponse(responseCode = CODE_200, description =
+    @ApiResponse(responseCode = CODE_204, description =
             SUCCESSFULLY_ADDED_EMPLOYEE_TO_PROJECT)
     @PreAuthorize(ROLE_USER + " or "
             + ROLE_ADMIN)
     @PostMapping(ASSIGN_EMPLOYEE)
-    ProjectDto assignEmployeeToProject(@AuthenticationPrincipal User user,
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void assignEmployeeToProject(@AuthenticationPrincipal User user,
                                  @PathVariable @Positive Long projectId,
                                  @PathVariable @Positive Long employeeId,
                                  boolean isNewEmployeeManager) throws ForbiddenException,
                                                                         ConflictException {
-        return projectService.assignEmployeeToProject(user, projectId,
+        projectService.assignEmployeeToProject(user, projectId,
                 employeeId, isNewEmployeeManager);
+    }
+
+    @Operation(hidden = true)
+    @GetMapping(ACCEPT_INVITE)
+    ProjectDto acceptInvite(HttpServletRequest request) {
+        return projectService.acceptAssignmentToProject(request);
     }
 
     @Operation(summary = DELETE_EMPLOYEE_FROM_PROJECT)

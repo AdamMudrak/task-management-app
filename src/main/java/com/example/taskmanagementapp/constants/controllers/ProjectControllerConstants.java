@@ -9,8 +9,12 @@ public class ProjectControllerConstants {
             assign employees to or remove from projects
             """;
     public static final String PROJECTS = "/projects";
+    public static final String ASSIGNED = "/assigned";
+    public static final String CREATED = "/created";
     public static final String DELETED = "/deleted";
     public static final String PROJECT_ID = "/{projectId}";
+    public static final String ACCEPT_INVITE = "/accept-invite";
+
     public static final String ASSIGN_EMPLOYEE = "assign-employee/{projectId}/{employeeId}";
     public static final String REMOVE_EMPLOYEE = "remove-employee/{projectId}/{employeeId}";
 

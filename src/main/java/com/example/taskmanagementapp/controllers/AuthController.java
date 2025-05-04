@@ -12,7 +12,6 @@ import static com.example.taskmanagementapp.constants.controllers.AuthController
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.CHANGE_PASSWORD;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.CHANGE_PASSWORD_SUMMARY;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.CONFIRM_REGISTRATION;
-import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.CONFIRM_SUMMARY;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.EMAIL_LOGIN_SUMMARY;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.FORGOT_PASSWORD;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.INITIATE_PASSWORD_RESET_SUMMARY;
@@ -20,13 +19,10 @@ import static com.example.taskmanagementapp.constants.controllers.AuthController
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.REGISTER;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.REGISTER_SUMMARY;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.RESET_PASSWORD;
-import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.RESET_PASSWORD_SUMMARY;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.SUCCESSFULLY_CHANGE_PASSWORD;
-import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.SUCCESSFULLY_CONFIRMED;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.SUCCESSFULLY_INITIATED_PASSWORD_RESET;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.SUCCESSFULLY_LOGGED_IN;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.SUCCESSFULLY_REGISTERED;
-import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.SUCCESSFULLY_RESET_PASSWORD;
 
 import com.example.taskmanagementapp.constants.Constants;
 import com.example.taskmanagementapp.dtos.authentication.request.GetLinkToResetPasswordDto;
@@ -83,9 +79,7 @@ public class AuthController {
         return authenticationService.register(requestDto);
     }
 
-    @Operation(summary = CONFIRM_SUMMARY, hidden = true)
-    @ApiResponse(responseCode = CODE_200, description =
-            SUCCESSFULLY_CONFIRMED)
+    @Operation(hidden = true)
     @GetMapping(CONFIRM_REGISTRATION)
     public RegistrationConfirmationSuccessDto confirmRegistration(
             HttpServletRequest httpServletRequest) {
@@ -117,10 +111,7 @@ public class AuthController {
         return authenticationService.sendPasswordResetLink(request.emailOrUsername());
     }
 
-    @Operation(summary = RESET_PASSWORD_SUMMARY, hidden = true)
-    @ApiResponse(responseCode = CODE_200, description =
-            SUCCESSFULLY_RESET_PASSWORD)
-    @ApiResponse(responseCode = CODE_400, description = INVALID_ENTITY_VALUE)
+    @Operation(hidden = true)
     @GetMapping(RESET_PASSWORD)
     public LinkToResetPasswordSuccessDto resetPassword(HttpServletRequest httpServletRequest) {
         randomParamFromHttpRequestUtil.parseRandomParameterAndToken(httpServletRequest);

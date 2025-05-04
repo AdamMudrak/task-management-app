@@ -4,7 +4,6 @@ import static com.example.taskmanagementapp.constants.Constants.CODE_200;
 import static com.example.taskmanagementapp.constants.Constants.CODE_204;
 import static com.example.taskmanagementapp.constants.Constants.ROLE_ADMIN;
 import static com.example.taskmanagementapp.constants.Constants.ROLE_USER;
-import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.CHANGE_EMAIL_CONFIRMATION;
 import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.CHANGE_EMAIL_SUCCESS;
 import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.CHANGE_USER_ACCOUNT_STATUS;
 import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.CHANGE_USER_ACCOUNT_STATUS_PATH;
@@ -12,7 +11,6 @@ import static com.example.taskmanagementapp.constants.controllers.UserController
 import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.GET_PROFILE_INFO_SUMMARY;
 import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.PAGEABLE_EXAMPLE;
 import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.RETRIEVE_ALL_USERS;
-import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.SUCCESSFULLY_CHANGED_EMAIL;
 import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.SUCCESSFULLY_CHANGED_STATUS;
 import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.SUCCESSFULLY_RETRIEVED;
 import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.SUCCESSFULLY_RETRIEVE_ALL_USERS;
@@ -114,9 +112,7 @@ public class UserController {
         userService.changeStatus(user, userId, accountStatusDto);
     }
 
-    @Operation(summary = CHANGE_EMAIL_CONFIRMATION, hidden = true)
-    @ApiResponse(responseCode = CODE_200, description =
-            SUCCESSFULLY_CHANGED_EMAIL)
+    @Operation(hidden = true)
     @GetMapping(CHANGE_EMAIL_SUCCESS)
     UserProfileInfoDto changeEmailSuccess(HttpServletRequest request) {
         return userService.confirmEmailChange(request);
