@@ -1,5 +1,10 @@
 package com.example.taskmanagementapp.services.impl;
 
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACTION;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.ASSIGNEE_ID;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.IS_NEW_MANAGER;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.PROJECT_ID;
+
 import com.example.taskmanagementapp.dtos.project.request.CreateProjectDto;
 import com.example.taskmanagementapp.dtos.project.request.ProjectStatusDto;
 import com.example.taskmanagementapp.dtos.project.request.UpdateProjectDto;
@@ -13,7 +18,12 @@ import com.example.taskmanagementapp.mappers.ProjectMapper;
 import com.example.taskmanagementapp.repositories.project.ProjectRepository;
 import com.example.taskmanagementapp.repositories.task.TaskRepository;
 import com.example.taskmanagementapp.repositories.user.UserRepository;
+import com.example.taskmanagementapp.security.email.AcceptAssignmentToProjectEmailService;
+import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
+import com.example.taskmanagementapp.security.jwtutils.strategy.JwtStrategy;
+import com.example.taskmanagementapp.security.utils.ParamFromHttpRequestUtil;
 import com.example.taskmanagementapp.services.ProjectService;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +37,9 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
+    private final AcceptAssignmentToProjectEmailService emailService;
+    private final ParamFromHttpRequestUtil paramFromHttpRequestUtil;
+    private final JwtStrategy jwtStrategy;
 
     @Override
     public ProjectDto createProject(User user,
@@ -109,12 +122,12 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public ProjectDto assignEmployeeToProject(User user,
+    public void assignEmployeeToProject(User user,
                                         Long projectId,
                                         Long employeeId,
                                         boolean isNewEmployeeManager) throws ForbiddenException {
         if (user.getId().equals(employeeId)) {
-            throw new ForbiddenException("You cannot yourself to a project");
+            throw new ForbiddenException("You cannot assign yourself to a project");
         }
         Project project = projectRepository.findByIdNotDeleted(projectId).orElseThrow(
                 () -> new EntityNotFoundException("No active project with id " + projectId));
@@ -123,16 +136,43 @@ public class ProjectServiceImpl implements ProjectService {
             User newEmployee = userRepository.findById(employeeId)
                     .orElseThrow(() -> new EntityNotFoundException("No employee with id "
                             + employeeId));
-            project.getEmployees().add(newEmployee);
-            if (isNewEmployeeManager) {
-                project.getManagers().add(newEmployee);
-            }
-            return projectMapper.toProjectDto(projectRepository.save(project));
+            emailService.sendChangeEmail(user.getEmail(), newEmployee.getEmail(), project.getName(),
+                    projectId, employeeId, isNewEmployeeManager);
         } else {
             throw new ForbiddenException(
                     "You should be owner or manager of this project "
                             + "to assign new employees and managers");
         }
+    }
+
+    @Override
+    public ProjectDto acceptAssignmentToProject(HttpServletRequest request) {
+        paramFromHttpRequestUtil.parseRandomParameterAndToken(request);
+        String token = paramFromHttpRequestUtil.getTokenFromRepo(
+                paramFromHttpRequestUtil.getRandomParameter(),
+                paramFromHttpRequestUtil.getToken());
+        JwtAbstractUtil jwtActionUtil = jwtStrategy.getStrategy(ACTION);
+        jwtActionUtil.isValidToken(token);
+
+        Long projectId = Long.valueOf(paramFromHttpRequestUtil
+                .getNamedParameter(request, PROJECT_ID));
+        Project project = projectRepository.findByIdNotDeleted(projectId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "No active project with id " + projectId));
+
+        Long assigneeId = Long.valueOf(paramFromHttpRequestUtil
+                .getNamedParameter(request, ASSIGNEE_ID));
+        User assignee = userRepository.findById(assigneeId).orElseThrow(
+                () -> new EntityNotFoundException("No user with id " + assigneeId));
+
+        boolean isNewEmployeeManager = Boolean.parseBoolean(
+                paramFromHttpRequestUtil.getNamedParameter(request, IS_NEW_MANAGER));
+
+        project.getEmployees().add(assignee);
+        if (isNewEmployeeManager) {
+            project.getManagers().add(assignee);
+        }
+        return projectMapper.toProjectDto(projectRepository.save(project));
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.example.taskmanagementapp.dtos.project.response.ProjectDto;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.conflictexpections.ConflictException;
 import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 
@@ -28,9 +29,11 @@ public interface ProjectService {
 
     void deleteProjectById(User authenticatedUser, Long projectId) throws ForbiddenException;
 
-    ProjectDto assignEmployeeToProject(User authenticatedUser, Long projectId,
+    void assignEmployeeToProject(User authenticatedUser, Long projectId,
                                        Long employeeId, boolean isNewEmployeeManager)
             throws ForbiddenException, ConflictException;
+
+    ProjectDto acceptAssignmentToProject(HttpServletRequest request);
 
     ProjectDto removeEmployeeFromProject(User authenticatedUser, Long projectId, Long employeeId)
             throws ForbiddenException, ConflictException;
