@@ -2,6 +2,7 @@ package com.example.taskmanagementapp.controllers;
 
 import static com.example.taskmanagementapp.constants.Constants.CODE_200;
 import static com.example.taskmanagementapp.constants.Constants.CODE_201;
+import static com.example.taskmanagementapp.constants.Constants.CODE_204;
 import static com.example.taskmanagementapp.constants.Constants.CODE_400;
 import static com.example.taskmanagementapp.constants.Constants.INVALID_ENTITY_VALUE;
 import static com.example.taskmanagementapp.constants.Constants.ROLE_ADMIN;
@@ -112,10 +113,11 @@ public class TaskController {
     }
 
     @Operation(summary = DELETE_TASK_BY_ID)
-    @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_DELETED_TASK_BY_ID)
+    @ApiResponse(responseCode = CODE_204, description = SUCCESSFULLY_DELETED_TASK_BY_ID)
     @DeleteMapping(TASK_BY_ID)
     @PreAuthorize(ROLE_USER + " or "
             + ROLE_ADMIN)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteTaskById(@AuthenticationPrincipal User user,
                         @PathVariable @Positive Long taskId) throws ForbiddenException {
         taskService.deleteTask(user, taskId);
