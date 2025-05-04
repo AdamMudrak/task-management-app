@@ -41,12 +41,20 @@ public class TaskServiceImpl implements TaskService {
         if (!userRepository.existsById(assigneeId)) {
             throw new EntityNotFoundException("No user with id " + assigneeId);
         }
-        if (projectRepository.isUserManager(projectId, assigneeId)
-                || projectRepository.isUserOwner(projectId, assigneeId)) {
-            Task createTask = taskMapper.toCreateTask(createTaskDto);
-            createTask.setStatus(Task.Status.NOT_STARTED);
-            createTask.setPriority(Task.Priority.valueOf(taskPriorityDto.name()));
-            return taskMapper.toTaskDto(taskRepository.save(createTask));
+
+        if (projectRepository.isUserManager(projectId, authenticatedUser.getId())
+                || projectRepository.isUserOwner(projectId, authenticatedUser.getId())) {
+            if (projectRepository.isUserManager(projectId, assigneeId)
+                    || projectRepository.isUserOwner(projectId, assigneeId)
+                    || projectRepository.isUserEmployee(projectId, assigneeId)) {
+                Task createTask = taskMapper.toCreateTask(createTaskDto);
+                createTask.setStatus(Task.Status.NOT_STARTED);
+                createTask.setPriority(Task.Priority.valueOf(taskPriorityDto.name()));
+                return taskMapper.toTaskDto(taskRepository.save(createTask));
+            } else {
+                throw new ForbiddenException("User " + assigneeId + " is not assigned to project "
+                        + projectId);
+            }
         } else {
             throw new ForbiddenException("You have no permission to modify project " + projectId);
         }
