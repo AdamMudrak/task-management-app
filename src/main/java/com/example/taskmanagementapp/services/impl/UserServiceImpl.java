@@ -118,7 +118,7 @@ public class UserServiceImpl implements UserService {
             default -> throw new IllegalArgumentException(
                     "Invalid account status " + accountStatusDto);
         }
-
+        userRepository.save(thisUser);
     }
 
     @Override
