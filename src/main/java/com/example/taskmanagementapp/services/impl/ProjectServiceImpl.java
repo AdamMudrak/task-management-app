@@ -113,6 +113,9 @@ public class ProjectServiceImpl implements ProjectService {
                                         Long projectId,
                                         Long employeeId,
                                         boolean isNewEmployeeManager) throws ForbiddenException {
+        if (user.getId().equals(employeeId)) {
+            throw new ForbiddenException("You cannot yourself to a project");
+        }
         Project project = projectRepository.findByIdNotDeleted(projectId).orElseThrow(
                 () -> new EntityNotFoundException("No active project with id " + projectId));
         if (projectRepository.isUserManager(projectId, user.getId())
@@ -136,6 +139,9 @@ public class ProjectServiceImpl implements ProjectService {
     public ProjectDto removeEmployeeFromProject(User user,
                                           Long projectId,
                                           Long employeeId) throws ForbiddenException {
+        if (user.getId().equals(employeeId)) {
+            throw new ForbiddenException("You cannot remove yourself from a project");
+        }
         Project project = projectRepository.findByIdNotDeleted(projectId).orElseThrow(
                 () -> new EntityNotFoundException("No active project with id " + projectId));
         if (projectRepository.isUserManager(projectId, user.getId())
