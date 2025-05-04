@@ -61,7 +61,8 @@ public class SecurityConfig {
                                                 ConfigConstants.USERS_CONFIRM_EMAIL_CHANGE_MATCHER),
                                         antMatcher(ConfigConstants.SWAGGER_MATCHER),
                                         antMatcher(ConfigConstants.SWAGGER_DOCS_MATCHER),
-                                        antMatcher(ConfigConstants.ERRORS_MATCHER)
+                                        antMatcher(ConfigConstants.ERRORS_MATCHER),
+                                        antMatcher(ConfigConstants.ACCEPT_INVITE_TO_PROJECT_MATCHER)
                                 )
                                 .permitAll()
                                 .anyRequest()
