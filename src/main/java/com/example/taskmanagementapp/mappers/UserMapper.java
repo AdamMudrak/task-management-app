@@ -4,6 +4,7 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 
 import com.example.taskmanagementapp.config.MapperConfig;
 import com.example.taskmanagementapp.dtos.authentication.request.UserRegistrationRequestDto;
+import com.example.taskmanagementapp.dtos.user.response.UserProfileAdminInfoDto;
 import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDto;
 import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDtoOnUpdate;
 import com.example.taskmanagementapp.entities.User;
@@ -18,6 +19,9 @@ public interface UserMapper {
 
     @Mapping(target = "role", source = "role.name")
     UserProfileInfoDto toUserProfileInfoDto(User user);
+
+    @Mapping(target = "role", source = "role.name")
+    UserProfileAdminInfoDto toUserProfileAdminInfoDto(User user);
 
     @Mapping(target = "role", source = "role.name")
     @Mapping(target = "message", ignore = true)

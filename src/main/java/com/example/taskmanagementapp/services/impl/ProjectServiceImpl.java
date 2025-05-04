@@ -8,6 +8,7 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 import com.example.taskmanagementapp.dtos.project.request.CreateProjectDto;
 import com.example.taskmanagementapp.dtos.project.request.ProjectStatusDto;
 import com.example.taskmanagementapp.dtos.project.request.UpdateProjectDto;
+import com.example.taskmanagementapp.dtos.project.response.AssignEmployeeResponseDto;
 import com.example.taskmanagementapp.dtos.project.response.ProjectDto;
 import com.example.taskmanagementapp.entities.Project;
 import com.example.taskmanagementapp.entities.User;
@@ -122,10 +123,11 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public void assignEmployeeToProject(User user,
-                                        Long projectId,
-                                        Long employeeId,
-                                        boolean isNewEmployeeManager) throws ForbiddenException {
+    public AssignEmployeeResponseDto assignEmployeeToProject(User user,
+                                                             Long projectId,
+                                                             Long employeeId,
+                                                             boolean isNewEmployeeManager)
+                                                        throws ForbiddenException {
         if (user.getId().equals(employeeId)) {
             throw new ForbiddenException("You cannot assign yourself to a project");
         }
@@ -138,6 +140,8 @@ public class ProjectServiceImpl implements ProjectService {
                             + employeeId));
             emailService.sendChangeEmail(user.getEmail(), newEmployee.getEmail(), project.getName(),
                     projectId, employeeId, isNewEmployeeManager);
+            return new AssignEmployeeResponseDto("Employee " + employeeId
+                    + " has been invited to project " + projectId);
         } else {
             throw new ForbiddenException(
                     "You should be owner or manager of this project "

@@ -6,6 +6,7 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 import com.example.taskmanagementapp.dtos.role.RoleNameDto;
 import com.example.taskmanagementapp.dtos.user.request.UpdateUserProfileDto;
 import com.example.taskmanagementapp.dtos.user.request.UserAccountStatusDto;
+import com.example.taskmanagementapp.dtos.user.response.UserProfileAdminInfoDto;
 import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDto;
 import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDtoOnUpdate;
 import com.example.taskmanagementapp.entities.Role;
@@ -97,7 +98,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void changeStatus(User user, Long disabledUserId, UserAccountStatusDto accountStatusDto)
+    public UserProfileAdminInfoDto changeStatus(User user, Long disabledUserId,
+                                                UserAccountStatusDto accountStatusDto)
             throws ForbiddenException {
         if (user.getId().equals(disabledUserId)) {
             throw new ForbiddenException("You can not change your own account status");
@@ -118,7 +120,7 @@ public class UserServiceImpl implements UserService {
             default -> throw new IllegalArgumentException(
                     "Invalid account status " + accountStatusDto);
         }
-        userRepository.save(thisUser);
+        return userMapper.toUserProfileAdminInfoDto(userRepository.save(thisUser));
     }
 
     @Override

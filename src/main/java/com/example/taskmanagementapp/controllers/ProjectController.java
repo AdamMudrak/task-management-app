@@ -40,6 +40,7 @@ import static com.example.taskmanagementapp.constants.controllers.ProjectControl
 import com.example.taskmanagementapp.dtos.project.request.CreateProjectDto;
 import com.example.taskmanagementapp.dtos.project.request.ProjectStatusDto;
 import com.example.taskmanagementapp.dtos.project.request.UpdateProjectDto;
+import com.example.taskmanagementapp.dtos.project.response.AssignEmployeeResponseDto;
 import com.example.taskmanagementapp.dtos.project.response.ProjectDto;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.conflictexpections.ConflictException;
@@ -164,18 +165,17 @@ public class ProjectController {
     }
 
     @Operation(summary = ADD_EMPLOYEE_TO_PROJECT)
-    @ApiResponse(responseCode = CODE_204, description =
+    @ApiResponse(responseCode = CODE_200, description =
             SUCCESSFULLY_ADDED_EMPLOYEE_TO_PROJECT)
     @PreAuthorize(ROLE_USER + " or "
             + ROLE_ADMIN)
     @PostMapping(ASSIGN_EMPLOYEE)
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    void assignEmployeeToProject(@AuthenticationPrincipal User user,
-                                 @PathVariable @Positive Long projectId,
-                                 @PathVariable @Positive Long employeeId,
-                                 boolean isNewEmployeeManager) throws ForbiddenException,
-                                                                        ConflictException {
-        projectService.assignEmployeeToProject(user, projectId,
+    AssignEmployeeResponseDto assignEmployeeToProject(@AuthenticationPrincipal User user,
+                                                      @PathVariable @Positive Long projectId,
+                                                      @PathVariable @Positive Long employeeId,
+                                                      boolean isNewEmployeeManager)
+                                                throws ForbiddenException, ConflictException {
+        return projectService.assignEmployeeToProject(user, projectId,
                 employeeId, isNewEmployeeManager);
     }
 

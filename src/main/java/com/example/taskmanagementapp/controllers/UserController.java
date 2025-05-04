@@ -1,7 +1,6 @@
 package com.example.taskmanagementapp.controllers;
 
 import static com.example.taskmanagementapp.constants.Constants.CODE_200;
-import static com.example.taskmanagementapp.constants.Constants.CODE_204;
 import static com.example.taskmanagementapp.constants.Constants.ROLE_ADMIN;
 import static com.example.taskmanagementapp.constants.Constants.ROLE_USER;
 import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.CHANGE_EMAIL_SUCCESS;
@@ -41,7 +40,6 @@ import jakarta.validation.constraints.Positive;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,7 +47,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -102,15 +99,14 @@ public class UserController {
     }
 
     @Operation(summary = CHANGE_USER_ACCOUNT_STATUS)
-    @ApiResponse(responseCode = CODE_204, description =
+    @ApiResponse(responseCode = CODE_200, description =
             SUCCESSFULLY_CHANGED_STATUS)
     @PostMapping(CHANGE_USER_ACCOUNT_STATUS_PATH)
     @PreAuthorize(ROLE_ADMIN)
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    void changeUserAccountStatus(@AuthenticationPrincipal User user,
+    UserProfileInfoDto changeUserAccountStatus(@AuthenticationPrincipal User user,
                      UserAccountStatusDto accountStatusDto,
                      @PathVariable @Positive Long userId) throws ForbiddenException {
-        userService.changeStatus(user, userId, accountStatusDto);
+        return userService.changeStatus(user, userId, accountStatusDto);
     }
 
     @Operation(hidden = true)

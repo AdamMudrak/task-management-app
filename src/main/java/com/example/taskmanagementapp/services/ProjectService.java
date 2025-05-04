@@ -3,6 +3,7 @@ package com.example.taskmanagementapp.services;
 import com.example.taskmanagementapp.dtos.project.request.CreateProjectDto;
 import com.example.taskmanagementapp.dtos.project.request.ProjectStatusDto;
 import com.example.taskmanagementapp.dtos.project.request.UpdateProjectDto;
+import com.example.taskmanagementapp.dtos.project.response.AssignEmployeeResponseDto;
 import com.example.taskmanagementapp.dtos.project.response.ProjectDto;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.conflictexpections.ConflictException;
@@ -29,8 +30,8 @@ public interface ProjectService {
 
     void deleteProjectById(User authenticatedUser, Long projectId) throws ForbiddenException;
 
-    void assignEmployeeToProject(User authenticatedUser, Long projectId,
-                                       Long employeeId, boolean isNewEmployeeManager)
+    AssignEmployeeResponseDto assignEmployeeToProject(User authenticatedUser, Long projectId,
+                                                      Long employeeId, boolean isNewEmployeeManager)
             throws ForbiddenException, ConflictException;
 
     ProjectDto acceptAssignmentToProject(HttpServletRequest request);
