@@ -3,12 +3,12 @@ package com.example.taskmanagementapp.services.impl;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACCESS;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACCESS_TOKEN;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACTION;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.CHECK_YOUR_EMAIL;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.CONFIRMATION;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.DIVIDER;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.JWT_ACCESS_EXPIRATION;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.JWT_REFRESH_EXPIRATION;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.LOGIN_SUCCESS;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.PASSWORD_RESET_SUCCESSFULLY;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.PASSWORD_SET_SUCCESSFULLY;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RANDOM_PASSWORD_REQUIRED_CHARS;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RANDOM_PASSWORD_STRENGTH;
@@ -18,6 +18,7 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.REGISTERED_BUT_NOT_ACTIVATED;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.REGISTRATION_CONFIRMED;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RESET;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.SEND_LINK_TO_RESET_PASSWORD;
 import static com.example.taskmanagementapp.constants.validation.ValidationConstants.COMPILED_PATTERN;
 
 import com.example.taskmanagementapp.dtos.authentication.TokenBearerDto;
@@ -106,7 +107,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
         isEnabled(currentUser);
         passwordEmailService.sendActionMessage(currentUser.getEmail(), RESET);
-        return new SendLinkToResetPasswordDto(PASSWORD_RESET_SUCCESSFULLY);
+        return new SendLinkToResetPasswordDto(SEND_LINK_TO_RESET_PASSWORD);
     }
 
     @Override
@@ -128,7 +129,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setPassword(passwordEncoder.encode(randomPassword));
         userRepository.save(user);
         passwordEmailService.sendResetPassword(email, randomPassword);
-        return new LinkToResetPasswordSuccessDto(PASSWORD_RESET_SUCCESSFULLY);
+        return new LinkToResetPasswordSuccessDto(CHECK_YOUR_EMAIL);
     }
 
     @Override

@@ -73,8 +73,10 @@ public class SecurityConstants {
                     + "Your account will not be enabled until then.";
     public static final String REGISTRATION_CONFIRMED =
             "Registration has been confirmed successfully.";
-    public static final String PASSWORD_RESET_SUCCESSFULLY =
+    public static final String SEND_LINK_TO_RESET_PASSWORD =
             "An email with reset link has been sent.";
+    public static final String CHECK_YOUR_EMAIL =
+            "Password was reset successfully. Check your email.";
 
     public static final String REFRESH_TOKEN = "refreshToken";
 
@@ -96,7 +98,7 @@ public class SecurityConstants {
             List.of("newEmail", "projectId", "assigneeId", "isNewManager");
 
     public static final String CONFIRM_NEW_EMAIL_MESSAGE =
-            "To confirm email change, please click the link sent to your new email.";
+            "In case of email change, please click the link sent to your new email to confirm.";
 
     public static final String ACCEPT_PROJECT_INVITATION_SUBJECT =
             "Accept invitation to a project in Facio";
