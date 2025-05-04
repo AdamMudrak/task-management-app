@@ -4,6 +4,7 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 
 import com.example.taskmanagementapp.dtos.role.RoleNameDto;
 import com.example.taskmanagementapp.dtos.user.request.UpdateUserProfileDto;
+import com.example.taskmanagementapp.dtos.user.request.UserAccountStatusDto;
 import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDto;
 import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDtoOnUpdate;
 import com.example.taskmanagementapp.entities.Role;
@@ -95,11 +96,28 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void disableUser(Long disabledUserId) {
+    public void changeStatus(User user, Long disabledUserId, UserAccountStatusDto accountStatusDto)
+            throws ForbiddenException {
+        if (user.getId().equals(disabledUserId)) {
+            throw new ForbiddenException("You can not change your own account status");
+        }
+
         User thisUser = userRepository.findById(disabledUserId).orElseThrow(
                 () -> new EntityNotFoundException("User with id " + disabledUserId + " not found"));
-        thisUser.setEnabled(false);
-        thisUser.setAccountNonLocked(false);
+
+        switch (accountStatusDto) {
+            case LOCKED -> {
+                thisUser.setEnabled(false);
+                thisUser.setAccountNonLocked(false);
+            }
+            case NON_LOCKED -> {
+                thisUser.setEnabled(true);
+                thisUser.setAccountNonLocked(true);
+            }
+            default -> throw new IllegalArgumentException(
+                    "Invalid account status " + accountStatusDto);
+        }
+
     }
 
     @Override
