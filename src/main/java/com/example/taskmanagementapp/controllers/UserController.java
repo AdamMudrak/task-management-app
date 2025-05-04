@@ -105,6 +105,7 @@ public class UserController {
     @ApiResponse(responseCode = CODE_204, description =
             SUCCESSFULLY_CHANGED_STATUS)
     @PostMapping(CHANGE_USER_ACCOUNT_STATUS_PATH)
+    @PreAuthorize(ROLE_ADMIN)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void changeUserAccountStatus(@AuthenticationPrincipal User user,
                      UserAccountStatusDto accountStatusDto,
