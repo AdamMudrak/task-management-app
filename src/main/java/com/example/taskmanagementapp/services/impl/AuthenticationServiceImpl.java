@@ -76,7 +76,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Value(JWT_REFRESH_EXPIRATION)
     private Long refreshExpiration;
 
-    //TODO pay special attention to reworking ALL impls
     @Override
     public LoginSuccessDto authenticateUser(UserLoginRequestDto requestDto,
                                             HttpServletResponse httpServletResponse)
