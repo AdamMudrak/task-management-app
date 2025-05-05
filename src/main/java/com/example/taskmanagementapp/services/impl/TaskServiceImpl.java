@@ -12,6 +12,7 @@ import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
 import com.example.taskmanagementapp.exceptions.notfoundexceptions.EntityNotFoundException;
 import com.example.taskmanagementapp.mappers.TaskMapper;
 import com.example.taskmanagementapp.repositories.comment.CommentRepository;
+import com.example.taskmanagementapp.repositories.label.LabelRepository;
 import com.example.taskmanagementapp.repositories.project.ProjectRepository;
 import com.example.taskmanagementapp.repositories.task.TaskRepository;
 import com.example.taskmanagementapp.repositories.user.UserRepository;
@@ -29,6 +30,7 @@ public class TaskServiceImpl implements TaskService {
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
     private final CommentRepository commentRepository;
+    private final LabelRepository labelRepository;
 
     @Override
     public TaskDto createTask(User authenticatedUser,
@@ -125,6 +127,17 @@ public class TaskServiceImpl implements TaskService {
             taskRepository.deleteById(taskId);
         } else {
             throw new ForbiddenException("You have no permission to delete this task");
+        }
+    }
+
+    @Override
+    public List<TaskDto> getTasksWithLabel(User user, Long labelId, Pageable pageable) {
+        if (labelRepository.existsByUserIdAndId(labelId, user.getId())) {
+            return taskMapper.toTaskDtoList(
+                    taskRepository.findAllByLabelIdNonDeleted(labelId, pageable).getContent());
+        } else {
+            throw new EntityNotFoundException(
+                    "No label with id " + labelId + " for user with id " + user.getId());
         }
     }
 

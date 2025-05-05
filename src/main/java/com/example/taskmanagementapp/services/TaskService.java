@@ -29,4 +29,6 @@ public interface TaskService {
 
     void deleteTask(User authenticatedUser,
                     Long taskId) throws ForbiddenException;
+
+    List<TaskDto> getTasksWithLabel(User user, Long labelId, Pageable pageable);
 }
