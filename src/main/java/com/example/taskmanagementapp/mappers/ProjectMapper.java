@@ -15,7 +15,19 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(config = MapperConfig.class)
 public interface ProjectMapper {
-    Project toCreateProject(CreateProjectDto createProjectDto);
+    default Project toCreateProject(CreateProjectDto createProjectDto, User user) {
+        Project project = new Project();
+        project.setName(createProjectDto.name());
+        if (createProjectDto.description() != null
+                && !createProjectDto.description().isBlank()) {
+            project.setDescription(createProjectDto.description());
+        }
+        project.setStartDate(createProjectDto.startDate());
+        project.setEndDate(createProjectDto.endDate());
+        project.setOwner(user);
+        project.setStatus(Project.Status.INITIATED);
+        return project;
+    }
 
     @Mapping(target = "statusDto", ignore = true)
     @Mapping(target = "employeeIds", ignore = true)

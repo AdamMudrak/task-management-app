@@ -47,10 +47,8 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public ProjectDto createProject(User user,
                                     CreateProjectDto createProjectDto) {
-        Project createProject = projectMapper.toCreateProject(createProjectDto);
-        createProject.setOwner(user);
-        createProject.setStatus(Project.Status.INITIATED);
-        return projectMapper.toProjectDto(projectRepository.save(createProject));
+        return projectMapper.toProjectDto(
+                projectRepository.save(projectMapper.toCreateProject(createProjectDto, user)));
     }
 
     @Override
