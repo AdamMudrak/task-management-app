@@ -13,7 +13,6 @@ import com.example.taskmanagementapp.repositories.comment.CommentRepository;
 import com.example.taskmanagementapp.repositories.project.ProjectRepository;
 import com.example.taskmanagementapp.repositories.task.TaskRepository;
 import com.example.taskmanagementapp.services.CommentService;
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -39,11 +38,9 @@ public class CommentServiceImpl implements CommentService {
         if (projectRepository.isUserEmployee(thisProjectId, authenticatedUser.getId())
                 || projectRepository.isUserEmployee(thisProjectId, authenticatedUser.getId())
                 || projectRepository.isUserManager(thisProjectId, authenticatedUser.getId())) {
-            Comment addComment = commentMapper.toAddComment(commentDto);
-            addComment.setTask(thisTask);
-            addComment.setUser(authenticatedUser);
-            addComment.setTimestamp(LocalDateTime.now());
-            return commentMapper.toCommentDto(commentRepository.save(addComment));
+            return commentMapper.toCommentDto(
+                    commentRepository.save(
+                            commentMapper.toAddComment(commentDto, thisTask, authenticatedUser)));
         } else {
             throw new ForbiddenException("You can't add comments to task " + commentDto.taskId()
                     + " since you are not participant in project " + thisProjectId);
