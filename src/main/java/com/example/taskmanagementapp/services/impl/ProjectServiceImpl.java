@@ -16,6 +16,7 @@ import com.example.taskmanagementapp.exceptions.conflictexpections.ConflictExcep
 import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
 import com.example.taskmanagementapp.exceptions.notfoundexceptions.EntityNotFoundException;
 import com.example.taskmanagementapp.mappers.ProjectMapper;
+import com.example.taskmanagementapp.repositories.comment.CommentRepository;
 import com.example.taskmanagementapp.repositories.project.ProjectRepository;
 import com.example.taskmanagementapp.repositories.task.TaskRepository;
 import com.example.taskmanagementapp.repositories.user.UserRepository;
@@ -36,6 +37,7 @@ import org.springframework.stereotype.Service;
 public class ProjectServiceImpl implements ProjectService {
     private final ProjectMapper projectMapper;
     private final ProjectRepository projectRepository;
+    private final CommentRepository commentRepository;
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
     private final AcceptAssignmentToProjectEmailService emailService;
@@ -115,8 +117,10 @@ public class ProjectServiceImpl implements ProjectService {
             throw new EntityNotFoundException("No active project with id " + projectId);
         }
         if (projectRepository.isUserOwner(projectId, user.getId())) {
-            projectRepository.deleteById(projectId);
+            taskRepository.findAllByProjectIdNonDeleted(projectId, Pageable.unpaged())
+                    .forEach(task -> commentRepository.deleteAllByTaskId(task.getId()));
             taskRepository.deleteAllByProjectId(projectId);
+            projectRepository.deleteById(projectId);
         } else {
             throw new ForbiddenException("You must be owner to delete this project");
         }
