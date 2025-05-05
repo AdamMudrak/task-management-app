@@ -35,7 +35,7 @@ public class CommentServiceImpl implements CommentService {
                         "No active task with id " + commentDto.taskId()));
         Long thisProjectId = thisTask.getProject().getId();
 
-        if (projectRepository.isUserEmployee(thisProjectId, authenticatedUser.getId())
+        if (projectRepository.isUserOwner(thisProjectId, authenticatedUser.getId())
                 || projectRepository.isUserEmployee(thisProjectId, authenticatedUser.getId())
                 || projectRepository.isUserManager(thisProjectId, authenticatedUser.getId())) {
             return commentMapper.toCommentDto(
@@ -63,7 +63,7 @@ public class CommentServiceImpl implements CommentService {
                 "No active task with id " + thisCommentTaskId));
         Long thisProjectId = thisTask.getProject().getId();
 
-        if (projectRepository.isUserEmployee(thisProjectId, authenticatedUser.getId())
+        if (projectRepository.isUserOwner(thisProjectId, authenticatedUser.getId())
                 || projectRepository.isUserEmployee(thisProjectId, authenticatedUser.getId())
                 || projectRepository.isUserManager(thisProjectId, authenticatedUser.getId())) {
             thisComment.setText(commentDto.text());
@@ -82,7 +82,7 @@ public class CommentServiceImpl implements CommentService {
                 "No active task with id " + taskId));
         Long thisProjectId = thisTask.getProject().getId();
 
-        if (projectRepository.isUserEmployee(thisProjectId, authenticatedUser.getId())
+        if (projectRepository.isUserOwner(thisProjectId, authenticatedUser.getId())
                 || projectRepository.isUserEmployee(thisProjectId, authenticatedUser.getId())
                 || projectRepository.isUserManager(thisProjectId, authenticatedUser.getId())) {
             return commentMapper.toCommentDtoList(commentRepository
@@ -107,7 +107,7 @@ public class CommentServiceImpl implements CommentService {
                 "No active task with id " + thisCommentTaskId));
         Long thisProjectId = thisTask.getProject().getId();
 
-        if (projectRepository.isUserEmployee(thisProjectId, authenticatedUser.getId())
+        if (projectRepository.isUserOwner(thisProjectId, authenticatedUser.getId())
                 || projectRepository.isUserEmployee(thisProjectId, authenticatedUser.getId())
                 || projectRepository.isUserManager(thisProjectId, authenticatedUser.getId())) {
             commentRepository.deleteById(commentId);
