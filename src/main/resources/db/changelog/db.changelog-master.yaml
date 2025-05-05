@@ -29,3 +29,5 @@ databaseChangeLog:
       file: db/changelog/changes/14-add-test-tasks.yaml
   - include:
       file: db/changelog/changes/15-create-attachments-table.yaml
+  - include:
+      file: db/changelog/changes/16-create-comments-table.yaml

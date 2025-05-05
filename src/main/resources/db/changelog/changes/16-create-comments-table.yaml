@@ -1,0 +1,37 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-comments-table
+      author: AdamMudrak
+      changes:
+        - createTable:
+            tableName: comments
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: task_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: fk_task_id
+                    references: tasks(id)
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: fk_comment_user_id
+                    references: users(id)
+              - column:
+                  name: text
+                  type: varchar(2048)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: timestamp
+                  type: datetime
+                  constraints:
+                    nullable: false
