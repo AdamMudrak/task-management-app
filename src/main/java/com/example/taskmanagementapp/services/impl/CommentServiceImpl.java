@@ -69,7 +69,7 @@ public class CommentServiceImpl implements CommentService {
             thisComment.setText(commentDto.text());
             return commentMapper.toCommentDto(commentRepository.save(thisComment));
         } else {
-            throw new ForbiddenException("You can't add comments to task " + commentId
+            throw new ForbiddenException("You can't update comments for task " + thisCommentTaskId
                     + " since you are not participant in project " + thisProjectId);
         }
     }
