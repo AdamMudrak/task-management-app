@@ -18,4 +18,6 @@ public interface CommentService {
 
     List<CommentDto> getAllComments(User authenticatedUser, Long taskId,
                                     Pageable pageable) throws ForbiddenException;
+
+    void deleteComment(User authenticatedUser, Long commentId) throws ForbiddenException;
 }
