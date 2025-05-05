@@ -42,7 +42,7 @@ public class Label {
     @JoinTable(name = LABELS_TASKS,
                 joinColumns = @JoinColumn (name = LABEL_ID),
                 inverseJoinColumns = @JoinColumn(name = TASK_ID))
-    private Set<Task> task = new HashSet<>();
+    private Set<Task> tasks = new HashSet<>();
 
     public enum Color {
         RED,
