@@ -11,6 +11,7 @@ import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
 import com.example.taskmanagementapp.exceptions.notfoundexceptions.EntityNotFoundException;
 import com.example.taskmanagementapp.mappers.TaskMapper;
+import com.example.taskmanagementapp.repositories.comment.CommentRepository;
 import com.example.taskmanagementapp.repositories.project.ProjectRepository;
 import com.example.taskmanagementapp.repositories.task.TaskRepository;
 import com.example.taskmanagementapp.repositories.user.UserRepository;
@@ -27,6 +28,7 @@ public class TaskServiceImpl implements TaskService {
     private final TaskMapper taskMapper;
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
+    private final CommentRepository commentRepository;
 
     @Override
     public TaskDto createTask(User authenticatedUser,
@@ -119,6 +121,7 @@ public class TaskServiceImpl implements TaskService {
 
         if (projectRepository.isUserOwner(thisTaskProjectId, authenticatedUser.getId())
                 || projectRepository.isUserManager(thisTaskProjectId, authenticatedUser.getId())) {
+            commentRepository.deleteAllByTaskId(taskId);
             taskRepository.deleteById(taskId);
         } else {
             throw new ForbiddenException("You have no permission to delete this task");

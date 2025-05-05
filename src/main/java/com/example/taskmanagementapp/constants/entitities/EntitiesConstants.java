@@ -35,4 +35,7 @@ public class EntitiesConstants {
     public static final String FILE_ID = "file_id";
     public static final String FILE_NAME = "file_name";
     public static final String UPLOAD_DATE = "upload_date";
+
+    public static final String COMMENTS = "comments";
+    public static final String USER_ID = "user_id";
 }
