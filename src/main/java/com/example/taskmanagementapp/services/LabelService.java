@@ -4,8 +4,8 @@ import com.example.taskmanagementapp.dtos.comment.request.ColorDto;
 import com.example.taskmanagementapp.dtos.label.request.AddLabelDto;
 import com.example.taskmanagementapp.dtos.label.request.UpdateLabelDto;
 import com.example.taskmanagementapp.dtos.label.response.LabelDto;
-import com.example.taskmanagementapp.dtos.task.response.TaskDto;
 import com.example.taskmanagementapp.entities.User;
+import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 
@@ -20,11 +20,7 @@ public interface LabelService {
 
     void deleteLabelById(User user, Long id);
 
-    List<TaskDto> attachLabelToTask(User user, Long taskId, Long labelId);
+    void attachLabelToTask(User user, Long taskId, Long labelId) throws ForbiddenException;
 
-    List<TaskDto> detachLabelFromTask(User user, Long taskId, Long labelId);
-
-    List<TaskDto> getTasksWithLabel(User user, Long labelId);
-
-    List<TaskDto> getTaskWithLabelColor(User user, ColorDto colorDto);
+    void detachLabelFromTask(User user, Long taskId, Long labelId) throws ForbiddenException;
 }

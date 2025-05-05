@@ -4,9 +4,10 @@ import com.example.taskmanagementapp.dtos.comment.request.ColorDto;
 import com.example.taskmanagementapp.dtos.label.request.AddLabelDto;
 import com.example.taskmanagementapp.dtos.label.request.UpdateLabelDto;
 import com.example.taskmanagementapp.dtos.label.response.LabelDto;
-import com.example.taskmanagementapp.dtos.task.response.TaskDto;
 import com.example.taskmanagementapp.entities.Label;
+import com.example.taskmanagementapp.entities.Task;
 import com.example.taskmanagementapp.entities.User;
+import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
 import com.example.taskmanagementapp.exceptions.notfoundexceptions.EntityNotFoundException;
 import com.example.taskmanagementapp.mappers.LabelMapper;
 import com.example.taskmanagementapp.repositories.label.LabelRepository;
@@ -68,22 +69,58 @@ public class LabelServiceImpl implements LabelService {
     }
 
     @Override
-    public List<TaskDto> attachLabelToTask(User user, Long taskId, Long labelId) {
-        return List.of();
+    public void attachLabelToTask(User user, Long taskId, Long labelId)
+                                                        throws ForbiddenException {
+        Label thisLabel = labelRepository.findByIdAndUserId(labelId, user.getId())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "No label with id " + labelId + " for user with id " + user.getId()));
+
+        Task thisTask = taskRepository.findByIdNotDeleted(
+                taskId).orElseThrow(
+                    () -> new EntityNotFoundException(
+                        "No active task with id " + taskId));
+
+        if (!thisTask.getAssignee().getId().equals(user.getId())) {
+            throw new ForbiddenException("You can attach labels only to tasks you are assigned to");
+        }
+        Long thisProjectId = thisTask.getProject().getId();
+
+        if (projectRepository.isUserOwner(thisProjectId, user.getId())
+                || projectRepository.isUserEmployee(thisProjectId, user.getId())
+                || projectRepository.isUserManager(thisProjectId, user.getId())) {
+            thisLabel.getTasks().add(thisTask);
+            labelRepository.save(thisLabel);
+        } else {
+            throw new ForbiddenException("You can't attach label " + labelId
+                    + " to task " + taskId + " since you are not in project " + thisProjectId);
+        }
     }
 
     @Override
-    public List<TaskDto> detachLabelFromTask(User user, Long taskId, Long labelId) {
-        return List.of();
-    }
+    public void detachLabelFromTask(User user, Long taskId, Long labelId)
+                                                throws ForbiddenException {
+        Label thisLabel = labelRepository.findByIdAndUserId(labelId, user.getId())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "No label with id " + labelId + " for user with id " + user.getId()));
 
-    @Override
-    public List<TaskDto> getTasksWithLabel(User user, Long labelId) {
-        return List.of();
-    }
+        Task thisTask = taskRepository.findByIdNotDeleted(
+                taskId).orElseThrow(
+                    () -> new EntityNotFoundException(
+                        "No active task with id " + taskId));
 
-    @Override
-    public List<TaskDto> getTaskWithLabelColor(User user, ColorDto colorDto) {
-        return List.of();
+        if (!thisTask.getAssignee().getId().equals(user.getId())) {
+            throw new ForbiddenException("You can attach labels only to tasks you are assigned to");
+        }
+        Long thisProjectId = thisTask.getProject().getId();
+
+        if (projectRepository.isUserOwner(thisProjectId, user.getId())
+                || projectRepository.isUserEmployee(thisProjectId, user.getId())
+                || projectRepository.isUserManager(thisProjectId, user.getId())) {
+            thisLabel.getTasks().remove(thisTask);
+            labelRepository.save(thisLabel);
+        } else {
+            throw new ForbiddenException("You can't attach label " + labelId
+                    + " to task " + taskId + " since you are not in project " + thisProjectId);
+        }
     }
 }
