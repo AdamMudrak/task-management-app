@@ -17,7 +17,7 @@ databaseChangeLog:
                   name: task_id
                   type: bigint
                   constraints:
-                    foreignKeyName: fk_task_id
+                    foreignKeyName: fk_comment_task_id
                     references: tasks(id)
               - column:
                   name: user_id
