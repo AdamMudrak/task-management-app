@@ -8,7 +8,6 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 
 import com.example.taskmanagementapp.security.utils.EmailLinkParameterProvider;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,9 +16,7 @@ public class ChangeEmailService extends EmailService {
     @Value(CHANGE_EMAIL_CONFIRMATION_PATH)
     private String changeEmailConfirmationPath;
 
-    public ChangeEmailService(JavaMailSender mailSender,
-                              EmailLinkParameterProvider emailLinkParameterProvider) {
-        super(mailSender);
+    public ChangeEmailService(EmailLinkParameterProvider emailLinkParameterProvider) {
         this.emailLinkParameterProvider = emailLinkParameterProvider;
     }
 

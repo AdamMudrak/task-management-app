@@ -30,6 +30,9 @@ public class SecurityConstants {
     public static final String DROPBOX_SECRET = "${dropbox.secret}";
     public static final String DROPBOX_CLIENT_IDENTIFIER = "dropbox/taskmanagementapp";
 
+    public static final String SUPPORT_EMAIL = "${mail.address}";
+    public static final String SEND_GRID_API_KEY = "${sendgrid.api.key}";
+
     public static final String RESET = "RESET";
     public static final String CONFIRMATION = "CONFIRMATION";
     public static final String ACCESS = "ACCESS";
