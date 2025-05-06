@@ -9,6 +9,7 @@ public class TaskControllerConstants {
     public static final String TASKS = "/tasks";
     public static final String GET_ALL_PROJECT_TASKS = "/all-project-tasks/{projectId}";
     public static final String TASK_BY_ID = "/{taskId}";
+    public static final String TASKS_BY_LABEL_ID = "/{labelId}";
 
     public static final String CREATE_TASK =
             "Create task. For this, you should be owner or manager of project.";
@@ -33,6 +34,12 @@ public class TaskControllerConstants {
             "Delete task by id. Only owners and managers of project can delete tasks";
     public static final String SUCCESSFULLY_DELETED_TASK_BY_ID =
             "Successfully deleted task by id";
+
+    public static final String GET_TASK_BY_LABEL_ID =
+            "Retrieve tasks by label id.";
+    public static final String SUCCESSFULLY_GET_TASK_BY_LABEL_ID =
+            "Successfully retrieved tasks by label id.";
+
     public static final String PAGEABLE_EXAMPLE = """
             {"page": 0,
             "size": 5,

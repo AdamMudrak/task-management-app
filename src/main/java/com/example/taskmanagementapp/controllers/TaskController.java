@@ -12,15 +12,18 @@ import static com.example.taskmanagementapp.constants.controllers.TaskController
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.GET_ALL_PROJECT_TASKS;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.GET_TASKS_BY_PROJECT_ID;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.GET_TASK_BY_ID;
+import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.GET_TASK_BY_LABEL_ID;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.PAGEABLE_EXAMPLE;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.SUCCESSFULLY_CREATED_TASK;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.SUCCESSFULLY_DELETED_TASK_BY_ID;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.SUCCESSFULLY_GET_TASKS_BY_PROJECT_ID;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.SUCCESSFULLY_GET_TASK_BY_ID;
+import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.SUCCESSFULLY_GET_TASK_BY_LABEL_ID;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.SUCCESSFULLY_UPDATED_TASK_BY_ID;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.TASKS;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.TASKS_API_DESCRIPTION;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.TASKS_API_NAME;
+import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.TASKS_BY_LABEL_ID;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.TASK_BY_ID;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.UPDATE_TASK_BY_ID;
 
@@ -121,5 +124,16 @@ public class TaskController {
     void deleteTaskById(@AuthenticationPrincipal User user,
                         @PathVariable @Positive Long taskId) throws ForbiddenException {
         taskService.deleteTask(user, taskId);
+    }
+
+    @Operation(summary = GET_TASK_BY_LABEL_ID)
+    @ApiResponse(responseCode = CODE_204, description = SUCCESSFULLY_GET_TASK_BY_LABEL_ID)
+    @GetMapping(TASKS_BY_LABEL_ID)
+    @PreAuthorize(ROLE_USER + " or "
+            + ROLE_ADMIN)
+    List<TaskDto> getTasksWithLabel(@AuthenticationPrincipal User user,
+                                    @PathVariable @Positive Long labelId,
+                                    Pageable pageable) {
+        return taskService.getTasksWithLabel(user, labelId, pageable);
     }
 }
