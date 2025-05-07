@@ -153,10 +153,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public ProjectDto acceptAssignmentToProject(HttpServletRequest request) {
-        paramFromHttpRequestUtil.parseRandomParameterAndToken(request);
-        String token = paramFromHttpRequestUtil.getTokenFromRepo(
-                paramFromHttpRequestUtil.getRandomParameter(),
-                paramFromHttpRequestUtil.getToken());
+        String token = paramFromHttpRequestUtil.parseRandomParameterAndToken(request);
         JwtAbstractUtil jwtActionUtil = jwtStrategy.getStrategy(ACTION);
         jwtActionUtil.isValidToken(token);
 

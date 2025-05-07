@@ -2,7 +2,6 @@ package com.example.taskmanagementapp.services.utils;
 
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.SKIPPED_PARAMS;
 
-import com.example.taskmanagementapp.entities.ParamToken;
 import com.example.taskmanagementapp.exceptions.notfoundexceptions.ActionNotFoundException;
 import com.example.taskmanagementapp.repositories.paramtoken.ParamTokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,29 +21,34 @@ public class ParamFromHttpRequestUtil {
     private String randomParameter;
     private String token;
 
-    public void parseRandomParameterAndToken(HttpServletRequest request) {
+    public String parseRandomParameterAndToken(HttpServletRequest request) {
         Map<String, String[]> parameterMap = request.getParameterMap();
+        String randomParameter = null;
+        String token = null;
         for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
             if (SKIPPED_PARAMS.contains(entry.getKey())) {
                 continue;
             }
-            setRandomParameter(entry.getKey());
-            setToken(entry.getValue()[FIRST_PARAM_POSITION]);
+            randomParameter = entry.getKey();
+            token = entry.getValue()[FIRST_PARAM_POSITION];
             break;
+        }
+        if (randomParameter != null && token != null) {
+            if (!paramTokenRepository.existsByParameterAndActionToken(randomParameter, token)) {
+                throw new ActionNotFoundException(
+                        "No such request was found... The link might be expired or forged");
+            } else {
+                paramTokenRepository.deleteByParameterAndActionToken(randomParameter, token);
+                return token;
+            }
+        } else {
+            throw new ActionNotFoundException(
+                    "Wasn't able to parse link...Might be expired or forged");
         }
     }
 
     public String getNamedParameter(HttpServletRequest request, String paramName) {
         Map<String, String[]> parameterMap = request.getParameterMap();
         return parameterMap.get(paramName)[FIRST_PARAM_POSITION];
-    }
-
-    public String getTokenFromRepo(String randomParam, String token) {
-        ParamToken paramToken = paramTokenRepository
-                .findByParameterAndActionToken(randomParam, token)
-                .orElseThrow(() -> new ActionNotFoundException(
-                        "No such request was found... The link might be expired or forged"));
-        setToken(paramToken.getActionToken());
-        return token;
     }
 }

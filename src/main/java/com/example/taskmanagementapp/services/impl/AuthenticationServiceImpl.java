@@ -31,7 +31,6 @@ import com.example.taskmanagementapp.dtos.authentication.response.LoginSuccessDt
 import com.example.taskmanagementapp.dtos.authentication.response.RegistrationConfirmationSuccessDto;
 import com.example.taskmanagementapp.dtos.authentication.response.RegistrationSuccessDto;
 import com.example.taskmanagementapp.dtos.authentication.response.SendLinkToResetPasswordDto;
-import com.example.taskmanagementapp.entities.ParamToken;
 import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.badrequest.RegistrationException;
@@ -40,7 +39,6 @@ import com.example.taskmanagementapp.exceptions.forbidden.LoginException;
 import com.example.taskmanagementapp.exceptions.gone.LinkExpiredException;
 import com.example.taskmanagementapp.exceptions.notfoundexceptions.EntityNotFoundException;
 import com.example.taskmanagementapp.mappers.UserMapper;
-import com.example.taskmanagementapp.repositories.paramtoken.ParamTokenRepository;
 import com.example.taskmanagementapp.repositories.role.RoleRepository;
 import com.example.taskmanagementapp.repositories.user.UserRepository;
 import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
@@ -73,7 +71,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEmailService passwordEmailService;
     private final RandomStringUtil randomStringUtil;
     private final ParamFromHttpRequestUtil paramFromHttpRequestUtil;
-    private final ParamTokenRepository paramTokenRepository;
     private final RoleRepository roleRepository;
     @Value(JWT_ACCESS_EXPIRATION)
     private Long accessExpiration;
@@ -115,11 +112,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public LinkToResetPasswordSuccessDto confirmResetPassword(HttpServletRequest request) {
-        paramFromHttpRequestUtil.parseRandomParameterAndToken(request);
-        String token = paramFromHttpRequestUtil.getTokenFromRepo(
-                paramFromHttpRequestUtil.getRandomParameter(),
-                paramFromHttpRequestUtil.getToken()
-        );
+        String token = paramFromHttpRequestUtil.parseRandomParameterAndToken(request);
+
         JwtAbstractUtil jwtAbstractUtil = jwtStrategy.getStrategy(ACTION);
         try {
             jwtAbstractUtil.isValidToken(token);
@@ -129,7 +123,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             /*This message doesn't represent the real problem to
             hide the usage of JWT from the client.*/
         }
-        String email = getEmailFromTokenSecure(token, jwtAbstractUtil);
+        String email = jwtAbstractUtil.getUsername(token);
         String randomPassword = randomStringUtil.generateRandomString(RANDOM_PASSWORD_STRENGTH)
                 + RANDOM_PASSWORD_REQUIRED_CHARS;
         User user = userRepository.findByEmail(email).orElseThrow(() ->
@@ -179,11 +173,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Transactional
     @Override
     public RegistrationConfirmationSuccessDto confirmRegistration(HttpServletRequest request) {
-        paramFromHttpRequestUtil.parseRandomParameterAndToken(request);
-        String token = paramFromHttpRequestUtil.getTokenFromRepo(
-                paramFromHttpRequestUtil.getRandomParameter(),
-                paramFromHttpRequestUtil.getToken()
-        );
+        String token = paramFromHttpRequestUtil.parseRandomParameterAndToken(request);
         JwtAbstractUtil jwtAbstractUtil = jwtStrategy.getStrategy(ACTION);
         String email = jwtAbstractUtil.getUsername(token);
         User user = userRepository.findByEmail(email).orElseThrow(
@@ -191,9 +181,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         + email + " was not found"));
         user.setEnabled(true);
         userRepository.save(user);
-        ParamToken paramToken = paramTokenRepository.findByActionToken(token).orElseThrow(()
-                -> new EntityNotFoundException("No such request"));
-        paramTokenRepository.deleteById(paramToken.getId());
         return new RegistrationConfirmationSuccessDto(REGISTRATION_CONFIRMED);
     }
 
@@ -241,15 +228,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             passwordEmailService.sendActionMessage(user.getEmail(), CONFIRMATION);
             throw new LoginException(REGISTERED_BUT_NOT_ACTIVATED);
         }
-    }
-
-    private String getEmailFromTokenSecure(String token, JwtAbstractUtil jwtAbstractUtil) {
-        ParamToken paramToken = paramTokenRepository.findByActionToken(token).orElseThrow(()
-                -> new EntityNotFoundException(
-                "No such request was found... The link might be expired or forged"));
-        String email = jwtAbstractUtil.getUsername(paramToken.getActionToken());
-        paramTokenRepository.deleteById(paramToken.getId());
-        return email;
     }
 
     private TokenBearerDto getTokens(String email, String password) throws LoginException {
