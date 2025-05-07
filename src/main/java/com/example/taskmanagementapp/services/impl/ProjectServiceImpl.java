@@ -23,7 +23,7 @@ import com.example.taskmanagementapp.repositories.user.UserRepository;
 import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
 import com.example.taskmanagementapp.security.jwtutils.strategy.JwtStrategy;
 import com.example.taskmanagementapp.services.ProjectService;
-import com.example.taskmanagementapp.services.email.AcceptAssignmentToProjectEmailService;
+import com.example.taskmanagementapp.services.email.AssignmentToProjectEmailService;
 import com.example.taskmanagementapp.services.utils.ParamFromHttpRequestUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final CommentRepository commentRepository;
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
-    private final AcceptAssignmentToProjectEmailService emailService;
+    private final AssignmentToProjectEmailService emailService;
     private final ParamFromHttpRequestUtil paramFromHttpRequestUtil;
     private final JwtStrategy jwtStrategy;
 

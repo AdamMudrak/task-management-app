@@ -1,5 +1,6 @@
 package com.example.taskmanagementapp.services.email;
 
+import static com.example.taskmanagementapp.constants.Constants.SPACE;
 import static com.example.taskmanagementapp.constants.Constants.SPLITERATOR;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACCEPT_INVITATION_TO_PROJECT_PATH;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACCEPT_PROJECT_INVITATION_BODY_1;
@@ -15,12 +16,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AcceptAssignmentToProjectEmailService extends EmailService {
+public class AssignmentToProjectEmailService extends EmailService {
     @Value(ACCEPT_INVITATION_TO_PROJECT_PATH)
     private String acceptInvitationToProjectPath;
     private final EmailLinkParameterProvider emailLinkParameterProvider;
 
-    public AcceptAssignmentToProjectEmailService(
+    public AssignmentToProjectEmailService(
             EmailLinkParameterProvider emailLinkParameterProvider) {
         this.emailLinkParameterProvider = emailLinkParameterProvider;
     }
@@ -35,9 +36,9 @@ public class AcceptAssignmentToProjectEmailService extends EmailService {
     private String formTextForChangeEmail(String sender, String receiver, String projectName,
                                   Long projectId, Long assigneeId, boolean isNewEmployeeManager) {
         emailLinkParameterProvider.formRandomParamTokenPair(receiver);
-        return ACCEPT_PROJECT_INVITATION_BODY_1 + " " + sender + " "
+        return ACCEPT_PROJECT_INVITATION_BODY_1 + SPACE + sender + SPACE
                 + ACCEPT_PROJECT_INVITATION_BODY_2
-                + " " + projectName + " " + ACCEPT_PROJECT_INVITATION_BODY_3
+                + SPACE + projectName + SPACE + ACCEPT_PROJECT_INVITATION_BODY_3
                 + acceptInvitationToProjectPath
                 + emailLinkParameterProvider.getEmailLinkParameter()
                 + SPLITERATOR + emailLinkParameterProvider.getToken()

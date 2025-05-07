@@ -1,7 +1,7 @@
 package com.example.taskmanagementapp.constants;
 
 public class Constants {
-
+    public static final String SPACE = " ";
     public static final String SPLITERATOR = "=";
 
     public static final String INVALID_ENTITY_VALUE =
