@@ -123,5 +123,4 @@ public class LabelServiceImpl implements LabelService {
                     + " to task " + taskId + " since you are not in project " + thisProjectId);
         }
     }
-    //TODO send users notifications when task is assigned
 }
