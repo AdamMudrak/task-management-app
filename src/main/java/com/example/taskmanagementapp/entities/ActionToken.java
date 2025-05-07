@@ -1,4 +1,4 @@
-package com.example.taskmanagementapp.entities.tokens;
+package com.example.taskmanagementapp.entities;
 
 import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.ACTION_TOKENS;
 

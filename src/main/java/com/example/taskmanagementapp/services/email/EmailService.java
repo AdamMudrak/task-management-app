@@ -1,4 +1,4 @@
-package com.example.taskmanagementapp.security.email;
+package com.example.taskmanagementapp.services.email;
 
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.MAILER_SEND_API_KEY;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.SENDER_EMAIL;

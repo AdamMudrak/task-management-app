@@ -1,4 +1,4 @@
-package com.example.taskmanagementapp.security.email;
+package com.example.taskmanagementapp.services.email;
 
 import static com.example.taskmanagementapp.constants.Constants.SPLITERATOR;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.CHANGE_EMAIL_CONFIRMATION_PATH;
@@ -6,7 +6,7 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.CONFIRM_CHANGE_EMAIL_SUBJECT;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.NEW_EMAIL_PARAMETER;
 
-import com.example.taskmanagementapp.security.utils.EmailLinkParameterProvider;
+import com.example.taskmanagementapp.services.utils.EmailLinkParameterProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 

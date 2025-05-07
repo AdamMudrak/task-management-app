@@ -1,4 +1,4 @@
-package com.example.taskmanagementapp.security.email;
+package com.example.taskmanagementapp.services.email;
 
 import static com.example.taskmanagementapp.constants.Constants.SPLITERATOR;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACCEPT_INVITATION_TO_PROJECT_PATH;
@@ -10,7 +10,7 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.IS_NEW_MANAGER_PARAMETER;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.PROJECT_ID_PARAMETER;
 
-import com.example.taskmanagementapp.security.utils.EmailLinkParameterProvider;
+import com.example.taskmanagementapp.services.utils.EmailLinkParameterProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 

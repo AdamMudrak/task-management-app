@@ -1,8 +1,8 @@
-package com.example.taskmanagementapp.security.utils;
+package com.example.taskmanagementapp.services.utils;
 
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.SKIPPED_PARAMS;
 
-import com.example.taskmanagementapp.entities.tokens.ParamToken;
+import com.example.taskmanagementapp.entities.ParamToken;
 import com.example.taskmanagementapp.exceptions.notfoundexceptions.ActionNotFoundException;
 import com.example.taskmanagementapp.repositories.paramtoken.ParamTokenRepository;
 import jakarta.servlet.http.HttpServletRequest;

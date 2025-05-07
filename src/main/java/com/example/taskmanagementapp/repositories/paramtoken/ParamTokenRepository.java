@@ -1,6 +1,6 @@
 package com.example.taskmanagementapp.repositories.paramtoken;
 
-import com.example.taskmanagementapp.entities.tokens.ParamToken;
+import com.example.taskmanagementapp.entities.ParamToken;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 

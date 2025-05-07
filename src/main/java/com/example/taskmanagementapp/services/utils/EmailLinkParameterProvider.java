@@ -1,9 +1,9 @@
-package com.example.taskmanagementapp.security.utils;
+package com.example.taskmanagementapp.services.utils;
 
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACTION;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RANDOM_LINK_STRENGTH;
 
-import com.example.taskmanagementapp.entities.tokens.ParamToken;
+import com.example.taskmanagementapp.entities.ParamToken;
 import com.example.taskmanagementapp.repositories.paramtoken.ParamTokenRepository;
 import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
 import com.example.taskmanagementapp.security.jwtutils.strategy.JwtStrategy;
