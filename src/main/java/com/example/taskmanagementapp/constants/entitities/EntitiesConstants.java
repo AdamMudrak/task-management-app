@@ -38,4 +38,8 @@ public class EntitiesConstants {
 
     public static final String COMMENTS = "comments";
     public static final String USER_ID = "user_id";
+
+    public static final String LABELS = "labels";
+    public static final String LABELS_TASKS = "labels_tasks";
+    public static final String LABEL_ID = "label_id";
 }

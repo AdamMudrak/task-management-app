@@ -25,4 +25,10 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     @Query("UPDATE Task t SET t.isDeleted = TRUE "
             + "WHERE t.project.id = :projectId")
     void deleteAllByProjectId(Long projectId);
+
+    @Query(value = "SELECT * FROM tasks "
+            + "JOIN labels_tasks "
+            + "ON tasks.id = labels_tasks.task_id "
+            + " WHERE labels_tasks.label_id = :labelId", nativeQuery = true)
+    Page<Task> findAllByLabelIdNonDeleted(Long labelId, Pageable pageable);
 }

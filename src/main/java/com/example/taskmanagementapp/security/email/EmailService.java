@@ -1,20 +1,44 @@
 package com.example.taskmanagementapp.security.email;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.MAIL_SEND;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.SEND_GRID_API_KEY;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.SUPPORT_EMAIL;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.TEXT;
+
+import com.sendgrid.Method;
+import com.sendgrid.Request;
+import com.sendgrid.SendGrid;
+import com.sendgrid.helpers.mail.Mail;
+import com.sendgrid.helpers.mail.objects.Content;
+import com.sendgrid.helpers.mail.objects.Email;
+import java.io.IOException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 public class EmailService {
-    protected final JavaMailSender mailSender;
+    @Value(SUPPORT_EMAIL)
+    protected String supportEmail;
+
+    @Value(SEND_GRID_API_KEY)
+    private String sendGridApiKey;
 
     public void sendMessage(String toEmail, String subject, String body) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(toEmail);
-        message.setSubject(subject);
-        message.setText(body);
-        mailSender.send(message);
+        Email from = new Email(supportEmail);
+        Email to = new Email(toEmail);
+        Content content = new Content(TEXT, body);
+        Mail mail = new Mail(from, subject, to, content);
+
+        SendGrid sendGrid = new SendGrid(sendGridApiKey);
+        Request request = new Request();
+
+        try {
+            request.setMethod(Method.POST);
+            request.setEndpoint(MAIL_SEND);
+            request.setBody(mail.build());
+            sendGrid.api(request);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 }

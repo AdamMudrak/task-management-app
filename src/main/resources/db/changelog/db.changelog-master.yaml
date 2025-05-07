@@ -31,3 +31,7 @@ databaseChangeLog:
       file: db/changelog/changes/15-create-attachments-table.yaml
   - include:
       file: db/changelog/changes/16-create-comments-table.yaml
+  - include:
+      file: db/changelog/changes/17-create-labels-table.yaml
+  - include:
+      file: db/changelog/changes/18-create-labels-tasks.yaml

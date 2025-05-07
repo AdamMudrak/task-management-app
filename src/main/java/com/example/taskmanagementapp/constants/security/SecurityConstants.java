@@ -30,6 +30,11 @@ public class SecurityConstants {
     public static final String DROPBOX_SECRET = "${dropbox.secret}";
     public static final String DROPBOX_CLIENT_IDENTIFIER = "dropbox/taskmanagementapp";
 
+    public static final String SUPPORT_EMAIL = "${mail.address}";
+    public static final String SEND_GRID_API_KEY = "${sendgrid.api.key}";
+    public static final String TEXT = "text";
+    public static final String MAIL_SEND = "mail/send";
+
     public static final String RESET = "RESET";
     public static final String CONFIRMATION = "CONFIRMATION";
     public static final String ACCESS = "ACCESS";
@@ -108,4 +113,10 @@ public class SecurityConstants {
              to invite to a project called""";
     public static final String ACCEPT_PROJECT_INVITATION_BODY_3 = """
             . Please,use this link to confirm:""";
+
+    public static final String TASK_ASSIGNED_SUBJECT = "Task assigned in project: ";
+    public static final String TASK_ASSIGNED_BODY_1 = "Good day! ";
+    public static final String TASK_ASSIGNED_BODY_2 = " has assigned you to task ";
+    public static final String TASK_ASSIGNED_BODY_3 = " in project ";
+
 }

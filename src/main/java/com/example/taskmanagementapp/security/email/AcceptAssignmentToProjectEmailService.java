@@ -12,7 +12,6 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 
 import com.example.taskmanagementapp.security.utils.EmailLinkParameterProvider;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,9 +20,8 @@ public class AcceptAssignmentToProjectEmailService extends EmailService {
     private String acceptInvitationToProjectPath;
     private final EmailLinkParameterProvider emailLinkParameterProvider;
 
-    public AcceptAssignmentToProjectEmailService(JavaMailSender mailSender,
-                                         EmailLinkParameterProvider emailLinkParameterProvider) {
-        super(mailSender);
+    public AcceptAssignmentToProjectEmailService(
+            EmailLinkParameterProvider emailLinkParameterProvider) {
         this.emailLinkParameterProvider = emailLinkParameterProvider;
     }
 

@@ -13,7 +13,6 @@ import com.example.taskmanagementapp.repositories.comment.CommentRepository;
 import com.example.taskmanagementapp.repositories.project.ProjectRepository;
 import com.example.taskmanagementapp.repositories.task.TaskRepository;
 import com.example.taskmanagementapp.services.CommentService;
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -36,14 +35,12 @@ public class CommentServiceImpl implements CommentService {
                         "No active task with id " + commentDto.taskId()));
         Long thisProjectId = thisTask.getProject().getId();
 
-        if (projectRepository.isUserEmployee(thisProjectId, authenticatedUser.getId())
+        if (projectRepository.isUserOwner(thisProjectId, authenticatedUser.getId())
                 || projectRepository.isUserEmployee(thisProjectId, authenticatedUser.getId())
                 || projectRepository.isUserManager(thisProjectId, authenticatedUser.getId())) {
-            Comment addComment = commentMapper.toAddComment(commentDto);
-            addComment.setTask(thisTask);
-            addComment.setUser(authenticatedUser);
-            addComment.setTimestamp(LocalDateTime.now());
-            return commentMapper.toCommentDto(commentRepository.save(addComment));
+            return commentMapper.toCommentDto(
+                    commentRepository.save(
+                            commentMapper.toAddComment(commentDto, thisTask, authenticatedUser)));
         } else {
             throw new ForbiddenException("You can't add comments to task " + commentDto.taskId()
                     + " since you are not participant in project " + thisProjectId);
@@ -66,13 +63,13 @@ public class CommentServiceImpl implements CommentService {
                 "No active task with id " + thisCommentTaskId));
         Long thisProjectId = thisTask.getProject().getId();
 
-        if (projectRepository.isUserEmployee(thisProjectId, authenticatedUser.getId())
+        if (projectRepository.isUserOwner(thisProjectId, authenticatedUser.getId())
                 || projectRepository.isUserEmployee(thisProjectId, authenticatedUser.getId())
                 || projectRepository.isUserManager(thisProjectId, authenticatedUser.getId())) {
             thisComment.setText(commentDto.text());
             return commentMapper.toCommentDto(commentRepository.save(thisComment));
         } else {
-            throw new ForbiddenException("You can't add comments to task " + commentId
+            throw new ForbiddenException("You can't update comments for task " + thisCommentTaskId
                     + " since you are not participant in project " + thisProjectId);
         }
     }
@@ -85,7 +82,7 @@ public class CommentServiceImpl implements CommentService {
                 "No active task with id " + taskId));
         Long thisProjectId = thisTask.getProject().getId();
 
-        if (projectRepository.isUserEmployee(thisProjectId, authenticatedUser.getId())
+        if (projectRepository.isUserOwner(thisProjectId, authenticatedUser.getId())
                 || projectRepository.isUserEmployee(thisProjectId, authenticatedUser.getId())
                 || projectRepository.isUserManager(thisProjectId, authenticatedUser.getId())) {
             return commentMapper.toCommentDtoList(commentRepository
@@ -110,7 +107,7 @@ public class CommentServiceImpl implements CommentService {
                 "No active task with id " + thisCommentTaskId));
         Long thisProjectId = thisTask.getProject().getId();
 
-        if (projectRepository.isUserEmployee(thisProjectId, authenticatedUser.getId())
+        if (projectRepository.isUserOwner(thisProjectId, authenticatedUser.getId())
                 || projectRepository.isUserEmployee(thisProjectId, authenticatedUser.getId())
                 || projectRepository.isUserManager(thisProjectId, authenticatedUser.getId())) {
             commentRepository.deleteById(commentId);
