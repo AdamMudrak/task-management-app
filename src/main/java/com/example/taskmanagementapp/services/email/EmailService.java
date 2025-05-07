@@ -32,8 +32,8 @@ public class EmailService {
 
         try {
             MailerSendResponse response = ms.emails().send(email);
-            logger.info("Email sent successfully, remaining emails: {}",
-                    response.rateLimitRemaining);
+            logger.info("Email sent with code: {}",
+                    response.responseStatusCode);
         } catch (MailerSendException e) {
             logger.error(e.getMessage());
         }
