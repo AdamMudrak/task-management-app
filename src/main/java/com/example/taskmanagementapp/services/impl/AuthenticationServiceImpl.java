@@ -47,8 +47,10 @@ import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
 import com.example.taskmanagementapp.security.jwtutils.strategy.JwtStrategy;
 import com.example.taskmanagementapp.services.AuthenticationService;
 import com.example.taskmanagementapp.services.email.PasswordEmailService;
+import com.example.taskmanagementapp.services.utils.ParamFromHttpRequestUtil;
 import com.example.taskmanagementapp.services.utils.RandomStringUtil;
 import io.jsonwebtoken.JwtException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -70,6 +72,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtStrategy jwtStrategy;
     private final PasswordEmailService passwordEmailService;
     private final RandomStringUtil randomStringUtil;
+    private final ParamFromHttpRequestUtil paramFromHttpRequestUtil;
     private final ParamTokenRepository paramTokenRepository;
     private final RoleRepository roleRepository;
     @Value(JWT_ACCESS_EXPIRATION)
@@ -111,7 +114,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public LinkToResetPasswordSuccessDto confirmResetPassword(String token) {
+    public LinkToResetPasswordSuccessDto confirmResetPassword(HttpServletRequest request) {
+        paramFromHttpRequestUtil.parseRandomParameterAndToken(request);
+        String token = paramFromHttpRequestUtil.getTokenFromRepo(
+                paramFromHttpRequestUtil.getRandomParameter(),
+                paramFromHttpRequestUtil.getToken()
+        );
         JwtAbstractUtil jwtAbstractUtil = jwtStrategy.getStrategy(ACTION);
         try {
             jwtAbstractUtil.isValidToken(token);
@@ -170,7 +178,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Transactional
     @Override
-    public RegistrationConfirmationSuccessDto confirmRegistration(String token) {
+    public RegistrationConfirmationSuccessDto confirmRegistration(HttpServletRequest request) {
+        paramFromHttpRequestUtil.parseRandomParameterAndToken(request);
+        String token = paramFromHttpRequestUtil.getTokenFromRepo(
+                paramFromHttpRequestUtil.getRandomParameter(),
+                paramFromHttpRequestUtil.getToken()
+        );
         JwtAbstractUtil jwtAbstractUtil = jwtStrategy.getStrategy(ACTION);
         String email = jwtAbstractUtil.getUsername(token);
         User user = userRepository.findByEmail(email).orElseThrow(

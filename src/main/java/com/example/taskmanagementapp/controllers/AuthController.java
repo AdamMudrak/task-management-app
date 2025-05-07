@@ -40,7 +40,6 @@ import com.example.taskmanagementapp.exceptions.badrequest.RegistrationException
 import com.example.taskmanagementapp.exceptions.conflictexpections.PasswordMismatchException;
 import com.example.taskmanagementapp.exceptions.forbidden.LoginException;
 import com.example.taskmanagementapp.services.AuthenticationService;
-import com.example.taskmanagementapp.services.utils.ParamFromHttpRequestUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -65,7 +64,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(AUTH)
 public class AuthController {
     private final AuthenticationService authenticationService;
-    private final ParamFromHttpRequestUtil randomParamFromHttpRequestUtil;
 
     @Operation(summary = REGISTER_SUMMARY)
     @ApiResponse(responseCode = CODE_201, description =
@@ -83,11 +81,8 @@ public class AuthController {
     @GetMapping(CONFIRM_REGISTRATION)
     public RegistrationConfirmationSuccessDto confirmRegistration(
             HttpServletRequest httpServletRequest) {
-        randomParamFromHttpRequestUtil.parseRandomParameterAndToken(httpServletRequest);
         return authenticationService
-                    .confirmRegistration(randomParamFromHttpRequestUtil.getTokenFromRepo(
-                            randomParamFromHttpRequestUtil.getRandomParameter(),
-                            randomParamFromHttpRequestUtil.getToken()));
+                    .confirmRegistration(httpServletRequest);
     }
 
     @Operation(summary = EMAIL_LOGIN_SUMMARY)
@@ -114,11 +109,8 @@ public class AuthController {
     @Operation(hidden = true)
     @GetMapping(RESET_PASSWORD)
     public LinkToResetPasswordSuccessDto resetPassword(HttpServletRequest httpServletRequest) {
-        randomParamFromHttpRequestUtil.parseRandomParameterAndToken(httpServletRequest);
         return authenticationService
-                .confirmResetPassword(randomParamFromHttpRequestUtil.getTokenFromRepo(
-                randomParamFromHttpRequestUtil.getRandomParameter(),
-                randomParamFromHttpRequestUtil.getToken()));
+                .confirmResetPassword(httpServletRequest);
     }
 
     @Operation(summary = CHANGE_PASSWORD_SUMMARY)

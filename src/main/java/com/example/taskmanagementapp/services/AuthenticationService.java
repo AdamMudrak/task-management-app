@@ -13,6 +13,7 @@ import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.badrequest.RegistrationException;
 import com.example.taskmanagementapp.exceptions.conflictexpections.PasswordMismatchException;
 import com.example.taskmanagementapp.exceptions.forbidden.LoginException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 public interface AuthenticationService {
@@ -21,7 +22,7 @@ public interface AuthenticationService {
 
     SendLinkToResetPasswordDto sendPasswordResetLink(String emailOrUsername) throws LoginException;
 
-    LinkToResetPasswordSuccessDto confirmResetPassword(String token);
+    LinkToResetPasswordSuccessDto confirmResetPassword(HttpServletRequest request);
 
     ChangePasswordSuccessDto changePassword(User user,
                                             SetNewPasswordDto userSetNewPasswordRequestDto)
@@ -30,5 +31,5 @@ public interface AuthenticationService {
     RegistrationSuccessDto register(UserRegistrationRequestDto requestDto)
                                                                     throws RegistrationException;
 
-    RegistrationConfirmationSuccessDto confirmRegistration(String token);
+    RegistrationConfirmationSuccessDto confirmRegistration(HttpServletRequest request);
 }
