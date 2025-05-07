@@ -30,10 +30,8 @@ public class SecurityConstants {
     public static final String DROPBOX_SECRET = "${dropbox.secret}";
     public static final String DROPBOX_CLIENT_IDENTIFIER = "dropbox/taskmanagementapp";
 
-    public static final String SUPPORT_EMAIL = "${mail.address}";
-    public static final String SEND_GRID_API_KEY = "${sendgrid.api.key}";
-    public static final String TEXT = "text";
-    public static final String MAIL_SEND = "mail/send";
+    public static final String SENDER_EMAIL = "${mail.address}";
+    public static final String MAILER_SEND_API_KEY = "${mailer.send.api.key}";
 
     public static final String RESET = "RESET";
     public static final String CONFIRMATION = "CONFIRMATION";

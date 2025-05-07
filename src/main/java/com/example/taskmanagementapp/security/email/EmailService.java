@@ -1,44 +1,41 @@
 package com.example.taskmanagementapp.security.email;
 
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.MAIL_SEND;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.SEND_GRID_API_KEY;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.SUPPORT_EMAIL;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.TEXT;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.MAILER_SEND_API_KEY;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.SENDER_EMAIL;
 
-import com.sendgrid.Method;
-import com.sendgrid.Request;
-import com.sendgrid.SendGrid;
-import com.sendgrid.helpers.mail.Mail;
-import com.sendgrid.helpers.mail.objects.Content;
-import com.sendgrid.helpers.mail.objects.Email;
-import java.io.IOException;
+import com.mailersend.sdk.MailerSend;
+import com.mailersend.sdk.MailerSendResponse;
+import com.mailersend.sdk.emails.Email;
+import com.mailersend.sdk.exceptions.MailerSendException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EmailService {
-    @Value(SUPPORT_EMAIL)
+    private static final Logger logger = LogManager.getLogger(EmailService.class);
+    @Value(SENDER_EMAIL)
     protected String supportEmail;
-
-    @Value(SEND_GRID_API_KEY)
-    private String sendGridApiKey;
+    @Value(MAILER_SEND_API_KEY)
+    private String mailerSendApiKey;
 
     public void sendMessage(String toEmail, String subject, String body) {
-        Email from = new Email(supportEmail);
-        Email to = new Email(toEmail);
-        Content content = new Content(TEXT, body);
-        Mail mail = new Mail(from, subject, to, content);
+        Email email = new Email();
 
-        SendGrid sendGrid = new SendGrid(sendGridApiKey);
-        Request request = new Request();
+        email.setFrom(supportEmail, supportEmail);
+        email.addRecipient(toEmail, toEmail);
+        email.setSubject(subject);
+        email.setPlain(body);
+        MailerSend ms = new MailerSend();
+        ms.setToken(mailerSendApiKey);
 
         try {
-            request.setMethod(Method.POST);
-            request.setEndpoint(MAIL_SEND);
-            request.setBody(mail.build());
-            sendGrid.api(request);
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
+            MailerSendResponse response = ms.emails().send(email);
+            logger.info("Email sent successfully, remaining emails: {}",
+                    response.rateLimitRemaining);
+        } catch (MailerSendException e) {
+            logger.error(e.getMessage());
         }
     }
 }
