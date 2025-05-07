@@ -1,7 +1,9 @@
 package com.example.taskmanagementapp.security.email;
 
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.MAIL_SEND;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.SEND_GRID_API_KEY;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.SUPPORT_EMAIL;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.TEXT;
 
 import com.sendgrid.Method;
 import com.sendgrid.Request;
@@ -24,7 +26,7 @@ public class EmailService {
     public void sendMessage(String toEmail, String subject, String body) {
         Email from = new Email(supportEmail);
         Email to = new Email(toEmail);
-        Content content = new Content("text", body);
+        Content content = new Content(TEXT, body);
         Mail mail = new Mail(from, subject, to, content);
 
         SendGrid sendGrid = new SendGrid(sendGridApiKey);
@@ -32,7 +34,7 @@ public class EmailService {
 
         try {
             request.setMethod(Method.POST);
-            request.setEndpoint("mail/send");
+            request.setEndpoint(MAIL_SEND);
             request.setBody(mail.build());
             sendGrid.api(request);
         } catch (IOException ex) {

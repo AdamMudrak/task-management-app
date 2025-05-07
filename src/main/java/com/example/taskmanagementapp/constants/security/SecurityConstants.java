@@ -32,6 +32,8 @@ public class SecurityConstants {
 
     public static final String SUPPORT_EMAIL = "${mail.address}";
     public static final String SEND_GRID_API_KEY = "${sendgrid.api.key}";
+    public static final String TEXT = "text";
+    public static final String MAIL_SEND = "mail/send";
 
     public static final String RESET = "RESET";
     public static final String CONFIRMATION = "CONFIRMATION";
