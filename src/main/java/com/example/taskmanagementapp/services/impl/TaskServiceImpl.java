@@ -1,10 +1,5 @@
 package com.example.taskmanagementapp.services.impl;
 
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.TASK_ASSIGNED_BODY_1;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.TASK_ASSIGNED_BODY_2;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.TASK_ASSIGNED_BODY_3;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.TASK_ASSIGNED_SUBJECT;
-
 import com.example.taskmanagementapp.dtos.task.request.CreateTaskDto;
 import com.example.taskmanagementapp.dtos.task.request.TaskPriorityDto;
 import com.example.taskmanagementapp.dtos.task.request.TaskStatusDto;
@@ -22,7 +17,7 @@ import com.example.taskmanagementapp.repositories.project.ProjectRepository;
 import com.example.taskmanagementapp.repositories.task.TaskRepository;
 import com.example.taskmanagementapp.repositories.user.UserRepository;
 import com.example.taskmanagementapp.services.TaskService;
-import com.example.taskmanagementapp.services.email.EmailService;
+import com.example.taskmanagementapp.services.email.TaskAssignmentEmailService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -37,7 +32,7 @@ public class TaskServiceImpl implements TaskService {
     private final ProjectRepository projectRepository;
     private final CommentRepository commentRepository;
     private final LabelRepository labelRepository;
-    private final EmailService emailService;
+    private final TaskAssignmentEmailService taskAssignmentEmailService;
 
     @Override
     public TaskDto createTask(User authenticatedUser,
@@ -60,11 +55,11 @@ public class TaskServiceImpl implements TaskService {
                 Task createTask = taskMapper.toCreateTask(createTaskDto);
                 createTask.setStatus(Task.Status.NOT_STARTED);
                 createTask.setPriority(Task.Priority.valueOf(taskPriorityDto.name()));
-                emailService.sendMessage(
+                taskAssignmentEmailService.sendTaskAssignmentEmail(
                         assignee.getEmail(),
-                        TASK_ASSIGNED_SUBJECT,
-                        prepareAssignmentEmail(authenticatedUser.getEmail(),
-                                createTask.getName(), project.getName()));
+                        authenticatedUser.getEmail(),
+                        createTask.getName(),
+                        project.getName());
                 return taskMapper.toTaskDto(taskRepository.save(createTask));
             } else {
                 throw new ForbiddenException("User " + assigneeId + " is not assigned to project "
@@ -199,11 +194,11 @@ public class TaskServiceImpl implements TaskService {
                         + " since they are not in project " + task.getProject().getId());
             }
             task.setAssignee(assignee);
-            emailService.sendMessage(
+            taskAssignmentEmailService.sendTaskAssignmentEmail(
                     assignee.getEmail(),
-                    TASK_ASSIGNED_SUBJECT,
-                    prepareAssignmentEmail(authenticatedUser.getEmail(),
-                            task.getName(), task.getProject().getName()));
+                    authenticatedUser.getEmail(),
+                    task.getName(),
+                    task.getProject().getName());
         }
 
         if (taskStatusDto != null) {
@@ -213,16 +208,5 @@ public class TaskServiceImpl implements TaskService {
         if (taskPriorityDto != null) {
             task.setPriority(Task.Priority.valueOf(taskPriorityDto.name()));
         }
-    }
-
-    private String prepareAssignmentEmail(String assignerEmail,
-                                          String taskName,
-                                          String projectName) {
-        return TASK_ASSIGNED_BODY_1
-                + assignerEmail
-                + TASK_ASSIGNED_BODY_2
-                + taskName
-                + TASK_ASSIGNED_BODY_3
-                + projectName;
     }
 }
