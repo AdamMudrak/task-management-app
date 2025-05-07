@@ -1,5 +1,10 @@
 package com.example.taskmanagementapp.services.impl;
 
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.TASK_ASSIGNED_BODY_1;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.TASK_ASSIGNED_BODY_2;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.TASK_ASSIGNED_BODY_3;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.TASK_ASSIGNED_SUBJECT;
+
 import com.example.taskmanagementapp.dtos.task.request.CreateTaskDto;
 import com.example.taskmanagementapp.dtos.task.request.TaskPriorityDto;
 import com.example.taskmanagementapp.dtos.task.request.TaskStatusDto;
@@ -16,6 +21,7 @@ import com.example.taskmanagementapp.repositories.label.LabelRepository;
 import com.example.taskmanagementapp.repositories.project.ProjectRepository;
 import com.example.taskmanagementapp.repositories.task.TaskRepository;
 import com.example.taskmanagementapp.repositories.user.UserRepository;
+import com.example.taskmanagementapp.security.email.EmailService;
 import com.example.taskmanagementapp.services.TaskService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +37,7 @@ public class TaskServiceImpl implements TaskService {
     private final ProjectRepository projectRepository;
     private final CommentRepository commentRepository;
     private final LabelRepository labelRepository;
+    private final EmailService emailService;
 
     @Override
     public TaskDto createTask(User authenticatedUser,
@@ -39,12 +46,11 @@ public class TaskServiceImpl implements TaskService {
         Long projectId = createTaskDto.projectId();
         Long assigneeId = createTaskDto.assigneeId();
 
-        if (!projectRepository.existsByIdNotDeleted(projectId)) {
-            throw new EntityNotFoundException("No active project with id " + projectId);
-        }
-        if (!userRepository.existsById(assigneeId)) {
-            throw new EntityNotFoundException("No user with id " + assigneeId);
-        }
+        Project project = projectRepository.findByIdNotDeleted(projectId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "No active project with id " + projectId));
+        User assignee = userRepository.findById(assigneeId)
+                .orElseThrow(() -> new EntityNotFoundException("No user with id " + assigneeId));
 
         if (projectRepository.isUserManager(projectId, authenticatedUser.getId())
                 || projectRepository.isUserOwner(projectId, authenticatedUser.getId())) {
@@ -54,6 +60,11 @@ public class TaskServiceImpl implements TaskService {
                 Task createTask = taskMapper.toCreateTask(createTaskDto);
                 createTask.setStatus(Task.Status.NOT_STARTED);
                 createTask.setPriority(Task.Priority.valueOf(taskPriorityDto.name()));
+                emailService.sendMessage(
+                        assignee.getEmail(),
+                        TASK_ASSIGNED_SUBJECT,
+                        prepareAssignmentEmail(authenticatedUser.getEmail(),
+                                createTask.getName(), project.getName()));
                 return taskMapper.toTaskDto(taskRepository.save(createTask));
             } else {
                 throw new ForbiddenException("User " + assigneeId + " is not assigned to project "
@@ -177,9 +188,9 @@ public class TaskServiceImpl implements TaskService {
         }
 
         if (updateTaskDto.assigneeId() != null) {
-            if (!userRepository.existsById(updateTaskDto.assigneeId())) {
-                throw new EntityNotFoundException("No user with id " + updateTaskDto.assigneeId());
-            }
+            User assignee = userRepository.findById(updateTaskDto.assigneeId())
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "No user with id " + updateTaskDto.assigneeId()));
 
             if (!projectRepository.isUserEmployee(
                     task.getProject().getId(), updateTaskDto.assigneeId())) {
@@ -187,7 +198,12 @@ public class TaskServiceImpl implements TaskService {
                         + updateTaskDto.assigneeId() + " to task " + task.getId()
                         + " since they are not in project " + task.getProject().getId());
             }
-            task.setAssignee(userRepository.findById(updateTaskDto.assigneeId()).get());
+            task.setAssignee(assignee);
+            emailService.sendMessage(
+                    assignee.getEmail(),
+                    TASK_ASSIGNED_SUBJECT,
+                    prepareAssignmentEmail(authenticatedUser.getEmail(),
+                            task.getName(), task.getProject().getName()));
         }
 
         if (taskStatusDto != null) {
@@ -197,5 +213,16 @@ public class TaskServiceImpl implements TaskService {
         if (taskPriorityDto != null) {
             task.setPriority(Task.Priority.valueOf(taskPriorityDto.name()));
         }
+    }
+
+    private String prepareAssignmentEmail(String assignerEmail,
+                                          String taskName,
+                                          String projectName) {
+        return TASK_ASSIGNED_BODY_1
+                + assignerEmail
+                + TASK_ASSIGNED_BODY_2
+                + taskName
+                + TASK_ASSIGNED_BODY_3
+                + projectName;
     }
 }

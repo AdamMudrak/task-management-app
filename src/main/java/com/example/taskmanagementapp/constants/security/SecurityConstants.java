@@ -113,4 +113,10 @@ public class SecurityConstants {
              to invite to a project called""";
     public static final String ACCEPT_PROJECT_INVITATION_BODY_3 = """
             . Please,use this link to confirm:""";
+
+    public static final String TASK_ASSIGNED_SUBJECT = "Task assigned in project: ";
+    public static final String TASK_ASSIGNED_BODY_1 = "Good day! ";
+    public static final String TASK_ASSIGNED_BODY_2 = " has assigned you to task ";
+    public static final String TASK_ASSIGNED_BODY_3 = " in project ";
+
 }
