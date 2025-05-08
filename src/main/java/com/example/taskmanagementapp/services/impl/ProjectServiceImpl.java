@@ -10,12 +10,15 @@ import com.example.taskmanagementapp.dtos.project.request.ProjectStatusDto;
 import com.example.taskmanagementapp.dtos.project.request.UpdateProjectDto;
 import com.example.taskmanagementapp.dtos.project.response.AssignEmployeeResponseDto;
 import com.example.taskmanagementapp.dtos.project.response.ProjectDto;
+import com.example.taskmanagementapp.entities.ActionToken;
 import com.example.taskmanagementapp.entities.Project;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.conflictexpections.ConflictException;
 import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
+import com.example.taskmanagementapp.exceptions.notfoundexceptions.ActionNotFoundException;
 import com.example.taskmanagementapp.exceptions.notfoundexceptions.EntityNotFoundException;
 import com.example.taskmanagementapp.mappers.ProjectMapper;
+import com.example.taskmanagementapp.repositories.actiontoken.ActionTokenRepository;
 import com.example.taskmanagementapp.repositories.comment.CommentRepository;
 import com.example.taskmanagementapp.repositories.project.ProjectRepository;
 import com.example.taskmanagementapp.repositories.task.TaskRepository;
@@ -43,6 +46,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final AssignmentToProjectEmailService emailService;
     private final ParamFromHttpRequestUtil paramFromHttpRequestUtil;
     private final JwtStrategy jwtStrategy;
+    private final ActionTokenRepository actionTokenRepository;
 
     @Override
     public ProjectDto createProject(User user,
@@ -142,6 +146,9 @@ public class ProjectServiceImpl implements ProjectService {
                             + employeeId));
             emailService.sendChangeEmail(user.getEmail(), newEmployee.getEmail(), project.getName(),
                     projectId, employeeId, isNewEmployeeManager);
+            ActionToken actionToken = new ActionToken();
+            actionToken.setActionToken("" + projectId + employeeId + isNewEmployeeManager);
+            actionTokenRepository.save(actionToken);
             return new AssignEmployeeResponseDto("Employee " + employeeId
                     + " has been invited to project " + projectId);
         } else {
@@ -171,6 +178,14 @@ public class ProjectServiceImpl implements ProjectService {
         boolean isNewEmployeeManager = Boolean.parseBoolean(
                 paramFromHttpRequestUtil.getNamedParameter(request, IS_NEW_MANAGER));
 
+        if (!actionTokenRepository.existsByActionToken(
+                "" + projectId + assigneeId + isNewEmployeeManager)) {
+            throw new ActionNotFoundException(
+                    "No active token found for such request... Might be forged...");
+        } else {
+            actionTokenRepository.deleteByActionToken(
+                    "" + projectId + assigneeId + isNewEmployeeManager);
+        }
         project.getEmployees().add(assignee);
         if (isNewEmployeeManager) {
             project.getManagers().add(assignee);
