@@ -1,4 +1,4 @@
-package com.example.taskmanagementapp.security.email;
+package com.example.taskmanagementapp.services.email;
 
 import static com.example.taskmanagementapp.constants.Constants.SPLITERATOR;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.CONFIRMATION;
@@ -14,7 +14,7 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RESET_PATH;
 
 import com.example.taskmanagementapp.exceptions.notfoundexceptions.ActionNotFoundException;
-import com.example.taskmanagementapp.security.utils.EmailLinkParameterProvider;
+import com.example.taskmanagementapp.services.utils.EmailLinkParameterProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 

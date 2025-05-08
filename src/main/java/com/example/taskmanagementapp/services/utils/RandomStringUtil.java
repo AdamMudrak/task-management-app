@@ -1,4 +1,4 @@
-package com.example.taskmanagementapp.security.utils;
+package com.example.taskmanagementapp.services.utils;
 
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RANDOM_STRING_BASE;
 

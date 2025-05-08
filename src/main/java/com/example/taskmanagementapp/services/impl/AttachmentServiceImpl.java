@@ -18,7 +18,7 @@ import com.example.taskmanagementapp.repositories.attachment.AttachmentRepositor
 import com.example.taskmanagementapp.repositories.project.ProjectRepository;
 import com.example.taskmanagementapp.repositories.task.TaskRepository;
 import com.example.taskmanagementapp.services.AttachmentService;
-import com.example.taskmanagementapp.services.util.TransliterationUtil;
+import com.example.taskmanagementapp.services.utils.TransliterationUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;

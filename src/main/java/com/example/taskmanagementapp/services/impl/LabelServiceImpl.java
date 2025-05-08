@@ -60,7 +60,7 @@ public class LabelServiceImpl implements LabelService {
 
     @Override
     public void deleteLabelById(User user, Long id) {
-        if (labelRepository.existsByUserIdAndId(user.getId(), id)) {
+        if (labelRepository.existsByIdAndUserId(id, user.getId())) {
             labelRepository.deleteById(id);
         } else {
             throw new EntityNotFoundException(
@@ -109,7 +109,8 @@ public class LabelServiceImpl implements LabelService {
                         "No active task with id " + taskId));
 
         if (!thisTask.getAssignee().getId().equals(user.getId())) {
-            throw new ForbiddenException("You can attach labels only to tasks you are assigned to");
+            throw new ForbiddenException("You can detach labels only"
+                    + " from tasks you are assigned to");
         }
         Long thisProjectId = thisTask.getProject().getId();
 
@@ -119,9 +120,8 @@ public class LabelServiceImpl implements LabelService {
             thisLabel.getTasks().remove(thisTask);
             labelRepository.save(thisLabel);
         } else {
-            throw new ForbiddenException("You can't attach label " + labelId
-                    + " to task " + taskId + " since you are not in project " + thisProjectId);
+            throw new ForbiddenException("You can't detach label " + labelId
+                    + " from task " + taskId + " since you are not in project " + thisProjectId);
         }
     }
-    //TODO send users notifications when task is assigned
 }

@@ -14,6 +14,7 @@ import static com.example.taskmanagementapp.constants.controllers.LabelControlle
 import static com.example.taskmanagementapp.constants.controllers.LabelControllerConstants.LABELS_API_DESCRIPTION;
 import static com.example.taskmanagementapp.constants.controllers.LabelControllerConstants.LABELS_API_NAME;
 import static com.example.taskmanagementapp.constants.controllers.LabelControllerConstants.LABEL_ID;
+import static com.example.taskmanagementapp.constants.controllers.LabelControllerConstants.PAGEABLE_EXAMPLE;
 import static com.example.taskmanagementapp.constants.controllers.LabelControllerConstants.SUCCESSFULLY_ATTACHED_LABEL;
 import static com.example.taskmanagementapp.constants.controllers.LabelControllerConstants.SUCCESSFULLY_CREATED_LABEL;
 import static com.example.taskmanagementapp.constants.controllers.LabelControllerConstants.SUCCESSFULLY_DELETED_LABEL;
@@ -33,8 +34,11 @@ import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
 import com.example.taskmanagementapp.services.LabelService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -47,7 +51,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -66,8 +72,8 @@ public class LabelController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     LabelDto createLabel(@AuthenticationPrincipal User user,
-                         ColorDto colorDto,
-                         AddLabelDto addLabelDto) {
+                         @RequestParam ColorDto colorDto,
+                         @RequestBody @Valid AddLabelDto addLabelDto) {
         return labelService.createLabel(user, colorDto, addLabelDto);
     }
 
@@ -77,9 +83,9 @@ public class LabelController {
             + ROLE_ADMIN)
     @PutMapping("/{labelId}")
     LabelDto updateLabel(@AuthenticationPrincipal User user,
-                         ColorDto colorDto,
-                         UpdateLabelDto updateLabelDto,
-                         @PathVariable Long labelId) {
+                         @RequestParam(value = "colorDto", required = false) ColorDto colorDto,
+                         @RequestBody @Valid UpdateLabelDto updateLabelDto,
+                         @PathVariable @Positive Long labelId) {
         return labelService.updateLabel(user, colorDto, updateLabelDto, labelId);
     }
 
@@ -89,7 +95,7 @@ public class LabelController {
             + ROLE_ADMIN)
     @GetMapping(LABEL_ID)
     LabelDto getLabel(@AuthenticationPrincipal User user,
-                         @PathVariable Long labelId) {
+                         @PathVariable @Positive Long labelId) {
         return labelService.getLabelById(user, labelId);
     }
 
@@ -99,7 +105,7 @@ public class LabelController {
             + ROLE_ADMIN)
     @GetMapping()
     List<LabelDto> getLabels(@AuthenticationPrincipal User user,
-                            Pageable pageable) {
+                             @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {
         return labelService.getAllLabels(user, pageable);
     }
 
@@ -110,7 +116,7 @@ public class LabelController {
     @DeleteMapping(LABEL_ID)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteLabelById(@AuthenticationPrincipal User user,
-                         @PathVariable Long labelId) {
+                         @PathVariable @Positive Long labelId) {
         labelService.deleteLabelById(user, labelId);
     }
 
@@ -120,8 +126,8 @@ public class LabelController {
             + ROLE_ADMIN)
     @PutMapping(TASK_ID_ATTACHMENT_ID_ATTACH)
     void attachLabelToTask(@AuthenticationPrincipal User user,
-                           @PathVariable Long taskId,
-                           @PathVariable Long labelId) throws ForbiddenException {
+                           @PathVariable @Positive Long taskId,
+                           @PathVariable @Positive Long labelId) throws ForbiddenException {
         labelService.attachLabelToTask(user, taskId, labelId);
     }
 
@@ -131,8 +137,8 @@ public class LabelController {
             + ROLE_ADMIN)
     @PutMapping(TASK_ID_ATTACHMENT_ID_DETACH)
     void detachLabelFromTask(@AuthenticationPrincipal User user,
-                           @PathVariable Long taskId,
-                           @PathVariable Long labelId) throws ForbiddenException {
+                           @PathVariable @Positive Long taskId,
+                           @PathVariable @Positive Long labelId) throws ForbiddenException {
         labelService.detachLabelFromTask(user, taskId, labelId);
     }
 }

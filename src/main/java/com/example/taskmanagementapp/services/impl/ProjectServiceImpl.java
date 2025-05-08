@@ -1,36 +1,41 @@
 package com.example.taskmanagementapp.services.impl;
 
+import static com.example.taskmanagementapp.constants.Constants.FIRST_POSITION;
+import static com.example.taskmanagementapp.constants.Constants.SECOND_POSITION;
+import static com.example.taskmanagementapp.constants.Constants.THIRD_POSITION;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACTION;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.ASSIGNEE_ID;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.IS_NEW_MANAGER;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.PROJECT_ID;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACTION_TOKEN;
 
 import com.example.taskmanagementapp.dtos.project.request.CreateProjectDto;
 import com.example.taskmanagementapp.dtos.project.request.ProjectStatusDto;
 import com.example.taskmanagementapp.dtos.project.request.UpdateProjectDto;
 import com.example.taskmanagementapp.dtos.project.response.AssignEmployeeResponseDto;
 import com.example.taskmanagementapp.dtos.project.response.ProjectDto;
+import com.example.taskmanagementapp.entities.ActionToken;
 import com.example.taskmanagementapp.entities.Project;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.conflictexpections.ConflictException;
 import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
+import com.example.taskmanagementapp.exceptions.notfoundexceptions.ActionNotFoundException;
 import com.example.taskmanagementapp.exceptions.notfoundexceptions.EntityNotFoundException;
 import com.example.taskmanagementapp.mappers.ProjectMapper;
+import com.example.taskmanagementapp.repositories.actiontoken.ActionTokenRepository;
 import com.example.taskmanagementapp.repositories.comment.CommentRepository;
 import com.example.taskmanagementapp.repositories.project.ProjectRepository;
 import com.example.taskmanagementapp.repositories.task.TaskRepository;
 import com.example.taskmanagementapp.repositories.user.UserRepository;
-import com.example.taskmanagementapp.security.email.AcceptAssignmentToProjectEmailService;
 import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
 import com.example.taskmanagementapp.security.jwtutils.strategy.JwtStrategy;
-import com.example.taskmanagementapp.security.utils.ParamFromHttpRequestUtil;
 import com.example.taskmanagementapp.services.ProjectService;
+import com.example.taskmanagementapp.services.email.AssignmentToProjectEmailService;
+import com.example.taskmanagementapp.services.utils.ParamFromHttpRequestUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -40,9 +45,10 @@ public class ProjectServiceImpl implements ProjectService {
     private final CommentRepository commentRepository;
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
-    private final AcceptAssignmentToProjectEmailService emailService;
+    private final AssignmentToProjectEmailService emailService;
     private final ParamFromHttpRequestUtil paramFromHttpRequestUtil;
     private final JwtStrategy jwtStrategy;
+    private final ActionTokenRepository actionTokenRepository;
 
     @Override
     public ProjectDto createProject(User user,
@@ -109,6 +115,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    @Transactional
     public void deleteProjectById(User user,
                                   Long projectId) throws ForbiddenException {
         if (!projectRepository.existsByIdNotDeleted(projectId)) {
@@ -125,14 +132,12 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    @Transactional
     public AssignEmployeeResponseDto assignEmployeeToProject(User user,
                                                              Long projectId,
                                                              Long employeeId,
                                                              boolean isNewEmployeeManager)
                                                         throws ForbiddenException {
-        if (user.getId().equals(employeeId)) {
-            throw new ForbiddenException("You cannot assign yourself to a project");
-        }
         Project project = projectRepository.findByIdNotDeleted(projectId).orElseThrow(
                 () -> new EntityNotFoundException("No active project with id " + projectId));
         if (projectRepository.isUserManager(projectId, user.getId())
@@ -140,8 +145,13 @@ public class ProjectServiceImpl implements ProjectService {
             User newEmployee = userRepository.findById(employeeId)
                     .orElseThrow(() -> new EntityNotFoundException("No employee with id "
                             + employeeId));
-            emailService.sendChangeEmail(user.getEmail(), newEmployee.getEmail(), project.getName(),
-                    projectId, employeeId, isNewEmployeeManager);
+            ActionToken actionToken = new ActionToken();
+            actionToken.setActionToken("" + projectId + employeeId
+                    + isNewEmployeeManager + getActionToken(newEmployee.getEmail()));
+
+            actionTokenRepository.save(actionToken);
+            emailService.sendChangeEmail(user.getEmail(), newEmployee.getEmail(),
+                    project.getName(), actionToken.getActionToken());
             return new AssignEmployeeResponseDto("Employee " + employeeId
                     + " has been invited to project " + projectId);
         } else {
@@ -152,27 +162,31 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    @Transactional
     public ProjectDto acceptAssignmentToProject(HttpServletRequest request) {
-        paramFromHttpRequestUtil.parseRandomParameterAndToken(request);
-        String token = paramFromHttpRequestUtil.getTokenFromRepo(
-                paramFromHttpRequestUtil.getRandomParameter(),
-                paramFromHttpRequestUtil.getToken());
+        String token = paramFromHttpRequestUtil.parseRandomParameterAndToken(request);
         JwtAbstractUtil jwtActionUtil = jwtStrategy.getStrategy(ACTION);
         jwtActionUtil.isValidToken(token);
+        String actionToken = paramFromHttpRequestUtil.getNamedParameter(request, ACTION_TOKEN);
 
-        Long projectId = Long.valueOf(paramFromHttpRequestUtil
-                .getNamedParameter(request, PROJECT_ID));
+        if (!actionTokenRepository.existsByActionToken(actionToken)) {
+            throw new ActionNotFoundException(
+                    "No active token found for such request... Might be forged...");
+        } else {
+            actionTokenRepository.deleteByActionToken(actionToken);
+        }
+
+        Long projectId = Long.parseLong(actionToken.substring(FIRST_POSITION, SECOND_POSITION));
+
         Project project = projectRepository.findByIdNotDeleted(projectId)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "No active project with id " + projectId));
 
-        Long assigneeId = Long.valueOf(paramFromHttpRequestUtil
-                .getNamedParameter(request, ASSIGNEE_ID));
+        Long assigneeId = Long.parseLong(actionToken.substring(SECOND_POSITION, THIRD_POSITION));
         User assignee = userRepository.findById(assigneeId).orElseThrow(
                 () -> new EntityNotFoundException("No user with id " + assigneeId));
 
-        boolean isNewEmployeeManager = Boolean.parseBoolean(
-                paramFromHttpRequestUtil.getNamedParameter(request, IS_NEW_MANAGER));
+        boolean isNewEmployeeManager = actionToken.contains("true");
 
         project.getEmployees().add(assignee);
         if (isNewEmployeeManager) {
@@ -185,9 +199,6 @@ public class ProjectServiceImpl implements ProjectService {
     public ProjectDto removeEmployeeFromProject(User user,
                                           Long projectId,
                                           Long employeeId) throws ForbiddenException {
-        if (user.getId().equals(employeeId)) {
-            throw new ForbiddenException("You cannot remove yourself from a project");
-        }
         Project project = projectRepository.findByIdNotDeleted(projectId).orElseThrow(
                 () -> new EntityNotFoundException("No active project with id " + projectId));
         if (projectRepository.isUserManager(projectId, user.getId())
@@ -195,7 +206,8 @@ public class ProjectServiceImpl implements ProjectService {
             User removedEmployee = userRepository.findById(employeeId)
                     .orElseThrow(() -> new EntityNotFoundException("No employee with id "
                             + employeeId));
-            if (project.getManagers().contains(removedEmployee)) {
+            if (project.getManagers().contains(removedEmployee)
+                    && !employeeId.equals(user.getId())) {
                 if (!projectRepository.isUserOwner(projectId, user.getId())) {
                     throw new ForbiddenException("Only project owner can delete managers");
                 }
@@ -263,5 +275,9 @@ public class ProjectServiceImpl implements ProjectService {
             exceptionMessages.append(e.getMessage()).append(System.lineSeparator());
         }
         return new ConflictException(exceptionMessages.toString());
+    }
+
+    private String getActionToken(String email) {
+        return jwtStrategy.getStrategy(ACTION).generateToken(email);
     }
 }

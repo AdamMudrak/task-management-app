@@ -11,5 +11,5 @@ public interface LabelRepository extends JpaRepository<Label, Long> {
 
     Page<Label> findAllByUserId(Long userId, Pageable pageable);
 
-    boolean existsByUserIdAndId(Long userId, Long id);
+    boolean existsByIdAndUserId(Long id, Long userId);
 }

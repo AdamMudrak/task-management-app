@@ -11,18 +11,16 @@ import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDto;
 import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDtoOnUpdate;
 import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.User;
-import com.example.taskmanagementapp.entities.tokens.ParamToken;
 import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
 import com.example.taskmanagementapp.exceptions.notfoundexceptions.EntityNotFoundException;
 import com.example.taskmanagementapp.mappers.UserMapper;
-import com.example.taskmanagementapp.repositories.paramtoken.ParamTokenRepository;
 import com.example.taskmanagementapp.repositories.role.RoleRepository;
 import com.example.taskmanagementapp.repositories.user.UserRepository;
-import com.example.taskmanagementapp.security.email.ChangeEmailService;
 import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
 import com.example.taskmanagementapp.security.jwtutils.strategy.JwtStrategy;
-import com.example.taskmanagementapp.security.utils.ParamFromHttpRequestUtil;
 import com.example.taskmanagementapp.services.UserService;
+import com.example.taskmanagementapp.services.email.ChangeEmailService;
+import com.example.taskmanagementapp.services.utils.ParamFromHttpRequestUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +33,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements UserService {
     private final ChangeEmailService changeEmailService;
     private final ParamFromHttpRequestUtil randomParamFromHttpRequestUtil;
-    private final ParamTokenRepository paramTokenRepository;
     private final JwtStrategy jwtStrategy;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -131,10 +128,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserProfileInfoDto confirmEmailChange(HttpServletRequest httpServletRequest) {
-        randomParamFromHttpRequestUtil.parseRandomParameterAndToken(httpServletRequest);
-        String token = randomParamFromHttpRequestUtil.getTokenFromRepo(
-                randomParamFromHttpRequestUtil.getRandomParameter(),
-                randomParamFromHttpRequestUtil.getToken());
+        String token = randomParamFromHttpRequestUtil
+                .parseRandomParameterAndToken(httpServletRequest);
         JwtAbstractUtil jwtActionUtil = jwtStrategy.getStrategy(ACTION);
         jwtActionUtil.isValidToken(token);
 
@@ -144,10 +139,6 @@ public class UserServiceImpl implements UserService {
                         + email + " was not found"));
         user.setEmail(randomParamFromHttpRequestUtil.getNamedParameter(httpServletRequest,
                 NEW_EMAIL));
-
-        ParamToken paramToken = paramTokenRepository.findByActionToken(token).orElseThrow(()
-                -> new EntityNotFoundException("No such request"));
-        paramTokenRepository.deleteById(paramToken.getId());
 
         return userMapper.toUserProfileInfoDto(userRepository.save(user));
     }

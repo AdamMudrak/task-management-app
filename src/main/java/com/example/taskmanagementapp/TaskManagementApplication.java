@@ -12,13 +12,20 @@ import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.oauth.DbxCredential;
 import com.dropbox.core.v2.DbxClientV2;
 import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
+@EnableScheduling
+@EnableAsync
 public class TaskManagementApplication {
+    private static final Logger logger = LogManager.getLogger(TaskManagementApplication.class);
     @Value(DROPBOX_REFRESH_TOKEN)
     private String refreshToken;
     @Value(DROPBOX_KEY)
@@ -49,8 +56,8 @@ public class TaskManagementApplication {
         } catch (DbxException e) {
             throw new ForbiddenException("Couldn't obtain connection to dropbox");
         }
-        System.out.println(GREEN + "Connection to dropbox account " + thisEmail
-                + " obtained successfully" + RESET);
+        logger.info(GREEN + "Connection to dropbox account {} obtained successfully"
+                + RESET, thisEmail);
         return client;
     }
 }

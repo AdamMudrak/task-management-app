@@ -39,6 +39,7 @@ public interface LabelMapper {
         labelDto.setId(label.getId());
         labelDto.setName(label.getName());
         labelDto.setColorDto(ColorDto.valueOf(label.getColor().name()));
+        labelDto.setUserId(label.getUser().getId());
         labelDto.getTaskIds().addAll(toTaskIds(label));
         return labelDto;
     }

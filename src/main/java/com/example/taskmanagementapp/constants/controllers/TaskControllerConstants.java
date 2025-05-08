@@ -9,7 +9,7 @@ public class TaskControllerConstants {
     public static final String TASKS = "/tasks";
     public static final String GET_ALL_PROJECT_TASKS = "/all-project-tasks/{projectId}";
     public static final String TASK_BY_ID = "/{taskId}";
-    public static final String TASKS_BY_LABEL_ID = "/{labelId}";
+    public static final String TASKS_BY_LABEL_ID = "/with-label/{labelId}";
 
     public static final String CREATE_TASK =
             "Create task. For this, you should be owner or manager of project.";

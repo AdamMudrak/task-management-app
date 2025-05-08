@@ -1,4 +1,4 @@
-package com.example.taskmanagementapp.services.util;
+package com.example.taskmanagementapp.services.utils;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -30,10 +30,8 @@ public class SecurityConstants {
     public static final String DROPBOX_SECRET = "${dropbox.secret}";
     public static final String DROPBOX_CLIENT_IDENTIFIER = "dropbox/taskmanagementapp";
 
-    public static final String SUPPORT_EMAIL = "${mail.address}";
-    public static final String SEND_GRID_API_KEY = "${sendgrid.api.key}";
-    public static final String TEXT = "text";
-    public static final String MAIL_SEND = "mail/send";
+    public static final String SENDER_EMAIL = "${mail.address}";
+    public static final String MAILER_SEND_API_KEY = "${mailer.send.api.key}";
 
     public static final String RESET = "RESET";
     public static final String CONFIRMATION = "CONFIRMATION";
@@ -92,15 +90,11 @@ public class SecurityConstants {
             request of email change for your Facio account. Please,
             use this link to confirm:""";
     public static final String NEW_EMAIL_PARAMETER = "&newEmail";
-    public static final String PROJECT_ID_PARAMETER = "&projectId";
-    public static final String ASSIGNEE_ID_PARAMETER = "&assigneeId";
-    public static final String IS_NEW_MANAGER_PARAMETER = "&isNewManager";
     public static final String NEW_EMAIL = "newEmail";
-    public static final String PROJECT_ID = "projectId";
-    public static final String ASSIGNEE_ID = "assigneeId";
-    public static final String IS_NEW_MANAGER = "isNewManager";
+    public static final String ACTION_TOKEN_PARAMETER = "&actionToken";
+    public static final String ACTION_TOKEN = "actionToken";
     public static final List<String> SKIPPED_PARAMS =
-            List.of("newEmail", "projectId", "assigneeId", "isNewManager");
+            List.of("newEmail", "actionToken");
 
     public static final String CONFIRM_NEW_EMAIL_MESSAGE =
             "In case of email change, please click the link sent to your new email to confirm.";
