@@ -12,8 +12,8 @@ public class LabelControllerConstants {
     public static final String LABELS = "/labels";
     public static final String TASK_ID = "/{taskId}";
     public static final String LABEL_ID = "/{labelId}";
-    public static final String TASK_ID_ATTACHMENT_ID_ATTACH = "/{taskId}/{labelId}?attach=true";
-    public static final String TASK_ID_ATTACHMENT_ID_DETACH = "/{taskId}/{labelId}?detach=true";
+    public static final String TASK_ID_ATTACHMENT_ID_ATTACH = "/{taskId}/{labelId}/attach";
+    public static final String TASK_ID_ATTACHMENT_ID_DETACH = "/{taskId}/{labelId}/detach";
 
     public static final String CREATE_LABEL_SUMMARY = "Create labels for tasks.";
     public static final String SUCCESSFULLY_CREATED_LABEL =
@@ -46,5 +46,5 @@ public class LabelControllerConstants {
     public static final String PAGEABLE_EXAMPLE = """
             {"page": 0,
             "size": 5,
-             "sort": "timestamp,ASC"}""";
+             "sort": "color,ASC"}""";
 }

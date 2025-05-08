@@ -25,6 +25,8 @@ public interface ProjectMapper {
         project.setStartDate(createProjectDto.startDate());
         project.setEndDate(createProjectDto.endDate());
         project.setOwner(user);
+        project.getEmployees().add(user);
+        project.getManagers().add(user);
         project.setStatus(Project.Status.INITIATED);
         return project;
     }

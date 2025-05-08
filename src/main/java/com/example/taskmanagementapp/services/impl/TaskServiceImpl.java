@@ -138,7 +138,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<TaskDto> getTasksWithLabel(User user, Long labelId, Pageable pageable) {
-        if (labelRepository.existsByUserIdAndId(labelId, user.getId())) {
+        if (labelRepository.existsByIdAndUserId(labelId, user.getId())) {
             return taskMapper.toTaskDtoList(
                     taskRepository.findAllByLabelIdNonDeleted(labelId, pageable).getContent());
         } else {

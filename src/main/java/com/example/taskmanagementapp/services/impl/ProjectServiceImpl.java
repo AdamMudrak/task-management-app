@@ -115,6 +115,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    @Transactional
     public void deleteProjectById(User user,
                                   Long projectId) throws ForbiddenException {
         if (!projectRepository.existsByIdNotDeleted(projectId)) {
@@ -137,9 +138,6 @@ public class ProjectServiceImpl implements ProjectService {
                                                              Long employeeId,
                                                              boolean isNewEmployeeManager)
                                                         throws ForbiddenException {
-        if (user.getId().equals(employeeId)) {
-            throw new ForbiddenException("You cannot assign yourself to a project");
-        }
         Project project = projectRepository.findByIdNotDeleted(projectId).orElseThrow(
                 () -> new EntityNotFoundException("No active project with id " + projectId));
         if (projectRepository.isUserManager(projectId, user.getId())
@@ -201,9 +199,6 @@ public class ProjectServiceImpl implements ProjectService {
     public ProjectDto removeEmployeeFromProject(User user,
                                           Long projectId,
                                           Long employeeId) throws ForbiddenException {
-        if (user.getId().equals(employeeId)) {
-            throw new ForbiddenException("You cannot remove yourself from a project");
-        }
         Project project = projectRepository.findByIdNotDeleted(projectId).orElseThrow(
                 () -> new EntityNotFoundException("No active project with id " + projectId));
         if (projectRepository.isUserManager(projectId, user.getId())
@@ -211,7 +206,8 @@ public class ProjectServiceImpl implements ProjectService {
             User removedEmployee = userRepository.findById(employeeId)
                     .orElseThrow(() -> new EntityNotFoundException("No employee with id "
                             + employeeId));
-            if (project.getManagers().contains(removedEmployee)) {
+            if (project.getManagers().contains(removedEmployee)
+                    && !employeeId.equals(user.getId())) {
                 if (!projectRepository.isUserOwner(projectId, user.getId())) {
                     throw new ForbiddenException("Only project owner can delete managers");
                 }

@@ -1,4 +1,4 @@
-package com.example.taskmanagementapp.constants.services.attachment.email;
+package com.example.taskmanagementapp.constants.services.email;
 
 public class TaskDeadlineNotifierConstants {
     public static final String CRONOUNITS = "45 40 2 * * ?";

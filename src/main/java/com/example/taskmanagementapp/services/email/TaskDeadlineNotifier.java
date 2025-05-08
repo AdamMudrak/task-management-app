@@ -1,12 +1,12 @@
 package com.example.taskmanagementapp.services.email;
 
-import static com.example.taskmanagementapp.constants.services.attachment.email.TaskDeadlineNotifierConstants.BODY_1;
-import static com.example.taskmanagementapp.constants.services.attachment.email.TaskDeadlineNotifierConstants.BODY_2;
-import static com.example.taskmanagementapp.constants.services.attachment.email.TaskDeadlineNotifierConstants.BODY_3;
-import static com.example.taskmanagementapp.constants.services.attachment.email.TaskDeadlineNotifierConstants.BODY_4;
-import static com.example.taskmanagementapp.constants.services.attachment.email.TaskDeadlineNotifierConstants.BODY_5;
-import static com.example.taskmanagementapp.constants.services.attachment.email.TaskDeadlineNotifierConstants.CRONOUNITS;
-import static com.example.taskmanagementapp.constants.services.attachment.email.TaskDeadlineNotifierConstants.SUBJECT;
+import static com.example.taskmanagementapp.constants.services.email.TaskDeadlineNotifierConstants.BODY_1;
+import static com.example.taskmanagementapp.constants.services.email.TaskDeadlineNotifierConstants.BODY_2;
+import static com.example.taskmanagementapp.constants.services.email.TaskDeadlineNotifierConstants.BODY_3;
+import static com.example.taskmanagementapp.constants.services.email.TaskDeadlineNotifierConstants.BODY_4;
+import static com.example.taskmanagementapp.constants.services.email.TaskDeadlineNotifierConstants.BODY_5;
+import static com.example.taskmanagementapp.constants.services.email.TaskDeadlineNotifierConstants.CRONOUNITS;
+import static com.example.taskmanagementapp.constants.services.email.TaskDeadlineNotifierConstants.SUBJECT;
 
 import com.example.taskmanagementapp.entities.Task;
 import com.example.taskmanagementapp.entities.User;
