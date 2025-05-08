@@ -1,10 +1,10 @@
 package com.example.taskmanagementapp.services.impl;
 
+import static com.example.taskmanagementapp.constants.Constants.FIRST_POSITION;
+import static com.example.taskmanagementapp.constants.Constants.SECOND_POSITION;
+import static com.example.taskmanagementapp.constants.Constants.THIRD_POSITION;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACTION;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACTION_TOKEN;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.ASSIGNEE_ID;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.IS_NEW_MANAGER;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.PROJECT_ID;
 
 import com.example.taskmanagementapp.dtos.project.request.CreateProjectDto;
 import com.example.taskmanagementapp.dtos.project.request.ProjectStatusDto;
@@ -150,9 +150,10 @@ public class ProjectServiceImpl implements ProjectService {
             ActionToken actionToken = new ActionToken();
             actionToken.setActionToken("" + projectId + employeeId
                     + isNewEmployeeManager + getActionToken(newEmployee.getEmail()));
+
             actionTokenRepository.save(actionToken);
-            emailService.sendChangeEmail(user.getEmail(), newEmployee.getEmail(), project.getName(),
-                    projectId, employeeId, isNewEmployeeManager, actionToken.getActionToken());
+            emailService.sendChangeEmail(user.getEmail(), newEmployee.getEmail(),
+                    project.getName(), actionToken.getActionToken());
             return new AssignEmployeeResponseDto("Employee " + employeeId
                     + " has been invited to project " + projectId);
         } else {
@@ -177,19 +178,17 @@ public class ProjectServiceImpl implements ProjectService {
             actionTokenRepository.deleteByActionToken(actionToken);
         }
 
-        Long projectId = Long.valueOf(paramFromHttpRequestUtil
-                .getNamedParameter(request, PROJECT_ID));
+        Long projectId = Long.parseLong(actionToken.substring(FIRST_POSITION, SECOND_POSITION));
+
         Project project = projectRepository.findByIdNotDeleted(projectId)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "No active project with id " + projectId));
 
-        Long assigneeId = Long.valueOf(paramFromHttpRequestUtil
-                .getNamedParameter(request, ASSIGNEE_ID));
+        Long assigneeId = Long.parseLong(actionToken.substring(SECOND_POSITION, THIRD_POSITION));
         User assignee = userRepository.findById(assigneeId).orElseThrow(
                 () -> new EntityNotFoundException("No user with id " + assigneeId));
 
-        boolean isNewEmployeeManager = Boolean.parseBoolean(
-                paramFromHttpRequestUtil.getNamedParameter(request, IS_NEW_MANAGER));
+        boolean isNewEmployeeManager = actionToken.contains("true");
 
         project.getEmployees().add(assignee);
         if (isNewEmployeeManager) {
