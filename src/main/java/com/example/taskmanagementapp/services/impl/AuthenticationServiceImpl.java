@@ -111,6 +111,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
+    @Transactional
     public LinkToResetPasswordSuccessDto confirmResetPassword(HttpServletRequest request) {
         String token = paramFromHttpRequestUtil.parseRandomParameterAndToken(request);
 
@@ -148,7 +149,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return new ChangePasswordSuccessDto(PASSWORD_SET_SUCCESSFULLY);
     }
 
-    @Transactional
     @Override
     public RegistrationSuccessDto register(UserRegistrationRequestDto requestDto)
             throws RegistrationException {
