@@ -1,5 +1,13 @@
 package com.example.taskmanagementapp.services.email;
 
+import static com.example.taskmanagementapp.constants.services.attachment.email.TaskDeadlineNotifierConstants.BODY_1;
+import static com.example.taskmanagementapp.constants.services.attachment.email.TaskDeadlineNotifierConstants.BODY_2;
+import static com.example.taskmanagementapp.constants.services.attachment.email.TaskDeadlineNotifierConstants.BODY_3;
+import static com.example.taskmanagementapp.constants.services.attachment.email.TaskDeadlineNotifierConstants.BODY_4;
+import static com.example.taskmanagementapp.constants.services.attachment.email.TaskDeadlineNotifierConstants.BODY_5;
+import static com.example.taskmanagementapp.constants.services.attachment.email.TaskDeadlineNotifierConstants.CRONOUNITS;
+import static com.example.taskmanagementapp.constants.services.attachment.email.TaskDeadlineNotifierConstants.SUBJECT;
+
 import com.example.taskmanagementapp.entities.Task;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.repositories.task.TaskRepository;
@@ -22,7 +30,7 @@ public class TaskDeadlineNotifier extends EmailService {
     private final TaskRepository taskRepository;
 
     @Async
-    @Scheduled(cron = "45 40 2 * * ?")
+    @Scheduled(cron = CRONOUNITS)
     public void taskDeadlineNotification() {
         Map<User, List<Task>> usersTasksMap = filterTasksWhereDueTomorrow();
         if (usersTasksMap.isEmpty()) {
@@ -45,26 +53,24 @@ public class TaskDeadlineNotifier extends EmailService {
         for (Map.Entry<User, List<Task>> entry : userTasks.entrySet()) {
             String toEmail = entry.getKey().getEmail();
             List<Task> tasks = entry.getValue();
-            this.sendMessage(toEmail, "Tasks due tomorrow", formBody(tasks));
+            this.sendMessage(toEmail, SUBJECT, formBody(tasks));
         }
         logger.info("Task deadline notification sent");
     }
 
     private String formBody(List<Task> tasks) {
         StringBuilder result = new StringBuilder();
-        result.append("Good day! Following tasks are due tomorrow:").append(System.lineSeparator());
+        result.append(BODY_1).append(System.lineSeparator());
         for (Task task : tasks) {
-            result.append("Task ")
+            result.append(BODY_2)
                     .append(task.getId())
-                    .append(" \"")
+                    .append(BODY_3)
                     .append(task.getName())
-                    .append("\"")
-                    .append(", Project \"")
+                    .append(BODY_4)
                     .append(task.getProject().getName())
-                    .append("\"")
+                    .append(BODY_5)
                     .append(System.lineSeparator());
         }
         return result.toString();
     }
 }
-//TODO constants
