@@ -109,8 +109,10 @@ public class TaskController {
     TaskDto updateTaskById(@AuthenticationPrincipal User user,
                            @RequestBody UpdateTaskDto updateTaskDto,
                            @PathVariable @Positive Long taskId,
-                           @RequestParam TaskStatusDto taskStatusDto,
-                           @RequestParam TaskPriorityDto taskPriorityDto)
+                           @RequestParam(value = "taskStatusDto", required = false)
+                           TaskStatusDto taskStatusDto,
+                           @RequestParam(value = "taskPriorityDto", required = false)
+                           TaskPriorityDto taskPriorityDto)
                             throws ForbiddenException {
         return taskService.updateTask(user, updateTaskDto, taskId, taskStatusDto, taskPriorityDto);
     }
@@ -133,7 +135,7 @@ public class TaskController {
             + ROLE_ADMIN)
     List<TaskDto> getTasksWithLabel(@AuthenticationPrincipal User user,
                                     @PathVariable @Positive Long labelId,
-                                    Pageable pageable) {
+                                    @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {
         return taskService.getTasksWithLabel(user, labelId, pageable);
     }
 }

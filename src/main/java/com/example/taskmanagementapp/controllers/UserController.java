@@ -36,17 +36,21 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -54,6 +58,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = USER_API_NAME,
         description = USER_API_DESCRIPTION)
 @RequiredArgsConstructor
+@Validated
 public class UserController {
     private final UserService userService;
 
@@ -74,6 +79,7 @@ public class UserController {
     @PreAuthorize(ROLE_USER + " or "
             + ROLE_ADMIN)
     UserProfileInfoDtoOnUpdate updateProfileInfo(@AuthenticationPrincipal User user,
+                                                 @RequestBody @Valid
                                                  UpdateUserProfileDto updateUserProfileDto) {
         return userService.updateProfileInfo(user.getId(), updateUserProfileDto);
     }
@@ -84,8 +90,9 @@ public class UserController {
     @PutMapping(UPDATE_USER_ROLE)
     @PreAuthorize(ROLE_ADMIN)
     UserProfileInfoDto updateUserRole(@AuthenticationPrincipal User user,
-                                      @Positive @PathVariable Long employeeId,
-                                      RoleNameDto roleName) throws ForbiddenException {
+                                      @PathVariable @Positive Long employeeId,
+                                      @RequestParam RoleNameDto roleName)
+            throws ForbiddenException {
         return userService.updateUserRole(user.getId(), employeeId, roleName);
     }
 
@@ -104,7 +111,7 @@ public class UserController {
     @PostMapping(CHANGE_USER_ACCOUNT_STATUS_PATH)
     @PreAuthorize(ROLE_ADMIN)
     UserProfileInfoDto changeUserAccountStatus(@AuthenticationPrincipal User user,
-                     UserAccountStatusDto accountStatusDto,
+                     @RequestParam UserAccountStatusDto accountStatusDto,
                      @PathVariable @Positive Long userId) throws ForbiddenException {
         return userService.changeStatus(user, userId, accountStatusDto);
     }

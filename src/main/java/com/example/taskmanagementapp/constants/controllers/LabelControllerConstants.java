@@ -42,4 +42,9 @@ public class LabelControllerConstants {
     public static final String DETACH_LABEL_TO_TASK = "Detach your label to your task.";
     public static final String SUCCESSFULLY_DETACHED_LABEL =
             "Successfully detached label.";
+
+    public static final String PAGEABLE_EXAMPLE = """
+            {"page": 0,
+            "size": 5,
+             "sort": "timestamp,ASC"}""";
 }

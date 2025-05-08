@@ -31,4 +31,9 @@ public class CommentControllerConstants {
             "Delete your comment.";
     public static final String SUCCESSFULLY_DELETED_COMMENT =
             "Successfully deleted comment.";
+
+    public static final String PAGEABLE_EXAMPLE = """
+            {"page": 0,
+            "size": 5,
+             "sort": "timestamp,ASC"}""";
 }

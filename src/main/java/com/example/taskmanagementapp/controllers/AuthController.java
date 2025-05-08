@@ -50,6 +50,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -62,6 +63,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = AUTH_API_NAME,
         description = AUTH_API_DESCRIPTION)
 @RequestMapping(AUTH)
+@Validated
 public class AuthController {
     private final AuthenticationService authenticationService;
 
@@ -100,8 +102,8 @@ public class AuthController {
             SUCCESSFULLY_INITIATED_PASSWORD_RESET)
     @ApiResponse(responseCode = CODE_400, description = INVALID_ENTITY_VALUE)
     @PostMapping(FORGOT_PASSWORD)
-    public SendLinkToResetPasswordDto initiatePasswordReset(@Valid @RequestBody
-                                                            GetLinkToResetPasswordDto request)
+    public SendLinkToResetPasswordDto initiatePasswordReset(@RequestBody @Valid
+                                                                GetLinkToResetPasswordDto request)
                                                                         throws LoginException {
         return authenticationService.sendPasswordResetLink(request.emailOrUsername());
     }
