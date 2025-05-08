@@ -1,6 +1,7 @@
 package com.example.taskmanagementapp.services.impl;
 
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACTION;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACTION_TOKEN;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.ASSIGNEE_ID;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.IS_NEW_MANAGER;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.PROJECT_ID;
@@ -34,6 +35,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -129,6 +131,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    @Transactional
     public AssignEmployeeResponseDto assignEmployeeToProject(User user,
                                                              Long projectId,
                                                              Long employeeId,
@@ -144,11 +147,12 @@ public class ProjectServiceImpl implements ProjectService {
             User newEmployee = userRepository.findById(employeeId)
                     .orElseThrow(() -> new EntityNotFoundException("No employee with id "
                             + employeeId));
-            emailService.sendChangeEmail(user.getEmail(), newEmployee.getEmail(), project.getName(),
-                    projectId, employeeId, isNewEmployeeManager);
             ActionToken actionToken = new ActionToken();
-            actionToken.setActionToken("" + projectId + employeeId + isNewEmployeeManager);
+            actionToken.setActionToken("" + projectId + employeeId
+                    + isNewEmployeeManager + getActionToken(newEmployee.getEmail()));
             actionTokenRepository.save(actionToken);
+            emailService.sendChangeEmail(user.getEmail(), newEmployee.getEmail(), project.getName(),
+                    projectId, employeeId, isNewEmployeeManager, actionToken.getActionToken());
             return new AssignEmployeeResponseDto("Employee " + employeeId
                     + " has been invited to project " + projectId);
         } else {
@@ -159,10 +163,19 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    @Transactional
     public ProjectDto acceptAssignmentToProject(HttpServletRequest request) {
         String token = paramFromHttpRequestUtil.parseRandomParameterAndToken(request);
         JwtAbstractUtil jwtActionUtil = jwtStrategy.getStrategy(ACTION);
         jwtActionUtil.isValidToken(token);
+        String actionToken = paramFromHttpRequestUtil.getNamedParameter(request, ACTION_TOKEN);
+
+        if (!actionTokenRepository.existsByActionToken(actionToken)) {
+            throw new ActionNotFoundException(
+                    "No active token found for such request... Might be forged...");
+        } else {
+            actionTokenRepository.deleteByActionToken(actionToken);
+        }
 
         Long projectId = Long.valueOf(paramFromHttpRequestUtil
                 .getNamedParameter(request, PROJECT_ID));
@@ -178,14 +191,6 @@ public class ProjectServiceImpl implements ProjectService {
         boolean isNewEmployeeManager = Boolean.parseBoolean(
                 paramFromHttpRequestUtil.getNamedParameter(request, IS_NEW_MANAGER));
 
-        if (!actionTokenRepository.existsByActionToken(
-                "" + projectId + assigneeId + isNewEmployeeManager)) {
-            throw new ActionNotFoundException(
-                    "No active token found for such request... Might be forged...");
-        } else {
-            actionTokenRepository.deleteByActionToken(
-                    "" + projectId + assigneeId + isNewEmployeeManager);
-        }
         project.getEmployees().add(assignee);
         if (isNewEmployeeManager) {
             project.getManagers().add(assignee);
@@ -275,5 +280,9 @@ public class ProjectServiceImpl implements ProjectService {
             exceptionMessages.append(e.getMessage()).append(System.lineSeparator());
         }
         return new ConflictException(exceptionMessages.toString());
+    }
+
+    private String getActionToken(String email) {
+        return jwtStrategy.getStrategy(ACTION).generateToken(email);
     }
 }

@@ -7,6 +7,7 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACCEPT_PROJECT_INVITATION_BODY_2;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACCEPT_PROJECT_INVITATION_BODY_3;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACCEPT_PROJECT_INVITATION_SUBJECT;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACTION_TOKEN_PARAMETER;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.ASSIGNEE_ID_PARAMETER;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.IS_NEW_MANAGER_PARAMETER;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.PROJECT_ID_PARAMETER;
@@ -27,14 +28,16 @@ public class AssignmentToProjectEmailService extends EmailService {
     }
 
     public void sendChangeEmail(String sender, String receiver, String projectName,
-                                Long projectId, Long assigneeId, boolean isNewEmployeeManager) {
+                                Long projectId, Long assigneeId,
+                                boolean isNewEmployeeManager, String token) {
         this.sendMessage(receiver, ACCEPT_PROJECT_INVITATION_SUBJECT,
                 formTextForChangeEmail(sender, receiver, projectName,
-                        projectId, assigneeId, isNewEmployeeManager));
+                        projectId, assigneeId, isNewEmployeeManager, token));
     }
 
     private String formTextForChangeEmail(String sender, String receiver, String projectName,
-                                  Long projectId, Long assigneeId, boolean isNewEmployeeManager) {
+                                  Long projectId, Long assigneeId, boolean isNewEmployeeManager,
+                                          String token) {
         emailLinkParameterProvider.formRandomParamTokenPair(receiver);
         return ACCEPT_PROJECT_INVITATION_BODY_1 + SPACE + sender + SPACE
                 + ACCEPT_PROJECT_INVITATION_BODY_2
@@ -44,6 +47,7 @@ public class AssignmentToProjectEmailService extends EmailService {
                 + SPLITERATOR + emailLinkParameterProvider.getToken()
                 + PROJECT_ID_PARAMETER + SPLITERATOR + projectId
                 + ASSIGNEE_ID_PARAMETER + SPLITERATOR + assigneeId
-                + IS_NEW_MANAGER_PARAMETER + SPLITERATOR + isNewEmployeeManager;
+                + IS_NEW_MANAGER_PARAMETER + SPLITERATOR + isNewEmployeeManager
+                + ACTION_TOKEN_PARAMETER + SPLITERATOR + token;
     }
 }

@@ -93,12 +93,14 @@ public class SecurityConstants {
     public static final String PROJECT_ID_PARAMETER = "&projectId";
     public static final String ASSIGNEE_ID_PARAMETER = "&assigneeId";
     public static final String IS_NEW_MANAGER_PARAMETER = "&isNewManager";
+    public static final String ACTION_TOKEN_PARAMETER = "&actionToken";
     public static final String NEW_EMAIL = "newEmail";
     public static final String PROJECT_ID = "projectId";
     public static final String ASSIGNEE_ID = "assigneeId";
     public static final String IS_NEW_MANAGER = "isNewManager";
+    public static final String ACTION_TOKEN = "actionToken";
     public static final List<String> SKIPPED_PARAMS =
-            List.of("newEmail", "projectId", "assigneeId", "isNewManager");
+            List.of("newEmail", "projectId", "assigneeId", "isNewManager", "actionToken");
 
     public static final String CONFIRM_NEW_EMAIL_MESSAGE =
             "In case of email change, please click the link sent to your new email to confirm.";
