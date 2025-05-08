@@ -32,10 +32,10 @@ public interface ProjectService {
 
     AssignEmployeeResponseDto assignEmployeeToProject(User authenticatedUser, Long projectId,
                                                       Long employeeId, boolean isNewEmployeeManager)
-            throws ForbiddenException, ConflictException;
+            throws ForbiddenException;
 
     ProjectDto acceptAssignmentToProject(HttpServletRequest request);
 
     ProjectDto removeEmployeeFromProject(User authenticatedUser, Long projectId, Long employeeId)
-            throws ForbiddenException, ConflictException;
+            throws ForbiddenException;
 }
