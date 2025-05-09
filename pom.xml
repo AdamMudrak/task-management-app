@@ -36,7 +36,7 @@
 		<maven.checkstyle.plugin.configLocation>checkstyle.xml</maven.checkstyle.plugin.configLocation>
 		<liquibase.version>4.31.1</liquibase.version>
 		<springdoc-openapi-starter-webmvc-ui>2.8.6</springdoc-openapi-starter-webmvc-ui>
-		<mailersend.version>1.1.2</mailersend.version>
+		<resend.version>4.3.0</resend.version>
 		<jjwt.version>0.12.6</jjwt.version>
 		<dropbox.version>7.0.0</dropbox.version>
 		<log4j.version>2.24.3</log4j.version>
@@ -120,9 +120,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.mailersend</groupId>
-			<artifactId>java-sdk</artifactId>
-			<version>${mailersend.version}</version>
+			<groupId>com.resend</groupId>
+			<artifactId>resend-java</artifactId>
+			<version>${resend.version}</version>
 		</dependency>
 
 		<dependency>

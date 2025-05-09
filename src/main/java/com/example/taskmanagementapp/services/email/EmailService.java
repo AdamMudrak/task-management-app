@@ -1,12 +1,12 @@
 package com.example.taskmanagementapp.services.email;
 
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.MAILER_SEND_API_KEY;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.RESEND_API_KEY;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.SENDER_EMAIL;
 
-import com.mailersend.sdk.MailerSend;
-import com.mailersend.sdk.MailerSendResponse;
-import com.mailersend.sdk.emails.Email;
-import com.mailersend.sdk.exceptions.MailerSendException;
+import com.resend.Resend;
+import com.resend.core.exception.ResendException;
+import com.resend.services.emails.model.CreateEmailOptions;
+import com.resend.services.emails.model.CreateEmailResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,24 +17,24 @@ public class EmailService {
     private static final Logger logger = LogManager.getLogger(EmailService.class);
     @Value(SENDER_EMAIL)
     protected String supportEmail;
-    @Value(MAILER_SEND_API_KEY)
-    private String mailerSendApiKey;
+    @Value(RESEND_API_KEY)
+    private String resendApiKey;
 
     public void sendMessage(String toEmail, String subject, String body) {
-        Email email = new Email();
+        Resend resend = new Resend(resendApiKey);
 
-        email.setFrom(supportEmail, supportEmail);
-        email.addRecipient(toEmail, toEmail);
-        email.setSubject(subject);
-        email.setPlain(body);
-        MailerSend ms = new MailerSend();
-        ms.setToken(mailerSendApiKey);
+        CreateEmailOptions params = CreateEmailOptions.builder()
+                .from(supportEmail)
+                .to(toEmail)
+                .subject(subject)
+                .text(body)
+                .build();
 
         try {
-            MailerSendResponse response = ms.emails().send(email);
-            logger.info("Email sent with code: {}",
-                    response.responseStatusCode);
-        } catch (MailerSendException e) {
+            CreateEmailResponse data = resend.emails().send(params);
+            logger.info("Response id: {}",
+                    data.getId());
+        } catch (ResendException e) {
             logger.error(e.getMessage());
         }
     }
