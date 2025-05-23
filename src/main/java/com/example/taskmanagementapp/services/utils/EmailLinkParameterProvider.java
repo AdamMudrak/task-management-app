@@ -1,10 +1,10 @@
 package com.example.taskmanagementapp.services.utils;
 
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACTION;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RANDOM_LINK_STRENGTH;
 
 import com.example.taskmanagementapp.entities.ParamToken;
 import com.example.taskmanagementapp.repositories.paramtoken.ParamTokenRepository;
+import com.example.taskmanagementapp.security.JwtType;
 import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
 import com.example.taskmanagementapp.security.jwtutils.strategy.JwtStrategy;
 import lombok.Getter;
@@ -25,7 +25,7 @@ public class EmailLinkParameterProvider {
 
     public void formRandomParamTokenPair(String email) {
         setEmailLinkParameter(randomStringUtil.generateRandomString(RANDOM_LINK_STRENGTH));
-        JwtAbstractUtil abstractUtil = jwtStrategy.getStrategy(ACTION);
+        JwtAbstractUtil abstractUtil = jwtStrategy.getStrategy(JwtType.ACTION);
         setToken(abstractUtil.generateToken(email));
 
         ParamToken paramToken = new ParamToken();

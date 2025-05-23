@@ -1,8 +1,6 @@
 package com.example.taskmanagementapp.services.email;
 
 import static com.example.taskmanagementapp.constants.Constants.SPLITERATOR;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.CONFIRMATION;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.CONFIRMATION_PATH;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.CONFIRM_REGISTRATION_BODY;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.CONFIRM_REGISTRATION_SUBJECT;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.INITIATE_RANDOM_PASSWORD_BODY;
@@ -10,33 +8,29 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RANDOM_PASSWORD_BODY;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RANDOM_PASSWORD_BODY_2;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RANDOM_PASSWORD_SUBJECT;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.RESET;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.RESET_PATH;
 
 import com.example.taskmanagementapp.exceptions.notfoundexceptions.ActionNotFoundException;
+import com.example.taskmanagementapp.security.RequestType;
 import com.example.taskmanagementapp.services.utils.EmailLinkParameterProvider;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PasswordEmailService extends EmailService {
     private final EmailLinkParameterProvider emailLinkParameterProvider;
-    @Value(RESET_PATH)
-    private String resetPath;
-    @Value(CONFIRMATION_PATH)
-    private String confirmationPath;
 
     public PasswordEmailService(EmailLinkParameterProvider emailLinkParameterProvider) {
         this.emailLinkParameterProvider = emailLinkParameterProvider;
     }
 
-    public void sendActionMessage(String toEmail, String action) {
-        switch (action) {
-            case RESET -> this.sendMessage(toEmail, INITIATE_RANDOM_PASSWORD_SUBJECT,
-                    formTextForAction(toEmail, INITIATE_RANDOM_PASSWORD_BODY, resetPath));
-            case CONFIRMATION -> this.sendMessage(toEmail, CONFIRM_REGISTRATION_SUBJECT,
-                    formTextForAction(toEmail, CONFIRM_REGISTRATION_BODY, confirmationPath));
-            default -> throw new ActionNotFoundException("Unknown action " + action);
+    public void sendActionMessage(String toEmail, RequestType requestType) {
+        switch (requestType) {
+            case PASSWORD_RESET -> this.sendMessage(toEmail, INITIATE_RANDOM_PASSWORD_SUBJECT,
+                    formTextForAction(toEmail, INITIATE_RANDOM_PASSWORD_BODY, "http://localhost:8080/auth/reset-password?"));
+            case REGISTRATION_CONFIRMATION ->
+                    this.sendMessage(toEmail, CONFIRM_REGISTRATION_SUBJECT,
+                        formTextForAction(toEmail, CONFIRM_REGISTRATION_BODY,
+                            "http://localhost:8080/auth/register-success?"));
+            default -> throw new ActionNotFoundException("Unknown request type " + requestType);
         }
     }
 

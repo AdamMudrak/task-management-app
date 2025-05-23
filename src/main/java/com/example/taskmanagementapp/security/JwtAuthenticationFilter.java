@@ -1,11 +1,6 @@
 package com.example.taskmanagementapp.security;
 
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACCESS;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACCESS_TOKEN;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.DIVIDER;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.JWT_ACCESS_EXPIRATION;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.REFRESH;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.REFRESH_TOKEN;
 
 import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
 import com.example.taskmanagementapp.security.jwtutils.strategy.JwtStrategy;
@@ -32,14 +27,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
     private final JwtAbstractUtil jwtAccessUtil;
     private final JwtAbstractUtil jwtRefreshUtil;
-    @Value(JWT_ACCESS_EXPIRATION)
+    @Value("${jwt.access.expiration}")
     private Long accessExpiration;
 
     public JwtAuthenticationFilter(@Autowired JwtStrategy jwtStrategy,
             @Autowired UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
-        this.jwtAccessUtil = jwtStrategy.getStrategy(ACCESS);
-        this.jwtRefreshUtil = jwtStrategy.getStrategy(REFRESH);
+        this.jwtAccessUtil = jwtStrategy.getStrategy(JwtType.ACCESS);
+        this.jwtRefreshUtil = jwtStrategy.getStrategy(JwtType.REFRESHMENT);
     }
 
     @Override
@@ -77,11 +72,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String findAccessToken(HttpServletRequest httpServletRequest) {
-        return getCookieValue(httpServletRequest, ACCESS_TOKEN);
+        return getCookieValue(httpServletRequest, "accessToken");
     }
 
     private String findRefreshToken(HttpServletRequest httpServletRequest) {
-        return getCookieValue(httpServletRequest, REFRESH_TOKEN);
+        return getCookieValue(httpServletRequest, "refreshToken");
     }
 
     private String refreshAccessToken(HttpServletRequest request,
@@ -90,7 +85,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (refreshToken != null && jwtRefreshUtil.isValidToken(refreshToken)) {
             String username = jwtRefreshUtil.getUsername(refreshToken);
             String accessToken = jwtAccessUtil.generateToken(username);
-            String accessCookie = ACCESS_TOKEN + "=" + accessToken
+            String accessCookie = "accessToken" + "=" + accessToken
                     + "; Path=/"
                     + "; HttpOnly"
                     + "; Secure"

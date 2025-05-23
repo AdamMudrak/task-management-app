@@ -3,8 +3,6 @@ package com.example.taskmanagementapp.services.impl;
 import static com.example.taskmanagementapp.constants.Constants.FIRST_POSITION;
 import static com.example.taskmanagementapp.constants.Constants.SECOND_POSITION;
 import static com.example.taskmanagementapp.constants.Constants.THIRD_POSITION;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACTION;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACTION_TOKEN;
 
 import com.example.taskmanagementapp.dtos.project.request.CreateProjectDto;
 import com.example.taskmanagementapp.dtos.project.request.ProjectStatusDto;
@@ -24,6 +22,7 @@ import com.example.taskmanagementapp.repositories.comment.CommentRepository;
 import com.example.taskmanagementapp.repositories.project.ProjectRepository;
 import com.example.taskmanagementapp.repositories.task.TaskRepository;
 import com.example.taskmanagementapp.repositories.user.UserRepository;
+import com.example.taskmanagementapp.security.JwtType;
 import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
 import com.example.taskmanagementapp.security.jwtutils.strategy.JwtStrategy;
 import com.example.taskmanagementapp.services.ProjectService;
@@ -165,9 +164,9 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional
     public ProjectDto acceptAssignmentToProject(HttpServletRequest request) {
         String token = paramFromHttpRequestUtil.parseRandomParameterAndToken(request);
-        JwtAbstractUtil jwtActionUtil = jwtStrategy.getStrategy(ACTION);
+        JwtAbstractUtil jwtActionUtil = jwtStrategy.getStrategy(JwtType.ACTION);
         jwtActionUtil.isValidToken(token);
-        String actionToken = paramFromHttpRequestUtil.getNamedParameter(request, ACTION_TOKEN);
+        String actionToken = paramFromHttpRequestUtil.getNamedParameter(request, "actionToken");
 
         if (!actionTokenRepository.existsByActionToken(actionToken)) {
             throw new ActionNotFoundException(
@@ -278,6 +277,6 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     private String getActionToken(String email) {
-        return jwtStrategy.getStrategy(ACTION).generateToken(email);
+        return jwtStrategy.getStrategy(JwtType.ACTION).generateToken(email);
     }
 }

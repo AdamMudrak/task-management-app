@@ -1,23 +1,14 @@
 package com.example.taskmanagementapp.services.impl;
 
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACCESS;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACCESS_TOKEN;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACTION;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.CHECK_YOUR_EMAIL;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.CONFIRMATION;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.DIVIDER;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.JWT_ACCESS_EXPIRATION;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.JWT_REFRESH_EXPIRATION;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.LOGIN_SUCCESS;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.PASSWORD_SET_SUCCESSFULLY;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RANDOM_PASSWORD_REQUIRED_CHARS;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RANDOM_PASSWORD_STRENGTH;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.REFRESH;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.REFRESH_TOKEN;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.REGISTERED;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.REGISTERED_BUT_NOT_ACTIVATED;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.REGISTRATION_CONFIRMED;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.RESET;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.SEND_LINK_TO_RESET_PASSWORD;
 import static com.example.taskmanagementapp.constants.validation.ValidationConstants.COMPILED_PATTERN;
 
@@ -41,6 +32,8 @@ import com.example.taskmanagementapp.exceptions.notfoundexceptions.EntityNotFoun
 import com.example.taskmanagementapp.mappers.UserMapper;
 import com.example.taskmanagementapp.repositories.role.RoleRepository;
 import com.example.taskmanagementapp.repositories.user.UserRepository;
+import com.example.taskmanagementapp.security.JwtType;
+import com.example.taskmanagementapp.security.RequestType;
 import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
 import com.example.taskmanagementapp.security.jwtutils.strategy.JwtStrategy;
 import com.example.taskmanagementapp.services.AuthenticationService;
@@ -72,9 +65,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final RandomStringUtil randomStringUtil;
     private final ParamFromHttpRequestUtil paramFromHttpRequestUtil;
     private final RoleRepository roleRepository;
-    @Value(JWT_ACCESS_EXPIRATION)
+    @Value("${jwt.access.expiration}")
     private Long accessExpiration;
-    @Value(JWT_REFRESH_EXPIRATION)
+    @Value("${jwt.refresh.expiration}")
     private Long refreshExpiration;
 
     @Override
@@ -106,7 +99,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                                     + emailOrUsername + " found"));
         }
         isEnabled(currentUser);
-        passwordEmailService.sendActionMessage(currentUser.getEmail(), RESET);
+        passwordEmailService.sendActionMessage(currentUser.getEmail(), RequestType.PASSWORD_RESET);
         return new SendLinkToResetPasswordDto(SEND_LINK_TO_RESET_PASSWORD);
     }
 
@@ -115,7 +108,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public LinkToResetPasswordSuccessDto confirmResetPassword(HttpServletRequest request) {
         String token = paramFromHttpRequestUtil.parseRandomParameterAndToken(request);
 
-        JwtAbstractUtil jwtAbstractUtil = jwtStrategy.getStrategy(ACTION);
+        JwtAbstractUtil jwtAbstractUtil = jwtStrategy.getStrategy(JwtType.ACTION);
         try {
             jwtAbstractUtil.isValidToken(token);
         } catch (JwtException e) {
@@ -166,7 +159,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setPassword(passwordEncoder.encode(requestDto.password()));
         assignBasicRole(user);
         userRepository.save(user);
-        passwordEmailService.sendActionMessage(user.getEmail(), CONFIRMATION);
+        passwordEmailService.sendActionMessage(user.getEmail(),
+                RequestType.REGISTRATION_CONFIRMATION);
         return new RegistrationSuccessDto(REGISTERED);
     }
 
@@ -174,7 +168,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public RegistrationConfirmationSuccessDto confirmRegistration(HttpServletRequest request) {
         String token = paramFromHttpRequestUtil.parseRandomParameterAndToken(request);
-        JwtAbstractUtil jwtAbstractUtil = jwtStrategy.getStrategy(ACTION);
+        JwtAbstractUtil jwtAbstractUtil = jwtStrategy.getStrategy(JwtType.ACTION);
         String email = jwtAbstractUtil.getUsername(token);
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new EntityNotFoundException("User with email "
@@ -225,7 +219,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new LoginException("Your account is locked. Consider contacting support team");
         }
         if (!user.isEnabled()) {
-            passwordEmailService.sendActionMessage(user.getEmail(), CONFIRMATION);
+            passwordEmailService.sendActionMessage(user.getEmail(),
+                    RequestType.REGISTRATION_CONFIRMATION);
             throw new LoginException(REGISTERED_BUT_NOT_ACTIVATED);
         }
     }
@@ -241,16 +236,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         } catch (AuthenticationException authenticationException) {
             throw new LoginException("Either login or password is invalid");
         }
-        JwtAbstractUtil jwtAbstractUtil = jwtStrategy.getStrategy(ACCESS);
+        JwtAbstractUtil jwtAbstractUtil = jwtStrategy.getStrategy(JwtType.ACCESS);
         String accessToken = jwtAbstractUtil.generateToken(authentication.getName());
-        jwtAbstractUtil = jwtStrategy.getStrategy(REFRESH);
+        jwtAbstractUtil = jwtStrategy.getStrategy(JwtType.REFRESHMENT);
         String refreshToken = jwtAbstractUtil.generateToken(authentication.getName());
         return new TokenBearerDto(accessToken, refreshToken);
     }
 
     private LoginSuccessDto addTokensToCookies(TokenBearerDto tokenBearerDto,
                                                     HttpServletResponse httpServletResponse) {
-        String accessCookie = ACCESS_TOKEN + "=" + tokenBearerDto.accessToken()
+        String accessCookie = "accessToken" + "=" + tokenBearerDto.accessToken()
                 + "; Path=/"
                 + "; HttpOnly"
                 + "; Secure"
@@ -258,7 +253,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 + "; Max-Age=" + accessExpiration / DIVIDER;
         httpServletResponse.addHeader("Set-Cookie", accessCookie);
 
-        String refreshCookie = REFRESH_TOKEN + "=" + tokenBearerDto.refreshToken()
+        String refreshCookie = "refreshToken" + "=" + tokenBearerDto.refreshToken()
                 + "; Path=/"
                 + "; HttpOnly"
                 + "; Secure"

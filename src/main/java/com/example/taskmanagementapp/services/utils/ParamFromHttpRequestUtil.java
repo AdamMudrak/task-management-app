@@ -1,7 +1,5 @@
 package com.example.taskmanagementapp.services.utils;
 
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.SKIPPED_PARAMS;
-
 import com.example.taskmanagementapp.exceptions.notfoundexceptions.ActionNotFoundException;
 import com.example.taskmanagementapp.repositories.paramtoken.ParamTokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,7 +24,8 @@ public class ParamFromHttpRequestUtil {
         String randomParameter = null;
         String token = null;
         for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
-            if (SKIPPED_PARAMS.contains(entry.getKey())) {
+            if (entry.getKey().equals("newEmail")
+                    || entry.getKey().equals("actionToken")) {
                 continue;
             }
             randomParameter = entry.getKey();

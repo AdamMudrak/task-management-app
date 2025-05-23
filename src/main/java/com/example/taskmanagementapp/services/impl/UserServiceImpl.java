@@ -1,8 +1,5 @@
 package com.example.taskmanagementapp.services.impl;
 
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACTION;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.NEW_EMAIL;
-
 import com.example.taskmanagementapp.dtos.role.RoleNameDto;
 import com.example.taskmanagementapp.dtos.user.request.UpdateUserProfileDto;
 import com.example.taskmanagementapp.dtos.user.request.UserAccountStatusDto;
@@ -16,6 +13,7 @@ import com.example.taskmanagementapp.exceptions.notfoundexceptions.EntityNotFoun
 import com.example.taskmanagementapp.mappers.UserMapper;
 import com.example.taskmanagementapp.repositories.role.RoleRepository;
 import com.example.taskmanagementapp.repositories.user.UserRepository;
+import com.example.taskmanagementapp.security.JwtType;
 import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
 import com.example.taskmanagementapp.security.jwtutils.strategy.JwtStrategy;
 import com.example.taskmanagementapp.services.UserService;
@@ -130,7 +128,7 @@ public class UserServiceImpl implements UserService {
     public UserProfileInfoDto confirmEmailChange(HttpServletRequest httpServletRequest) {
         String token = randomParamFromHttpRequestUtil
                 .parseRandomParameterAndToken(httpServletRequest);
-        JwtAbstractUtil jwtActionUtil = jwtStrategy.getStrategy(ACTION);
+        JwtAbstractUtil jwtActionUtil = jwtStrategy.getStrategy(JwtType.ACTION);
         jwtActionUtil.isValidToken(token);
 
         String email = jwtActionUtil.getUsername(token);
@@ -138,7 +136,7 @@ public class UserServiceImpl implements UserService {
                 () -> new EntityNotFoundException("User with email "
                         + email + " was not found"));
         user.setEmail(randomParamFromHttpRequestUtil.getNamedParameter(httpServletRequest,
-                NEW_EMAIL));
+                "newEmail"));
 
         return userMapper.toUserProfileInfoDto(userRepository.save(user));
     }

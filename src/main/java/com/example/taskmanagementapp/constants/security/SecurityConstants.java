@@ -1,10 +1,7 @@
 package com.example.taskmanagementapp.constants.security;
 
-import java.util.List;
-
 public class SecurityConstants {
     public static final int DIVIDER = 1000;
-    public static final String SPLITERATOR = "&";
     public static final int STRENGTH = 10;
     public static final int RANDOM_PASSWORD_STRENGTH = 28;
     public static final int RANDOM_LINK_STRENGTH = 128;
@@ -13,32 +10,6 @@ public class SecurityConstants {
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     public static final String RANDOM_PASSWORD_REQUIRED_CHARS =
             "Aa1!";
-
-    public static final String JWT_ACCESS_EXPIRATION = "${jwt.access.expiration}";
-    public static final String JWT_ACTION_EXPIRATION = "${jwt.action.expiration}";
-    public static final String JWT_REFRESH_EXPIRATION = "${jwt.refresh.expiration}";
-    public static final String JWT_SECRET = "${jwt.secret}";
-    public static final String SERVER_PATH = "${server.path}";
-    public static final String RESET_PATH = "${get.random.password.path}";
-    public static final String CONFIRMATION_PATH = "${registration.confirmation.path}";
-    public static final String CHANGE_EMAIL_CONFIRMATION_PATH = "${change.email.confirmation.path}";
-    public static final String ACCEPT_INVITATION_TO_PROJECT_PATH =
-            "${accept.invitation.to.project.path}";
-
-    public static final String DROPBOX_REFRESH_TOKEN = "${dropbox.refresh.token}";
-    public static final String DROPBOX_KEY = "${dropbox.key}";
-    public static final String DROPBOX_SECRET = "${dropbox.secret}";
-    public static final String DROPBOX_CLIENT_IDENTIFIER = "dropbox/taskmanagementapp";
-
-    public static final String SENDER_EMAIL = "${mail.address}";
-    public static final String RESEND_API_KEY = "${resend.api.key}";
-
-    public static final String RESET = "RESET";
-    public static final String CONFIRMATION = "CONFIRMATION";
-    public static final String ACCESS = "ACCESS";
-    public static final String ACCESS_TOKEN = "accessToken";
-    public static final String ACTION = "ACTION";
-    public static final String REFRESH = "REFRESH";
 
     public static final String LOGIN_SUCCESS =
             "User has been logged in successfully. Proceed with further actions";
@@ -81,20 +52,12 @@ public class SecurityConstants {
     public static final String CHECK_YOUR_EMAIL =
             "Password was reset successfully. Check your email.";
 
-    public static final String REFRESH_TOKEN = "refreshToken";
-
     public static final String CONFIRM_CHANGE_EMAIL_SUBJECT =
             "Confirm email change in Facio";
     public static final String CONFIRM_CHANGE_EMAIL_BODY = """
             Good day! This email is here to help you confirm your
             request of email change for your Facio account. Please,
             use this link to confirm:""";
-    public static final String NEW_EMAIL_PARAMETER = "&newEmail";
-    public static final String NEW_EMAIL = "newEmail";
-    public static final String ACTION_TOKEN_PARAMETER = "&actionToken";
-    public static final String ACTION_TOKEN = "actionToken";
-    public static final List<String> SKIPPED_PARAMS =
-            List.of("newEmail", "actionToken");
 
     public static final String CONFIRM_NEW_EMAIL_MESSAGE =
             "In case of email change, please click the link sent to your new email to confirm.";
