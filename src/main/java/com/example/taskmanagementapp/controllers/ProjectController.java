@@ -76,7 +76,7 @@ public class ProjectController {
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    ProjectDto createProject(@AuthenticationPrincipal User user,
+    public ProjectDto createProject(@AuthenticationPrincipal User user,
                              @RequestBody CreateProjectDto createProjectDto) {
         return projectService.createProject(user, createProjectDto);
     }
@@ -86,7 +86,7 @@ public class ProjectController {
             SUCCESSFULLY_GET_ALL_ASSIGNED_PROJECTS)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/assigned")
-    List<ProjectDto> getAssignedProjects(@AuthenticationPrincipal User user,
+    public List<ProjectDto> getAssignedProjects(@AuthenticationPrincipal User user,
                                     @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {
         return projectService.getAssignedProjects(user.getId(), pageable);
     }
@@ -96,7 +96,7 @@ public class ProjectController {
             SUCCESSFULLY_GET_ALL_CREATED_PROJECTS)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/created")
-    List<ProjectDto> getCreatedProjects(@AuthenticationPrincipal User user,
+    public List<ProjectDto> getCreatedProjects(@AuthenticationPrincipal User user,
                                          @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {
         return projectService.getCreatedProjects(user.getId(), pageable);
     }
@@ -106,7 +106,7 @@ public class ProjectController {
             SUCCESSFULLY_GET_ALL_DELETED_PROJECTS)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/deleted")
-    List<ProjectDto> getDeletedProjects(@AuthenticationPrincipal User user,
+    public List<ProjectDto> getDeletedProjects(@AuthenticationPrincipal User user,
                                         @Parameter(example = PAGEABLE_EXAMPLE)Pageable pageable) {
         return projectService.getDeletedCreatedProjects(user.getId(), pageable);
     }
@@ -116,7 +116,7 @@ public class ProjectController {
             SUCCESSFULLY_GET_PROJECT_BY_ID)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/{projectId}")
-    ProjectDto getProjectById(@AuthenticationPrincipal User user,
+    public ProjectDto getProjectById(@AuthenticationPrincipal User user,
                                        @PathVariable @Positive Long projectId)
                                                     throws ForbiddenException {
         return projectService.getProjectById(user, projectId);
@@ -127,7 +127,7 @@ public class ProjectController {
             SUCCESSFULLY_UPDATED_PROJECT_BY_ID)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping("/{projectId}")
-    ProjectDto updateProjectById(@AuthenticationPrincipal User user,
+    public ProjectDto updateProjectById(@AuthenticationPrincipal User user,
                                  @PathVariable @Positive Long projectId,
                                  @RequestBody UpdateProjectDto updateProjectDto,
                                  @RequestParam(value = "projectStatusDto", required = false)
@@ -142,7 +142,7 @@ public class ProjectController {
             SUCCESSFULLY_DELETED_PROJECT_BY_ID)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @DeleteMapping("/{projectId}")
-    void deleteProjectById(@AuthenticationPrincipal User user,
+    public void deleteProjectById(@AuthenticationPrincipal User user,
                            @PathVariable @Positive Long projectId) throws ForbiddenException {
         projectService.deleteProjectById(user, projectId);
     }
@@ -152,7 +152,7 @@ public class ProjectController {
             SUCCESSFULLY_ADDED_EMPLOYEE_TO_PROJECT)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping("assign-employee/{projectId}/{employeeId}")
-    AssignEmployeeResponseDto assignEmployeeToProject(@AuthenticationPrincipal User user,
+    public AssignEmployeeResponseDto assignEmployeeToProject(@AuthenticationPrincipal User user,
                                                       @PathVariable @Positive Long projectId,
                                                       @PathVariable @Positive Long employeeId,
                                                       boolean isNewEmployeeManager)
@@ -163,7 +163,7 @@ public class ProjectController {
 
     @Operation(hidden = true)
     @GetMapping("/accept-invite")
-    ProjectDto acceptInvite(HttpServletRequest request) {
+    public ProjectDto acceptInvite(HttpServletRequest request) {
         return projectService.acceptAssignmentToProject(request);
     }
 
@@ -172,7 +172,7 @@ public class ProjectController {
             SUCCESSFULLY_DELETED_EMPLOYEE_FROM_PROJECT)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping("remove-employee/{projectId}/{employeeId}")
-    ProjectDto removeEmployeeFromProject(@AuthenticationPrincipal User user,
+    public ProjectDto removeEmployeeFromProject(@AuthenticationPrincipal User user,
                                  @PathVariable @Positive Long projectId,
                                  @PathVariable @Positive Long employeeId)
                                                 throws ForbiddenException {

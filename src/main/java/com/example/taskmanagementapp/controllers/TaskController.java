@@ -66,7 +66,7 @@ public class TaskController {
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping
-    TaskDto createTask(@AuthenticationPrincipal User user,
+    public TaskDto createTask(@AuthenticationPrincipal User user,
                        @RequestBody CreateTaskDto createTaskDto,
                        @RequestParam TaskPriorityDto taskPriorityDto) throws ForbiddenException {
         return taskService.createTask(user, createTaskDto, taskPriorityDto);
@@ -76,7 +76,7 @@ public class TaskController {
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_GET_TASKS_BY_PROJECT_ID)
     @GetMapping("/all-project-tasks/{projectId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    List<TaskDto> getTasksByProjectId(@AuthenticationPrincipal User user,
+    public List<TaskDto> getTasksByProjectId(@AuthenticationPrincipal User user,
                                       @PathVariable @Positive Long projectId,
                                       @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable)
             throws ForbiddenException {
@@ -87,7 +87,7 @@ public class TaskController {
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_GET_TASK_BY_ID)
     @GetMapping("/{taskId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    TaskDto getTaskById(@AuthenticationPrincipal User user,
+    public TaskDto getTaskById(@AuthenticationPrincipal User user,
                            @PathVariable Long taskId) throws ForbiddenException {
         return taskService.getTaskById(user, taskId);
     }
@@ -96,7 +96,7 @@ public class TaskController {
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_UPDATED_TASK_BY_ID)
     @PutMapping("/{taskId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    TaskDto updateTaskById(@AuthenticationPrincipal User user,
+    public TaskDto updateTaskById(@AuthenticationPrincipal User user,
                            @RequestBody UpdateTaskDto updateTaskDto,
                            @PathVariable @Positive Long taskId,
                            @RequestParam(value = "taskStatusDto", required = false)
@@ -112,7 +112,7 @@ public class TaskController {
     @DeleteMapping("/{taskId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    void deleteTaskById(@AuthenticationPrincipal User user,
+    public void deleteTaskById(@AuthenticationPrincipal User user,
                         @PathVariable @Positive Long taskId) throws ForbiddenException {
         taskService.deleteTask(user, taskId);
     }
@@ -121,7 +121,7 @@ public class TaskController {
     @ApiResponse(responseCode = CODE_204, description = SUCCESSFULLY_GET_TASK_BY_LABEL_ID)
     @GetMapping("/with-label/{labelId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    List<TaskDto> getTasksWithLabel(@AuthenticationPrincipal User user,
+    public List<TaskDto> getTasksWithLabel(@AuthenticationPrincipal User user,
                                     @PathVariable @Positive Long labelId,
                                     @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {
         return taskService.getTasksWithLabel(user, labelId, pageable);

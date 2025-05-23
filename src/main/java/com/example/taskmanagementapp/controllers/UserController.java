@@ -59,7 +59,7 @@ public class UserController {
             SUCCESSFULLY_RETRIEVED)
     @GetMapping("/me")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    UserProfileInfoDto getProfileInfo(@AuthenticationPrincipal User user) {
+    public UserProfileInfoDto getProfileInfo(@AuthenticationPrincipal User user) {
         return userService.getProfileInfo(user.getId());
     }
 
@@ -68,7 +68,7 @@ public class UserController {
             SUCCESSFULLY_UPDATED_PROFILE_INFO)
     @PutMapping("/me")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    UserProfileInfoDtoOnUpdate updateProfileInfo(@AuthenticationPrincipal User user,
+    public UserProfileInfoDtoOnUpdate updateProfileInfo(@AuthenticationPrincipal User user,
                                                  @RequestBody @Valid
                                                  UpdateUserProfileDto updateUserProfileDto) {
         return userService.updateProfileInfo(user.getId(), updateUserProfileDto);
@@ -79,7 +79,7 @@ public class UserController {
             SUCCESSFULLY_UPDATED_ROLE)
     @PutMapping("/{employeeId}/role")
     @PreAuthorize("hasRole('ADMIN')")
-    UserProfileInfoDto updateUserRole(@AuthenticationPrincipal User user,
+    public UserProfileInfoDto updateUserRole(@AuthenticationPrincipal User user,
                                       @PathVariable @Positive Long employeeId,
                                       @RequestParam RoleNameDto roleName)
             throws ForbiddenException {
@@ -91,7 +91,8 @@ public class UserController {
             SUCCESSFULLY_RETRIEVE_ALL_USERS)
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    List<UserProfileInfoDto> getAllUsers(@Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {
+    public List<UserProfileInfoDto> getAllUsers(
+            @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {
         return userService.getAllUsers(pageable);
     }
 
@@ -100,7 +101,7 @@ public class UserController {
             SUCCESSFULLY_CHANGED_STATUS)
     @PostMapping("/change-user-account-status/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
-    UserProfileInfoDto changeUserAccountStatus(@AuthenticationPrincipal User user,
+    public UserProfileInfoDto changeUserAccountStatus(@AuthenticationPrincipal User user,
                      @RequestParam UserAccountStatusDto accountStatusDto,
                      @PathVariable @Positive Long userId) throws ForbiddenException {
         return userService.changeStatus(user, userId, accountStatusDto);
@@ -108,7 +109,7 @@ public class UserController {
 
     @Operation(hidden = true)
     @GetMapping("/change-email-success")
-    UserProfileInfoDto changeEmailSuccess(HttpServletRequest request) {
+    public UserProfileInfoDto changeEmailSuccess(HttpServletRequest request) {
         return userService.confirmEmailChange(request);
     }
 }

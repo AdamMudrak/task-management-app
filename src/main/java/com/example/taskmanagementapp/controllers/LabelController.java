@@ -64,7 +64,7 @@ public class LabelController {
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    LabelDto createLabel(@AuthenticationPrincipal User user,
+    public LabelDto createLabel(@AuthenticationPrincipal User user,
                          @RequestParam ColorDto colorDto,
                          @RequestBody @Valid AddLabelDto addLabelDto) {
         return labelService.createLabel(user, colorDto, addLabelDto);
@@ -74,7 +74,7 @@ public class LabelController {
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_UPDATED_LABEL)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping("/{labelId}")
-    LabelDto updateLabel(@AuthenticationPrincipal User user,
+    public LabelDto updateLabel(@AuthenticationPrincipal User user,
                          @RequestParam(value = "colorDto", required = false) ColorDto colorDto,
                          @RequestBody @Valid UpdateLabelDto updateLabelDto,
                          @PathVariable @Positive Long labelId) {
@@ -85,7 +85,7 @@ public class LabelController {
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_GOT_LABEL)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/{labelId}")
-    LabelDto getLabel(@AuthenticationPrincipal User user,
+    public LabelDto getLabel(@AuthenticationPrincipal User user,
                          @PathVariable @Positive Long labelId) {
         return labelService.getLabelById(user, labelId);
     }
@@ -94,7 +94,7 @@ public class LabelController {
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_GOT_LABELS)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping()
-    List<LabelDto> getLabels(@AuthenticationPrincipal User user,
+    public List<LabelDto> getLabels(@AuthenticationPrincipal User user,
                              @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {
         return labelService.getAllLabels(user, pageable);
     }
@@ -104,7 +104,7 @@ public class LabelController {
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @DeleteMapping("/{labelId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    void deleteLabelById(@AuthenticationPrincipal User user,
+    public void deleteLabelById(@AuthenticationPrincipal User user,
                          @PathVariable @Positive Long labelId) {
         labelService.deleteLabelById(user, labelId);
     }
@@ -113,7 +113,7 @@ public class LabelController {
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_ATTACHED_LABEL)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping("/{taskId}/{labelId}/attach")
-    void attachLabelToTask(@AuthenticationPrincipal User user,
+    public void attachLabelToTask(@AuthenticationPrincipal User user,
                            @PathVariable @Positive Long taskId,
                            @PathVariable @Positive Long labelId) throws ForbiddenException {
         labelService.attachLabelToTask(user, taskId, labelId);
@@ -123,7 +123,7 @@ public class LabelController {
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_DETACHED_LABEL)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping("/{taskId}/{labelId}/detach")
-    void detachLabelFromTask(@AuthenticationPrincipal User user,
+    public void detachLabelFromTask(@AuthenticationPrincipal User user,
                            @PathVariable @Positive Long taskId,
                            @PathVariable @Positive Long labelId) throws ForbiddenException {
         labelService.detachLabelFromTask(user, taskId, labelId);
