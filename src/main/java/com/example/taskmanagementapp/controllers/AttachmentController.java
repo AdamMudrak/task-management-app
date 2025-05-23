@@ -49,7 +49,7 @@ public class AttachmentController {
     @Operation(summary = UPLOAD_ATTACHMENT_SUMMARY)
     @ApiResponse(responseCode = CODE_201, description =
             SUCCESSFULLY_UPLOADED_ATTACHMENTS)
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping(path = "/{taskId}",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -64,7 +64,7 @@ public class AttachmentController {
     @Operation(summary = GET_ATTACHMENT_SUMMARY)
     @ApiResponse(responseCode = CODE_200, description =
             SUCCESSFULLY_GOT_ATTACHMENTS)
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/{taskId}")
     public List<AttachmentDto> getAttachment(@AuthenticationPrincipal User user,
                                                         @PathVariable @Positive Long taskId)
@@ -75,7 +75,7 @@ public class AttachmentController {
     @Operation(summary = DELETE_ATTACHMENT_SUMMARY)
     @ApiResponse(responseCode = CODE_204, description =
             SUCCESSFULLY_DELETED_ATTACHMENTS)
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @DeleteMapping("/{taskId}/{attachmentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAttachment(@AuthenticationPrincipal User user,

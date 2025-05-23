@@ -112,7 +112,7 @@ public class AuthController {
             SUCCESSFULLY_CHANGE_PASSWORD)
     @ApiResponse(responseCode = CODE_400, description = INVALID_ENTITY_VALUE)
     @ApiResponse(responseCode = Constants.CODE_401, description = AUTHORIZATION_REQUIRED)
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping("/change-password")
     public ChangePasswordSuccessDto changePassword(@AuthenticationPrincipal User user,
                                                    @RequestBody @Valid SetNewPasswordDto request)

@@ -58,7 +58,7 @@ public class UserController {
     @ApiResponse(responseCode = CODE_200, description =
             SUCCESSFULLY_RETRIEVED)
     @GetMapping("/me")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     UserProfileInfoDto getProfileInfo(@AuthenticationPrincipal User user) {
         return userService.getProfileInfo(user.getId());
     }
@@ -67,7 +67,7 @@ public class UserController {
     @ApiResponse(responseCode = CODE_200, description =
             SUCCESSFULLY_UPDATED_PROFILE_INFO)
     @PutMapping("/me")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     UserProfileInfoDtoOnUpdate updateProfileInfo(@AuthenticationPrincipal User user,
                                                  @RequestBody @Valid
                                                  UpdateUserProfileDto updateUserProfileDto) {
@@ -78,7 +78,7 @@ public class UserController {
     @ApiResponse(responseCode = CODE_200, description =
             SUCCESSFULLY_UPDATED_ROLE)
     @PutMapping("/{employeeId}/role")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     UserProfileInfoDto updateUserRole(@AuthenticationPrincipal User user,
                                       @PathVariable @Positive Long employeeId,
                                       @RequestParam RoleNameDto roleName)
@@ -89,7 +89,7 @@ public class UserController {
     @Operation(summary = RETRIEVE_ALL_USERS)
     @ApiResponse(responseCode = CODE_200, description =
             SUCCESSFULLY_RETRIEVE_ALL_USERS)
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     List<UserProfileInfoDto> getAllUsers(@Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {
         return userService.getAllUsers(pageable);
@@ -99,7 +99,7 @@ public class UserController {
     @ApiResponse(responseCode = CODE_200, description =
             SUCCESSFULLY_CHANGED_STATUS)
     @PostMapping("/change-user-account-status/{userId}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     UserProfileInfoDto changeUserAccountStatus(@AuthenticationPrincipal User user,
                      @RequestParam UserAccountStatusDto accountStatusDto,
                      @PathVariable @Positive Long userId) throws ForbiddenException {

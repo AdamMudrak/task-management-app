@@ -73,7 +73,7 @@ public class ProjectController {
     @ApiResponse(responseCode = CODE_201, description =
             SUCCESSFULLY_CREATED_PROJECT)
     @ApiResponse(responseCode = CODE_400, description = INVALID_ENTITY_VALUE)
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     ProjectDto createProject(@AuthenticationPrincipal User user,
@@ -84,7 +84,7 @@ public class ProjectController {
     @Operation(summary = GET_ALL_ASSIGNED_PROJECTS)
     @ApiResponse(responseCode = CODE_200, description =
             SUCCESSFULLY_GET_ALL_ASSIGNED_PROJECTS)
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/assigned")
     List<ProjectDto> getAssignedProjects(@AuthenticationPrincipal User user,
                                     @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {
@@ -94,7 +94,7 @@ public class ProjectController {
     @Operation(summary = GET_ALL_CREATED_PROJECTS)
     @ApiResponse(responseCode = CODE_200, description =
             SUCCESSFULLY_GET_ALL_CREATED_PROJECTS)
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/created")
     List<ProjectDto> getCreatedProjects(@AuthenticationPrincipal User user,
                                          @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {
@@ -104,7 +104,7 @@ public class ProjectController {
     @Operation(summary = GET_ALL_DELETED_PROJECTS)
     @ApiResponse(responseCode = CODE_200, description =
             SUCCESSFULLY_GET_ALL_DELETED_PROJECTS)
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/deleted")
     List<ProjectDto> getDeletedProjects(@AuthenticationPrincipal User user,
                                         @Parameter(example = PAGEABLE_EXAMPLE)Pageable pageable) {
@@ -114,7 +114,7 @@ public class ProjectController {
     @Operation(summary = GET_PROJECT_BY_ID)
     @ApiResponse(responseCode = CODE_200, description =
             SUCCESSFULLY_GET_PROJECT_BY_ID)
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/{projectId}")
     ProjectDto getProjectById(@AuthenticationPrincipal User user,
                                        @PathVariable @Positive Long projectId)
@@ -125,7 +125,7 @@ public class ProjectController {
     @Operation(summary = UPDATE_PROJECT_BY_ID)
     @ApiResponse(responseCode = CODE_200, description =
             SUCCESSFULLY_UPDATED_PROJECT_BY_ID)
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping("/{projectId}")
     ProjectDto updateProjectById(@AuthenticationPrincipal User user,
                                  @PathVariable @Positive Long projectId,
@@ -140,7 +140,7 @@ public class ProjectController {
     @Operation(summary = DELETE_PROJECT_BY_ID)
     @ApiResponse(responseCode = CODE_204, description =
             SUCCESSFULLY_DELETED_PROJECT_BY_ID)
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @DeleteMapping("/{projectId}")
     void deleteProjectById(@AuthenticationPrincipal User user,
                            @PathVariable @Positive Long projectId) throws ForbiddenException {
@@ -150,7 +150,7 @@ public class ProjectController {
     @Operation(summary = ADD_EMPLOYEE_TO_PROJECT)
     @ApiResponse(responseCode = CODE_200, description =
             SUCCESSFULLY_ADDED_EMPLOYEE_TO_PROJECT)
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping("assign-employee/{projectId}/{employeeId}")
     AssignEmployeeResponseDto assignEmployeeToProject(@AuthenticationPrincipal User user,
                                                       @PathVariable @Positive Long projectId,
@@ -170,7 +170,7 @@ public class ProjectController {
     @Operation(summary = DELETE_EMPLOYEE_FROM_PROJECT)
     @ApiResponse(responseCode = CODE_200, description =
             SUCCESSFULLY_DELETED_EMPLOYEE_FROM_PROJECT)
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping("remove-employee/{projectId}/{employeeId}")
     ProjectDto removeEmployeeFromProject(@AuthenticationPrincipal User user,
                                  @PathVariable @Positive Long projectId,

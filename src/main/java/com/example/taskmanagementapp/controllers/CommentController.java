@@ -55,7 +55,7 @@ public class CommentController {
     @Operation(summary = ADD_COMMENT_SUMMARY)
     @ApiResponse(responseCode = CODE_201, description =
             SUCCESSFULLY_ADDED_COMMENT)
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public CommentDto addComment(@AuthenticationPrincipal User user,
@@ -67,7 +67,7 @@ public class CommentController {
     @Operation(summary = UPDATE_COMMENT_SUMMARY)
     @ApiResponse(responseCode = CODE_200, description =
             SUCCESSFULLY_UPDATED_COMMENT)
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping("/{commentId}")
     public CommentDto updateComment(@AuthenticationPrincipal User user,
                                     @RequestBody @Valid UpdateCommentDto updateCommentDto,
@@ -79,7 +79,7 @@ public class CommentController {
     @Operation(summary = GET_COMMENTS_SUMMARY)
     @ApiResponse(responseCode = CODE_200, description =
             SUCCESSFULLY_GOT_COMMENTS)
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/{taskId}")
     public List<CommentDto> getCommentsForTask(@AuthenticationPrincipal User user,
                                                @PathVariable @Positive Long taskId,
@@ -91,7 +91,7 @@ public class CommentController {
     @Operation(summary = DELETE_COMMENT_SUMMARY)
     @ApiResponse(responseCode = CODE_204, description =
             SUCCESSFULLY_DELETED_COMMENT)
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{commentId}")
     public void deleteComment(@AuthenticationPrincipal User user,

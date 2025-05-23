@@ -61,7 +61,7 @@ public class LabelController {
 
     @Operation(summary = CREATE_LABEL_SUMMARY)
     @ApiResponse(responseCode = CODE_201, description = SUCCESSFULLY_CREATED_LABEL)
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     LabelDto createLabel(@AuthenticationPrincipal User user,
@@ -72,7 +72,7 @@ public class LabelController {
 
     @Operation(summary = UPDATE_LABEL_SUMMARY)
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_UPDATED_LABEL)
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping("/{labelId}")
     LabelDto updateLabel(@AuthenticationPrincipal User user,
                          @RequestParam(value = "colorDto", required = false) ColorDto colorDto,
@@ -83,7 +83,7 @@ public class LabelController {
 
     @Operation(summary = GET_LABEL_BY_ID_SUMMARY)
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_GOT_LABEL)
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/{labelId}")
     LabelDto getLabel(@AuthenticationPrincipal User user,
                          @PathVariable @Positive Long labelId) {
@@ -92,7 +92,7 @@ public class LabelController {
 
     @Operation(summary = GET_LABELS_SUMMARY)
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_GOT_LABELS)
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping()
     List<LabelDto> getLabels(@AuthenticationPrincipal User user,
                              @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {
@@ -101,7 +101,7 @@ public class LabelController {
 
     @Operation(summary = DELETE_LABEL_BY_ID_SUMMARY)
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_DELETED_LABEL)
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @DeleteMapping("/{labelId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteLabelById(@AuthenticationPrincipal User user,
@@ -111,7 +111,7 @@ public class LabelController {
 
     @Operation(summary = ATTACH_LABEL_TO_TASK)
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_ATTACHED_LABEL)
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping("/{taskId}/{labelId}/attach")
     void attachLabelToTask(@AuthenticationPrincipal User user,
                            @PathVariable @Positive Long taskId,
@@ -121,7 +121,7 @@ public class LabelController {
 
     @Operation(summary = DETACH_LABEL_TO_TASK)
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_DETACHED_LABEL)
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping("/{taskId}/{labelId}/detach")
     void detachLabelFromTask(@AuthenticationPrincipal User user,
                            @PathVariable @Positive Long taskId,
