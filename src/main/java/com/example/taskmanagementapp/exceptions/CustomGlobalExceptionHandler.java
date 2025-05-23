@@ -63,7 +63,7 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
 
     @ExceptionHandler(RegistrationException.class)
     protected ResponseEntity<Object> handleRegistrationException(Exception ex) {
-        return getUnifiedResponse(ex, BAD_REQUEST);
+        return getUnifiedResponse(ex, CONFLICT);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
