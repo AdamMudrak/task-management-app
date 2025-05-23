@@ -4,6 +4,7 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 
 import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
 import com.example.taskmanagementapp.security.jwtutils.strategy.JwtStrategy;
+import com.example.taskmanagementapp.security.jwtutils.strategy.JwtType;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;

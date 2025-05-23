@@ -32,7 +32,7 @@ import com.example.taskmanagementapp.exceptions.notfoundexceptions.EntityNotFoun
 import com.example.taskmanagementapp.mappers.UserMapper;
 import com.example.taskmanagementapp.repositories.RoleRepository;
 import com.example.taskmanagementapp.repositories.UserRepository;
-import com.example.taskmanagementapp.security.JwtType;
+import com.example.taskmanagementapp.security.jwtutils.strategy.JwtType;
 import com.example.taskmanagementapp.security.RequestType;
 import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
 import com.example.taskmanagementapp.security.jwtutils.strategy.JwtStrategy;

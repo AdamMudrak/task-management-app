@@ -1,6 +1,5 @@
 package com.example.taskmanagementapp.security.jwtutils.strategy;
 
-import com.example.taskmanagementapp.security.JwtType;
 import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
