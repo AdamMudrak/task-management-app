@@ -6,7 +6,7 @@ import com.example.taskmanagementapp.dtos.task.request.TaskStatusDto;
 import com.example.taskmanagementapp.dtos.task.request.UpdateTaskDto;
 import com.example.taskmanagementapp.dtos.task.response.TaskDto;
 import com.example.taskmanagementapp.entities.User;
-import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
+import com.example.taskmanagementapp.exceptions.ForbiddenException;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 

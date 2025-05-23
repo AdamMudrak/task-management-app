@@ -25,7 +25,7 @@ import com.example.taskmanagementapp.dtos.label.request.AddLabelDto;
 import com.example.taskmanagementapp.dtos.label.request.UpdateLabelDto;
 import com.example.taskmanagementapp.dtos.label.response.LabelDto;
 import com.example.taskmanagementapp.entities.User;
-import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
+import com.example.taskmanagementapp.exceptions.ForbiddenException;
 import com.example.taskmanagementapp.services.LabelService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

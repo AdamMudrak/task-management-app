@@ -5,7 +5,7 @@ import com.example.taskmanagementapp.dtos.label.request.AddLabelDto;
 import com.example.taskmanagementapp.dtos.label.request.UpdateLabelDto;
 import com.example.taskmanagementapp.dtos.label.response.LabelDto;
 import com.example.taskmanagementapp.entities.User;
-import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
+import com.example.taskmanagementapp.exceptions.ForbiddenException;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 

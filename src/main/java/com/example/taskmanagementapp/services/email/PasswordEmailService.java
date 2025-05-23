@@ -9,7 +9,7 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RANDOM_PASSWORD_BODY_2;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RANDOM_PASSWORD_SUBJECT;
 
-import com.example.taskmanagementapp.exceptions.notfoundexceptions.ActionNotFoundException;
+import com.example.taskmanagementapp.exceptions.ActionNotFoundException;
 import com.example.taskmanagementapp.security.RequestType;
 import com.example.taskmanagementapp.services.utils.EmailLinkParameterProvider;
 import org.springframework.stereotype.Service;

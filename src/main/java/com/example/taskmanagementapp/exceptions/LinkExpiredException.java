@@ -1,4 +1,4 @@
-package com.example.taskmanagementapp.exceptions.gone;
+package com.example.taskmanagementapp.exceptions;
 
 public class LinkExpiredException extends RuntimeException {
     public LinkExpiredException(String message) {

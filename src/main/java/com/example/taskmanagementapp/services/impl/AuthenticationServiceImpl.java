@@ -24,11 +24,11 @@ import com.example.taskmanagementapp.dtos.authentication.response.RegistrationSu
 import com.example.taskmanagementapp.dtos.authentication.response.SendLinkToResetPasswordDto;
 import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.User;
-import com.example.taskmanagementapp.exceptions.badrequest.RegistrationException;
-import com.example.taskmanagementapp.exceptions.conflictexpections.PasswordMismatchException;
-import com.example.taskmanagementapp.exceptions.forbidden.LoginException;
-import com.example.taskmanagementapp.exceptions.gone.LinkExpiredException;
-import com.example.taskmanagementapp.exceptions.notfoundexceptions.EntityNotFoundException;
+import com.example.taskmanagementapp.exceptions.RegistrationException;
+import com.example.taskmanagementapp.exceptions.PasswordMismatchException;
+import com.example.taskmanagementapp.exceptions.LoginException;
+import com.example.taskmanagementapp.exceptions.LinkExpiredException;
+import com.example.taskmanagementapp.exceptions.EntityNotFoundException;
 import com.example.taskmanagementapp.mappers.UserMapper;
 import com.example.taskmanagementapp.repositories.RoleRepository;
 import com.example.taskmanagementapp.repositories.UserRepository;

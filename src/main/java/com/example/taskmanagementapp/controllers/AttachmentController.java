@@ -15,7 +15,7 @@ import static com.example.taskmanagementapp.constants.controllers.AttachmentCont
 import com.dropbox.core.DbxException;
 import com.example.taskmanagementapp.dtos.attachment.response.AttachmentDto;
 import com.example.taskmanagementapp.entities.User;
-import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
+import com.example.taskmanagementapp.exceptions.ForbiddenException;
 import com.example.taskmanagementapp.services.AttachmentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

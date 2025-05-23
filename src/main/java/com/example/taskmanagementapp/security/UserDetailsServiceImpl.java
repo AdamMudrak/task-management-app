@@ -1,6 +1,6 @@
 package com.example.taskmanagementapp.security;
 
-import com.example.taskmanagementapp.exceptions.notfoundexceptions.EntityNotFoundException;
+import com.example.taskmanagementapp.exceptions.EntityNotFoundException;
 import com.example.taskmanagementapp.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

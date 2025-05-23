@@ -3,7 +3,7 @@ package com.example.taskmanagementapp.services;
 import com.dropbox.core.DbxException;
 import com.example.taskmanagementapp.dtos.attachment.response.AttachmentDto;
 import com.example.taskmanagementapp.entities.User;
-import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
+import com.example.taskmanagementapp.exceptions.ForbiddenException;
 import java.io.IOException;
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;

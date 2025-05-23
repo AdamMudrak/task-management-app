@@ -19,7 +19,7 @@ import com.example.taskmanagementapp.dtos.comment.request.AddCommentDto;
 import com.example.taskmanagementapp.dtos.comment.request.UpdateCommentDto;
 import com.example.taskmanagementapp.dtos.comment.response.CommentDto;
 import com.example.taskmanagementapp.entities.User;
-import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
+import com.example.taskmanagementapp.exceptions.ForbiddenException;
 import com.example.taskmanagementapp.services.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

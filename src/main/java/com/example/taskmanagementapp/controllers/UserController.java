@@ -21,7 +21,7 @@ import com.example.taskmanagementapp.dtos.user.request.UserAccountStatusDto;
 import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDto;
 import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDtoOnUpdate;
 import com.example.taskmanagementapp.entities.User;
-import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
+import com.example.taskmanagementapp.exceptions.ForbiddenException;
 import com.example.taskmanagementapp.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

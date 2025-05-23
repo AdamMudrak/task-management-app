@@ -7,7 +7,7 @@ import com.example.taskmanagementapp.dtos.user.response.UserProfileAdminInfoDto;
 import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDto;
 import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDtoOnUpdate;
 import com.example.taskmanagementapp.entities.User;
-import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
+import com.example.taskmanagementapp.exceptions.ForbiddenException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
