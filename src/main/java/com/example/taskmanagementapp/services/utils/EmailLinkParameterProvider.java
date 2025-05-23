@@ -4,9 +4,9 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 
 import com.example.taskmanagementapp.entities.ParamToken;
 import com.example.taskmanagementapp.repositories.ParamTokenRepository;
-import com.example.taskmanagementapp.security.jwtutils.strategy.JwtType;
 import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
 import com.example.taskmanagementapp.security.jwtutils.strategy.JwtStrategy;
+import com.example.taskmanagementapp.security.jwtutils.strategy.JwtType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
