@@ -33,6 +33,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -67,7 +68,7 @@ public class TaskController {
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping
     public TaskDto createTask(@AuthenticationPrincipal User user,
-                       @RequestBody CreateTaskDto createTaskDto,
+                       @RequestBody @Valid CreateTaskDto createTaskDto,
                        @RequestParam TaskPriorityDto taskPriorityDto) throws ForbiddenException {
         return taskService.createTask(user, createTaskDto, taskPriorityDto);
     }
@@ -97,7 +98,7 @@ public class TaskController {
     @PutMapping("/{taskId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public TaskDto updateTaskById(@AuthenticationPrincipal User user,
-                           @RequestBody UpdateTaskDto updateTaskDto,
+                           @RequestBody @Valid UpdateTaskDto updateTaskDto,
                            @PathVariable @Positive Long taskId,
                            @RequestParam(value = "taskStatusDto", required = false)
                            TaskStatusDto taskStatusDto,

@@ -41,6 +41,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -77,7 +78,7 @@ public class ProjectController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ProjectDto createProject(@AuthenticationPrincipal User user,
-                             @RequestBody CreateProjectDto createProjectDto) {
+                             @RequestBody @Valid CreateProjectDto createProjectDto) {
         return projectService.createProject(user, createProjectDto);
     }
 
@@ -129,7 +130,7 @@ public class ProjectController {
     @PutMapping("/{projectId}")
     public ProjectDto updateProjectById(@AuthenticationPrincipal User user,
                                  @PathVariable @Positive Long projectId,
-                                 @RequestBody UpdateProjectDto updateProjectDto,
+                                 @RequestBody @Valid UpdateProjectDto updateProjectDto,
                                  @RequestParam(value = "projectStatusDto", required = false)
                                  ProjectStatusDto projectStatusDto)
                                     throws ForbiddenException, ConflictException {
