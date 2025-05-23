@@ -1,12 +1,5 @@
 package com.example.taskmanagementapp.entities;
 
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.ASSIGNEE_ID;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.BOOLEAN_TO_INT;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.DUE_DATE;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.IS_DELETED;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.PROJECT_ID;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.TASKS;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -23,7 +16,7 @@ import lombok.Setter;
 import org.hibernate.annotations.SQLDelete;
 
 @Entity
-@Table(name = TASKS)
+@Table(name = "tasks")
 @Getter
 @Setter
 @SQLDelete(sql = "UPDATE tasks SET is_deleted = TRUE WHERE id = ?")
@@ -38,15 +31,15 @@ public class Task {
     private Priority priority;
     @Enumerated(EnumType.STRING)
     private Status status;
-    @Column(nullable = false, name = DUE_DATE)
+    @Column(nullable = false, name = "due_date")
     private LocalDate dueDate;
     @ManyToOne
-    @JoinColumn(nullable = false, name = PROJECT_ID)
+    @JoinColumn(nullable = false, name = "project_id")
     private Project project;
     @ManyToOne
-    @JoinColumn(nullable = false, name = ASSIGNEE_ID)
+    @JoinColumn(nullable = false, name = "assignee_id")
     private User assignee;
-    @Column(nullable = false, name = IS_DELETED, columnDefinition = BOOLEAN_TO_INT)
+    @Column(nullable = false, name = "is_deleted", columnDefinition = "TINYINT(1)")
     private boolean isDeleted = false;
 
     public enum Status {

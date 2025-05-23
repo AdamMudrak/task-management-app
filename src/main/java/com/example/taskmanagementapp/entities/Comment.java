@@ -1,9 +1,5 @@
 package com.example.taskmanagementapp.entities;
 
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.COMMENTS;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.TASK_ID;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.USER_ID;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,7 +13,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = COMMENTS)
+@Table(name = "comments")
 @Getter
 @Setter
 public class Comment {
@@ -25,10 +21,10 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
-    @JoinColumn(nullable = false, name = TASK_ID)
+    @JoinColumn(nullable = false, name = "task_id")
     private Task task;
     @ManyToOne
-    @JoinColumn(nullable = false, name = USER_ID)
+    @JoinColumn(nullable = false, name = "user_id")
     private User user;
     @Column(nullable = false)
     private String text;

@@ -1,11 +1,5 @@
 package com.example.taskmanagementapp.entities;
 
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.LABELS;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.LABELS_TASKS;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.LABEL_ID;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.TASK_ID;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.USER_ID;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -24,7 +18,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = LABELS)
+@Table(name = "labels")
 @Getter
 @Setter
 public class Label {
@@ -36,12 +30,12 @@ public class Label {
     @Enumerated(EnumType.STRING)
     private Color color;
     @ManyToOne
-    @JoinColumn(name = USER_ID)
+    @JoinColumn(name = "user_id")
     private User user;
     @ManyToMany
-    @JoinTable(name = LABELS_TASKS,
-                joinColumns = @JoinColumn (name = LABEL_ID),
-                inverseJoinColumns = @JoinColumn(name = TASK_ID))
+    @JoinTable(name = "labels_tasks",
+                joinColumns = @JoinColumn (name = "label_id"),
+                inverseJoinColumns = @JoinColumn(name = "task_id"))
     private Set<Task> tasks = new HashSet<>();
 
     public enum Color {

@@ -1,13 +1,5 @@
 package com.example.taskmanagementapp.entities;
 
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.BOOLEAN_TO_INT;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.FIRST_NAME;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.IS_ACCOUNT_NON_LOCKED;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.IS_ENABLED;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.LAST_NAME;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.ROLE_ID;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.USERS;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -27,7 +19,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Getter
 @Setter
 @Entity
-@Table(name = USERS)
+@Table(name = "users")
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,16 +30,16 @@ public class User implements UserDetails {
     private String password;
     @Column(unique = true, nullable = false)
     private String email;
-    @Column(nullable = false, name = FIRST_NAME)
+    @Column(nullable = false, name = "first_name")
     private String firstName;
-    @Column(nullable = false, name = LAST_NAME)
+    @Column(nullable = false, name = "last_name")
     private String lastName;
     @ManyToOne
-    @JoinColumn(name = ROLE_ID)
+    @JoinColumn(name = "role_id")
     private Role role;
-    @Column(nullable = false, columnDefinition = BOOLEAN_TO_INT, name = IS_ENABLED)
+    @Column(nullable = false, columnDefinition = "TINYINT(1)", name = "is_enabled")
     private boolean isEnabled;
-    @Column(nullable = false, columnDefinition = BOOLEAN_TO_INT, name = IS_ACCOUNT_NON_LOCKED)
+    @Column(nullable = false, columnDefinition = "TINYINT(1)", name = "is_account_non_locked")
     private boolean isAccountNonLocked = true;
 
     @Override
