@@ -1,4 +1,4 @@
-package com.example.taskmanagementapp.repositories.label;
+package com.example.taskmanagementapp.repositories;
 
 import com.example.taskmanagementapp.entities.Label;
 import java.util.Optional;

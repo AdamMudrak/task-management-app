@@ -10,7 +10,7 @@ import static com.example.taskmanagementapp.constants.services.email.TaskDeadlin
 
 import com.example.taskmanagementapp.entities.Task;
 import com.example.taskmanagementapp.entities.User;
-import com.example.taskmanagementapp.repositories.task.TaskRepository;
+import com.example.taskmanagementapp.repositories.TaskRepository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;

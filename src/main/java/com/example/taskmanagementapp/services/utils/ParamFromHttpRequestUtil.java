@@ -1,7 +1,7 @@
 package com.example.taskmanagementapp.services.utils;
 
 import com.example.taskmanagementapp.exceptions.notfoundexceptions.ActionNotFoundException;
-import com.example.taskmanagementapp.repositories.paramtoken.ParamTokenRepository;
+import com.example.taskmanagementapp.repositories.ParamTokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 import lombok.Getter;

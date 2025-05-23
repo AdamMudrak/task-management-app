@@ -1,4 +1,4 @@
-package com.example.taskmanagementapp.repositories.role;
+package com.example.taskmanagementapp.repositories;
 
 import com.example.taskmanagementapp.entities.Role;
 import org.springframework.data.jpa.repository.JpaRepository;

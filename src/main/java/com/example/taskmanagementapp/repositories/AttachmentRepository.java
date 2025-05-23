@@ -1,4 +1,4 @@
-package com.example.taskmanagementapp.repositories.attachment;
+package com.example.taskmanagementapp.repositories;
 
 import com.example.taskmanagementapp.entities.Attachment;
 import java.util.List;

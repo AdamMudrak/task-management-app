@@ -1,4 +1,4 @@
-package com.example.taskmanagementapp.repositories.task;
+package com.example.taskmanagementapp.repositories;
 
 import com.example.taskmanagementapp.entities.Task;
 import java.util.List;

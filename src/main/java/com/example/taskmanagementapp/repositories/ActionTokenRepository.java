@@ -1,4 +1,4 @@
-package com.example.taskmanagementapp.repositories.actiontoken;
+package com.example.taskmanagementapp.repositories;
 
 import com.example.taskmanagementapp.entities.ActionToken;
 import org.springframework.data.jpa.repository.JpaRepository;

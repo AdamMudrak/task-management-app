@@ -1,4 +1,4 @@
-package com.example.taskmanagementapp.repositories.comment;
+package com.example.taskmanagementapp.repositories;
 
 import com.example.taskmanagementapp.entities.Comment;
 import org.springframework.data.domain.Page;

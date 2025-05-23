@@ -1,4 +1,4 @@
-package com.example.taskmanagementapp.repositories.project;
+package com.example.taskmanagementapp.repositories;
 
 import com.example.taskmanagementapp.entities.Project;
 import java.util.Optional;
