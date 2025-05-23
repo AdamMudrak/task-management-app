@@ -18,9 +18,11 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class LabelServiceImpl implements LabelService {
     private final LabelRepository labelRepository;
     private final TaskRepository taskRepository;

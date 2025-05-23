@@ -25,10 +25,12 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class AttachmentServiceImpl implements AttachmentService {
     private final DbxClientV2 client;
     private final AttachmentRepository attachmentRepository;

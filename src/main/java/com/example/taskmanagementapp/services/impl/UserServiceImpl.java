@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserServiceImpl implements UserService {
     private final ChangeEmailService changeEmailService;
     private final ParamFromHttpRequestUtil randomParamFromHttpRequestUtil;
@@ -124,7 +125,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
     public UserProfileInfoDto confirmEmailChange(HttpServletRequest httpServletRequest) {
         String token = randomParamFromHttpRequestUtil
                 .parseRandomParameterAndToken(httpServletRequest);

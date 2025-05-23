@@ -38,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ProjectServiceImpl implements ProjectService {
     private final ProjectMapper projectMapper;
     private final ProjectRepository projectRepository;
@@ -114,7 +115,6 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    @Transactional
     public void deleteProjectById(User user,
                                   Long projectId) throws ForbiddenException {
         if (!projectRepository.existsByIdNotDeleted(projectId)) {
@@ -131,7 +131,6 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    @Transactional
     public AssignEmployeeResponseDto assignEmployeeToProject(User user,
                                                              Long projectId,
                                                              Long employeeId,
@@ -161,7 +160,6 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    @Transactional
     public ProjectDto acceptAssignmentToProject(HttpServletRequest request) {
         String token = paramFromHttpRequestUtil.parseRandomParameterAndToken(request);
         JwtAbstractUtil jwtActionUtil = jwtStrategy.getStrategy(JwtType.ACTION);

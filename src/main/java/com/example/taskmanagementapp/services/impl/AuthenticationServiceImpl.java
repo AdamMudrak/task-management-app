@@ -55,6 +55,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@Transactional
 public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -104,7 +105,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    @Transactional
     public LinkToResetPasswordSuccessDto confirmResetPassword(HttpServletRequest request) {
         String token = paramFromHttpRequestUtil.parseRandomParameterAndToken(request);
 
@@ -164,7 +164,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return new RegistrationSuccessDto(REGISTERED);
     }
 
-    @Transactional
     @Override
     public RegistrationConfirmationSuccessDto confirmRegistration(HttpServletRequest request) {
         String token = paramFromHttpRequestUtil.parseRandomParameterAndToken(request);
