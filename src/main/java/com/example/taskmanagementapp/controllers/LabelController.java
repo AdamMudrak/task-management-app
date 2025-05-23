@@ -2,18 +2,14 @@ package com.example.taskmanagementapp.controllers;
 
 import static com.example.taskmanagementapp.constants.Constants.CODE_200;
 import static com.example.taskmanagementapp.constants.Constants.CODE_201;
-import static com.example.taskmanagementapp.constants.Constants.ROLE_ADMIN;
-import static com.example.taskmanagementapp.constants.Constants.ROLE_USER;
 import static com.example.taskmanagementapp.constants.controllers.LabelControllerConstants.ATTACH_LABEL_TO_TASK;
 import static com.example.taskmanagementapp.constants.controllers.LabelControllerConstants.CREATE_LABEL_SUMMARY;
 import static com.example.taskmanagementapp.constants.controllers.LabelControllerConstants.DELETE_LABEL_BY_ID_SUMMARY;
 import static com.example.taskmanagementapp.constants.controllers.LabelControllerConstants.DETACH_LABEL_TO_TASK;
 import static com.example.taskmanagementapp.constants.controllers.LabelControllerConstants.GET_LABELS_SUMMARY;
 import static com.example.taskmanagementapp.constants.controllers.LabelControllerConstants.GET_LABEL_BY_ID_SUMMARY;
-import static com.example.taskmanagementapp.constants.controllers.LabelControllerConstants.LABELS;
 import static com.example.taskmanagementapp.constants.controllers.LabelControllerConstants.LABELS_API_DESCRIPTION;
 import static com.example.taskmanagementapp.constants.controllers.LabelControllerConstants.LABELS_API_NAME;
-import static com.example.taskmanagementapp.constants.controllers.LabelControllerConstants.LABEL_ID;
 import static com.example.taskmanagementapp.constants.controllers.LabelControllerConstants.PAGEABLE_EXAMPLE;
 import static com.example.taskmanagementapp.constants.controllers.LabelControllerConstants.SUCCESSFULLY_ATTACHED_LABEL;
 import static com.example.taskmanagementapp.constants.controllers.LabelControllerConstants.SUCCESSFULLY_CREATED_LABEL;
@@ -22,8 +18,6 @@ import static com.example.taskmanagementapp.constants.controllers.LabelControlle
 import static com.example.taskmanagementapp.constants.controllers.LabelControllerConstants.SUCCESSFULLY_GOT_LABEL;
 import static com.example.taskmanagementapp.constants.controllers.LabelControllerConstants.SUCCESSFULLY_GOT_LABELS;
 import static com.example.taskmanagementapp.constants.controllers.LabelControllerConstants.SUCCESSFULLY_UPDATED_LABEL;
-import static com.example.taskmanagementapp.constants.controllers.LabelControllerConstants.TASK_ID_ATTACHMENT_ID_ATTACH;
-import static com.example.taskmanagementapp.constants.controllers.LabelControllerConstants.TASK_ID_ATTACHMENT_ID_DETACH;
 import static com.example.taskmanagementapp.constants.controllers.LabelControllerConstants.UPDATE_LABEL_SUMMARY;
 
 import com.example.taskmanagementapp.dtos.comment.request.ColorDto;
@@ -58,7 +52,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(LABELS)
+@RequestMapping("/labels")
 @Tag(name = LABELS_API_NAME, description = LABELS_API_DESCRIPTION)
 @RequiredArgsConstructor
 @Validated
@@ -67,8 +61,7 @@ public class LabelController {
 
     @Operation(summary = CREATE_LABEL_SUMMARY)
     @ApiResponse(responseCode = CODE_201, description = SUCCESSFULLY_CREATED_LABEL)
-    @PreAuthorize(ROLE_USER + " or "
-            + ROLE_ADMIN)
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     LabelDto createLabel(@AuthenticationPrincipal User user,
@@ -79,8 +72,7 @@ public class LabelController {
 
     @Operation(summary = UPDATE_LABEL_SUMMARY)
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_UPDATED_LABEL)
-    @PreAuthorize(ROLE_USER + " or "
-            + ROLE_ADMIN)
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     @PutMapping("/{labelId}")
     LabelDto updateLabel(@AuthenticationPrincipal User user,
                          @RequestParam(value = "colorDto", required = false) ColorDto colorDto,
@@ -91,9 +83,8 @@ public class LabelController {
 
     @Operation(summary = GET_LABEL_BY_ID_SUMMARY)
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_GOT_LABEL)
-    @PreAuthorize(ROLE_USER + " or "
-            + ROLE_ADMIN)
-    @GetMapping(LABEL_ID)
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @GetMapping("/{labelId}")
     LabelDto getLabel(@AuthenticationPrincipal User user,
                          @PathVariable @Positive Long labelId) {
         return labelService.getLabelById(user, labelId);
@@ -101,8 +92,7 @@ public class LabelController {
 
     @Operation(summary = GET_LABELS_SUMMARY)
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_GOT_LABELS)
-    @PreAuthorize(ROLE_USER + " or "
-            + ROLE_ADMIN)
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     @GetMapping()
     List<LabelDto> getLabels(@AuthenticationPrincipal User user,
                              @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {
@@ -111,9 +101,8 @@ public class LabelController {
 
     @Operation(summary = DELETE_LABEL_BY_ID_SUMMARY)
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_DELETED_LABEL)
-    @PreAuthorize(ROLE_USER + " or "
-            + ROLE_ADMIN)
-    @DeleteMapping(LABEL_ID)
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @DeleteMapping("/{labelId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteLabelById(@AuthenticationPrincipal User user,
                          @PathVariable @Positive Long labelId) {
@@ -122,9 +111,8 @@ public class LabelController {
 
     @Operation(summary = ATTACH_LABEL_TO_TASK)
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_ATTACHED_LABEL)
-    @PreAuthorize(ROLE_USER + " or "
-            + ROLE_ADMIN)
-    @PutMapping(TASK_ID_ATTACHMENT_ID_ATTACH)
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PutMapping("/{taskId}/{labelId}/attach")
     void attachLabelToTask(@AuthenticationPrincipal User user,
                            @PathVariable @Positive Long taskId,
                            @PathVariable @Positive Long labelId) throws ForbiddenException {
@@ -133,9 +121,8 @@ public class LabelController {
 
     @Operation(summary = DETACH_LABEL_TO_TASK)
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_DETACHED_LABEL)
-    @PreAuthorize(ROLE_USER + " or "
-            + ROLE_ADMIN)
-    @PutMapping(TASK_ID_ATTACHMENT_ID_DETACH)
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PutMapping("/{taskId}/{labelId}/detach")
     void detachLabelFromTask(@AuthenticationPrincipal User user,
                            @PathVariable @Positive Long taskId,
                            @PathVariable @Positive Long labelId) throws ForbiddenException {

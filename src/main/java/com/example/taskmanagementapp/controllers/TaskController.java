@@ -5,11 +5,8 @@ import static com.example.taskmanagementapp.constants.Constants.CODE_201;
 import static com.example.taskmanagementapp.constants.Constants.CODE_204;
 import static com.example.taskmanagementapp.constants.Constants.CODE_400;
 import static com.example.taskmanagementapp.constants.Constants.INVALID_ENTITY_VALUE;
-import static com.example.taskmanagementapp.constants.Constants.ROLE_ADMIN;
-import static com.example.taskmanagementapp.constants.Constants.ROLE_USER;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.CREATE_TASK;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.DELETE_TASK_BY_ID;
-import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.GET_ALL_PROJECT_TASKS;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.GET_TASKS_BY_PROJECT_ID;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.GET_TASK_BY_ID;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.GET_TASK_BY_LABEL_ID;
@@ -20,11 +17,8 @@ import static com.example.taskmanagementapp.constants.controllers.TaskController
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.SUCCESSFULLY_GET_TASK_BY_ID;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.SUCCESSFULLY_GET_TASK_BY_LABEL_ID;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.SUCCESSFULLY_UPDATED_TASK_BY_ID;
-import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.TASKS;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.TASKS_API_DESCRIPTION;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.TASKS_API_NAME;
-import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.TASKS_BY_LABEL_ID;
-import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.TASK_BY_ID;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.UPDATE_TASK_BY_ID;
 
 import com.example.taskmanagementapp.dtos.task.request.CreateTaskDto;
@@ -59,7 +53,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(TASKS)
+@RequestMapping("/tasks")
 @Tag(name = TASKS_API_NAME, description = TASKS_API_DESCRIPTION)
 @RequiredArgsConstructor
 @Validated
@@ -70,8 +64,7 @@ public class TaskController {
     @ApiResponse(responseCode = CODE_201, description = SUCCESSFULLY_CREATED_TASK)
     @ApiResponse(responseCode = CODE_400, description = INVALID_ENTITY_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize(ROLE_USER + " or "
-            + ROLE_ADMIN)
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     @PostMapping
     TaskDto createTask(@AuthenticationPrincipal User user,
                        @RequestBody CreateTaskDto createTaskDto,
@@ -81,9 +74,8 @@ public class TaskController {
 
     @Operation(summary = GET_TASKS_BY_PROJECT_ID)
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_GET_TASKS_BY_PROJECT_ID)
-    @GetMapping(GET_ALL_PROJECT_TASKS)
-    @PreAuthorize(ROLE_USER + " or "
-            + ROLE_ADMIN)
+    @GetMapping("/all-project-tasks/{projectId}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     List<TaskDto> getTasksByProjectId(@AuthenticationPrincipal User user,
                                       @PathVariable @Positive Long projectId,
                                       @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable)
@@ -93,9 +85,8 @@ public class TaskController {
 
     @Operation(summary = GET_TASK_BY_ID)
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_GET_TASK_BY_ID)
-    @GetMapping(TASK_BY_ID)
-    @PreAuthorize(ROLE_USER + " or "
-            + ROLE_ADMIN)
+    @GetMapping("/{taskId}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     TaskDto getTaskById(@AuthenticationPrincipal User user,
                            @PathVariable Long taskId) throws ForbiddenException {
         return taskService.getTaskById(user, taskId);
@@ -103,9 +94,8 @@ public class TaskController {
 
     @Operation(summary = UPDATE_TASK_BY_ID)
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_UPDATED_TASK_BY_ID)
-    @PutMapping(TASK_BY_ID)
-    @PreAuthorize(ROLE_USER + " or "
-            + ROLE_ADMIN)
+    @PutMapping("/{taskId}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     TaskDto updateTaskById(@AuthenticationPrincipal User user,
                            @RequestBody UpdateTaskDto updateTaskDto,
                            @PathVariable @Positive Long taskId,
@@ -119,9 +109,8 @@ public class TaskController {
 
     @Operation(summary = DELETE_TASK_BY_ID)
     @ApiResponse(responseCode = CODE_204, description = SUCCESSFULLY_DELETED_TASK_BY_ID)
-    @DeleteMapping(TASK_BY_ID)
-    @PreAuthorize(ROLE_USER + " or "
-            + ROLE_ADMIN)
+    @DeleteMapping("/{taskId}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteTaskById(@AuthenticationPrincipal User user,
                         @PathVariable @Positive Long taskId) throws ForbiddenException {
@@ -130,9 +119,8 @@ public class TaskController {
 
     @Operation(summary = GET_TASK_BY_LABEL_ID)
     @ApiResponse(responseCode = CODE_204, description = SUCCESSFULLY_GET_TASK_BY_LABEL_ID)
-    @GetMapping(TASKS_BY_LABEL_ID)
-    @PreAuthorize(ROLE_USER + " or "
-            + ROLE_ADMIN)
+    @GetMapping("/with-label/{labelId}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     List<TaskDto> getTasksWithLabel(@AuthenticationPrincipal User user,
                                     @PathVariable @Positive Long labelId,
                                     @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {

@@ -5,20 +5,12 @@ import static com.example.taskmanagementapp.constants.Constants.CODE_200;
 import static com.example.taskmanagementapp.constants.Constants.CODE_201;
 import static com.example.taskmanagementapp.constants.Constants.CODE_400;
 import static com.example.taskmanagementapp.constants.Constants.INVALID_ENTITY_VALUE;
-import static com.example.taskmanagementapp.constants.Constants.ROLE_USER;
-import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.AUTH;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.AUTH_API_DESCRIPTION;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.AUTH_API_NAME;
-import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.CHANGE_PASSWORD;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.CHANGE_PASSWORD_SUMMARY;
-import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.CONFIRM_REGISTRATION;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.EMAIL_LOGIN_SUMMARY;
-import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.FORGOT_PASSWORD;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.INITIATE_PASSWORD_RESET_SUMMARY;
-import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.LOGIN;
-import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.REGISTER;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.REGISTER_SUMMARY;
-import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.RESET_PASSWORD;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.SUCCESSFULLY_CHANGE_PASSWORD;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.SUCCESSFULLY_INITIATED_PASSWORD_RESET;
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.SUCCESSFULLY_LOGGED_IN;
@@ -62,7 +54,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Tag(name = AUTH_API_NAME,
         description = AUTH_API_DESCRIPTION)
-@RequestMapping(AUTH)
+@RequestMapping("/auth")
 @Validated
 public class AuthController {
     private final AuthenticationService authenticationService;
@@ -71,7 +63,7 @@ public class AuthController {
     @ApiResponse(responseCode = CODE_201, description =
             SUCCESSFULLY_REGISTERED)
     @ApiResponse(responseCode = CODE_400, description = INVALID_ENTITY_VALUE)
-    @PostMapping(REGISTER)
+    @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public RegistrationSuccessDto register(
             @RequestBody @Valid UserRegistrationRequestDto requestDto)
@@ -80,7 +72,7 @@ public class AuthController {
     }
 
     @Operation(hidden = true)
-    @GetMapping(CONFIRM_REGISTRATION)
+    @GetMapping("/register-success")
     public RegistrationConfirmationSuccessDto confirmRegistration(
             HttpServletRequest httpServletRequest) {
         return authenticationService
@@ -91,7 +83,7 @@ public class AuthController {
     @ApiResponse(responseCode = CODE_200, description =
             SUCCESSFULLY_LOGGED_IN)
     @ApiResponse(responseCode = CODE_400, description = INVALID_ENTITY_VALUE)
-    @PostMapping(LOGIN)
+    @PostMapping("/login")
     public LoginSuccessDto login(@RequestBody @Valid UserLoginRequestDto request,
                                  HttpServletResponse response) throws LoginException {
         return authenticationService.authenticateUser(request, response);
@@ -101,7 +93,7 @@ public class AuthController {
     @ApiResponse(responseCode = CODE_200, description =
             SUCCESSFULLY_INITIATED_PASSWORD_RESET)
     @ApiResponse(responseCode = CODE_400, description = INVALID_ENTITY_VALUE)
-    @PostMapping(FORGOT_PASSWORD)
+    @PostMapping("/forgot-password")
     public SendLinkToResetPasswordDto initiatePasswordReset(@RequestBody @Valid
                                                                 GetLinkToResetPasswordDto request)
                                                                         throws LoginException {
@@ -109,7 +101,7 @@ public class AuthController {
     }
 
     @Operation(hidden = true)
-    @GetMapping(RESET_PASSWORD)
+    @GetMapping("/reset-password")
     public LinkToResetPasswordSuccessDto resetPassword(HttpServletRequest httpServletRequest) {
         return authenticationService
                 .confirmResetPassword(httpServletRequest);
@@ -120,8 +112,8 @@ public class AuthController {
             SUCCESSFULLY_CHANGE_PASSWORD)
     @ApiResponse(responseCode = CODE_400, description = INVALID_ENTITY_VALUE)
     @ApiResponse(responseCode = Constants.CODE_401, description = AUTHORIZATION_REQUIRED)
-    @PreAuthorize(ROLE_USER)
-    @PostMapping(CHANGE_PASSWORD)
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @PostMapping("/change-password")
     public ChangePasswordSuccessDto changePassword(@AuthenticationPrincipal User user,
                                                    @RequestBody @Valid SetNewPasswordDto request)
                                                                 throws PasswordMismatchException {

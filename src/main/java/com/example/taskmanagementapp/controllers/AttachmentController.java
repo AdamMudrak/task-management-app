@@ -3,9 +3,6 @@ package com.example.taskmanagementapp.controllers;
 import static com.example.taskmanagementapp.constants.Constants.CODE_200;
 import static com.example.taskmanagementapp.constants.Constants.CODE_201;
 import static com.example.taskmanagementapp.constants.Constants.CODE_204;
-import static com.example.taskmanagementapp.constants.Constants.ROLE_ADMIN;
-import static com.example.taskmanagementapp.constants.Constants.ROLE_USER;
-import static com.example.taskmanagementapp.constants.controllers.AttachmentControllerConstants.ATTACHMENTS;
 import static com.example.taskmanagementapp.constants.controllers.AttachmentControllerConstants.ATTACHMENTS_API_DESCRIPTION;
 import static com.example.taskmanagementapp.constants.controllers.AttachmentControllerConstants.ATTACHMENTS_API_NAME;
 import static com.example.taskmanagementapp.constants.controllers.AttachmentControllerConstants.DELETE_ATTACHMENT_SUMMARY;
@@ -13,8 +10,6 @@ import static com.example.taskmanagementapp.constants.controllers.AttachmentCont
 import static com.example.taskmanagementapp.constants.controllers.AttachmentControllerConstants.SUCCESSFULLY_DELETED_ATTACHMENTS;
 import static com.example.taskmanagementapp.constants.controllers.AttachmentControllerConstants.SUCCESSFULLY_GOT_ATTACHMENTS;
 import static com.example.taskmanagementapp.constants.controllers.AttachmentControllerConstants.SUCCESSFULLY_UPLOADED_ATTACHMENTS;
-import static com.example.taskmanagementapp.constants.controllers.AttachmentControllerConstants.TASK_ID;
-import static com.example.taskmanagementapp.constants.controllers.AttachmentControllerConstants.TASK_ID_ATTACHMENT_ID;
 import static com.example.taskmanagementapp.constants.controllers.AttachmentControllerConstants.UPLOAD_ATTACHMENT_SUMMARY;
 
 import com.dropbox.core.DbxException;
@@ -44,7 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping(ATTACHMENTS)
+@RequestMapping("/attachments")
 @Tag(name = ATTACHMENTS_API_NAME, description = ATTACHMENTS_API_DESCRIPTION)
 @RequiredArgsConstructor
 @Validated
@@ -54,9 +49,8 @@ public class AttachmentController {
     @Operation(summary = UPLOAD_ATTACHMENT_SUMMARY)
     @ApiResponse(responseCode = CODE_201, description =
             SUCCESSFULLY_UPLOADED_ATTACHMENTS)
-    @PreAuthorize(ROLE_USER + " or "
-            + ROLE_ADMIN)
-    @PostMapping(path = TASK_ID,
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PostMapping(path = "/{taskId}",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
@@ -70,21 +64,19 @@ public class AttachmentController {
     @Operation(summary = GET_ATTACHMENT_SUMMARY)
     @ApiResponse(responseCode = CODE_200, description =
             SUCCESSFULLY_GOT_ATTACHMENTS)
-    @PreAuthorize(ROLE_USER + " or "
-            + ROLE_ADMIN)
-    @GetMapping(TASK_ID)
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @GetMapping("/{taskId}")
     public List<AttachmentDto> getAttachment(@AuthenticationPrincipal User user,
                                                         @PathVariable @Positive Long taskId)
-            throws ForbiddenException, IOException, DbxException {
+            throws ForbiddenException {
         return attachmentService.getAttachmentForTask(user, taskId);
     }
 
     @Operation(summary = DELETE_ATTACHMENT_SUMMARY)
     @ApiResponse(responseCode = CODE_204, description =
             SUCCESSFULLY_DELETED_ATTACHMENTS)
-    @PreAuthorize(ROLE_USER + " or "
-            + ROLE_ADMIN)
-    @DeleteMapping(TASK_ID_ATTACHMENT_ID)
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @DeleteMapping("/{taskId}/{attachmentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAttachment(@AuthenticationPrincipal User user,
                                  @PathVariable @Positive Long taskId,
