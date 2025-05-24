@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record UserLoginRequestDto(
+public record LoginRequest(
         @Schema(name = "emailOrUsername",
         example = "example@gmail.com or ExampleUsername",
         requiredMode = REQUIRED)

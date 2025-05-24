@@ -1,3 +1,3 @@
 package com.example.taskmanagementapp.dtos.authentication.response;
 
-public record LinkToResetPasswordSuccessDto(String response){}
+public record PasswordResetLinkResponse(String response){}

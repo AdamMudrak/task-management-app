@@ -13,7 +13,7 @@ import jakarta.validation.constraints.NotBlank;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @FieldRegisterMatch
-public record UserRegistrationRequestDto(
+public record RegistrationRequest(
         @Schema(name = "username",
                 example = "ExampleUsername",
                 requiredMode = REQUIRED)

@@ -1,3 +1,3 @@
 package com.example.taskmanagementapp.dtos.authentication.response;
 
-public record RegistrationConfirmationSuccessDto(String response){}
+public record ResetLinkSentResponse(String response){}
