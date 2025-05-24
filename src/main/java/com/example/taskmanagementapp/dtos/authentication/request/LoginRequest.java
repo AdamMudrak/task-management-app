@@ -11,14 +11,14 @@ import jakarta.validation.constraints.NotBlank;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record LoginRequest(
         @Schema(name = "emailOrUsername",
-        example = "example@gmail.com or ExampleUsername",
-        requiredMode = REQUIRED)
+                example = "example@gmail.com or ExampleUsername",
+                requiredMode = REQUIRED)
         @NotBlank
         String emailOrUsername,
         @Schema(name = "password",
-        example = "Best_Password1@3$",
-        description = Constants.PASSWORD_DESCRIPTION,
-        requiredMode = REQUIRED)
+                example = "Best_Password1@3$",
+                description = Constants.PASSWORD_DESCRIPTION,
+                requiredMode = REQUIRED)
         @NotBlank
         @Password
         String password){}

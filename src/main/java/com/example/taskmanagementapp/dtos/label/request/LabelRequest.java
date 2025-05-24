@@ -7,6 +7,6 @@ import jakarta.validation.constraints.NotBlank;
 
 public record LabelRequest(
         @Schema(name = "name", example = "Best label",
-        requiredMode = REQUIRED)
+                requiredMode = REQUIRED)
         @NotBlank
         String name){}
