@@ -1,10 +1,10 @@
 package com.example.taskmanagementapp.services;
 
-import com.example.taskmanagementapp.dtos.project.request.CreateProjectDto;
+import com.example.taskmanagementapp.dtos.project.request.ProjectRequest;
 import com.example.taskmanagementapp.dtos.project.request.ProjectStatusDto;
-import com.example.taskmanagementapp.dtos.project.request.UpdateProjectDto;
-import com.example.taskmanagementapp.dtos.project.response.AssignEmployeeResponseDto;
-import com.example.taskmanagementapp.dtos.project.response.ProjectDto;
+import com.example.taskmanagementapp.dtos.project.request.UpdateProjectRequest;
+import com.example.taskmanagementapp.dtos.project.response.EmployeeAssignmentResponse;
+import com.example.taskmanagementapp.dtos.project.response.ProjectResponse;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.ConflictException;
 import com.example.taskmanagementapp.exceptions.ForbiddenException;
@@ -13,29 +13,30 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 
 public interface ProjectService {
-    ProjectDto createProject(User authenticatedUser, CreateProjectDto createProjectDto);
+    ProjectResponse createProject(User authenticatedUser, ProjectRequest createProjectDto);
 
-    List<ProjectDto> getAssignedProjects(Long userId, Pageable pageable);
+    List<ProjectResponse> getAssignedProjects(Long userId, Pageable pageable);
 
-    List<ProjectDto> getCreatedProjects(Long userId, Pageable pageable);
+    List<ProjectResponse> getCreatedProjects(Long userId, Pageable pageable);
 
-    List<ProjectDto> getDeletedCreatedProjects(Long userId, Pageable pageable);
+    List<ProjectResponse> getDeletedCreatedProjects(Long userId, Pageable pageable);
 
-    ProjectDto getProjectById(User authenticatedUser, Long projectId) throws ForbiddenException;
+    ProjectResponse getProjectById(User authenticatedUser,
+                                   Long projectId) throws ForbiddenException;
 
-    ProjectDto updateProjectById(User authenticatedUser, Long projectId,
-                                 UpdateProjectDto updateProjectDto,
-                                 ProjectStatusDto projectStatusDto) throws ForbiddenException,
+    ProjectResponse updateProjectById(User authenticatedUser, Long projectId,
+                                      UpdateProjectRequest updateProjectDto,
+                                      ProjectStatusDto projectStatusDto) throws ForbiddenException,
                                                                             ConflictException;
 
     void deleteProjectById(User authenticatedUser, Long projectId) throws ForbiddenException;
 
-    AssignEmployeeResponseDto assignEmployeeToProject(User authenticatedUser, Long projectId,
-                                                      Long employeeId, boolean isNewEmployeeManager)
+    EmployeeAssignmentResponse assignEmployeeToProject(User authenticatedUser, Long projectId,
+                                                   Long employeeId, boolean isNewEmployeeManager)
             throws ForbiddenException;
 
-    ProjectDto acceptAssignmentToProject(HttpServletRequest request);
+    ProjectResponse acceptAssignmentToProject(HttpServletRequest request);
 
-    ProjectDto removeEmployeeFromProject(User authenticatedUser, Long projectId, Long employeeId)
-            throws ForbiddenException;
+    ProjectResponse removeEmployeeFromProject(User authenticatedUser, Long projectId,
+                                              Long employeeId) throws ForbiddenException;
 }

@@ -2,7 +2,7 @@ package com.example.taskmanagementapp.dtos.comment.response;
 
 import java.time.LocalDateTime;
 
-public record CommentDto(
+public record CommentResponse(
         Long id,
         Long taskId,
         Long userId,

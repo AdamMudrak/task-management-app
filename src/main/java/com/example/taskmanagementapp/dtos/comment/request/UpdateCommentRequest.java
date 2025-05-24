@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record UpdateCommentDto(
+public record UpdateCommentRequest(
         @Schema(name = "text",
                 example = "This task should be done using...",
                 requiredMode = REQUIRED)

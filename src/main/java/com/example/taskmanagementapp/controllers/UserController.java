@@ -16,10 +16,10 @@ import static com.example.taskmanagementapp.constants.controllers.UserController
 import static com.example.taskmanagementapp.constants.controllers.UserControllerConstants.USER_API_NAME;
 
 import com.example.taskmanagementapp.dtos.role.RoleNameDto;
-import com.example.taskmanagementapp.dtos.user.request.UpdateUserProfileDto;
+import com.example.taskmanagementapp.dtos.user.request.UpdateUserProfileRequest;
 import com.example.taskmanagementapp.dtos.user.request.UserAccountStatusDto;
-import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDto;
-import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDtoOnUpdate;
+import com.example.taskmanagementapp.dtos.user.response.UpdateUserProfileResponse;
+import com.example.taskmanagementapp.dtos.user.response.UserProfileResponse;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.ForbiddenException;
 import com.example.taskmanagementapp.services.UserService;
@@ -59,7 +59,7 @@ public class UserController {
             SUCCESSFULLY_RETRIEVED)
     @GetMapping("/me")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public UserProfileInfoDto getProfileInfo(@AuthenticationPrincipal User user) {
+    public UserProfileResponse getProfileInfo(@AuthenticationPrincipal User user) {
         return userService.getProfileInfo(user.getId());
     }
 
@@ -68,9 +68,9 @@ public class UserController {
             SUCCESSFULLY_UPDATED_PROFILE_INFO)
     @PutMapping("/me")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public UserProfileInfoDtoOnUpdate updateProfileInfo(@AuthenticationPrincipal User user,
-                                                 @RequestBody @Valid
-                                                 UpdateUserProfileDto updateUserProfileDto) {
+    public UpdateUserProfileResponse updateProfileInfo(@AuthenticationPrincipal User user,
+                                                       @RequestBody @Valid
+                                                 UpdateUserProfileRequest updateUserProfileDto) {
         return userService.updateProfileInfo(user.getId(), updateUserProfileDto);
     }
 
@@ -79,9 +79,9 @@ public class UserController {
             SUCCESSFULLY_UPDATED_ROLE)
     @PutMapping("/{employeeId}/role")
     @PreAuthorize("hasRole('ADMIN')")
-    public UserProfileInfoDto updateUserRole(@AuthenticationPrincipal User user,
-                                      @PathVariable @Positive Long employeeId,
-                                      @RequestParam RoleNameDto roleName)
+    public UserProfileResponse updateUserRole(@AuthenticationPrincipal User user,
+                                              @PathVariable @Positive Long employeeId,
+                                              @RequestParam RoleNameDto roleName)
             throws ForbiddenException {
         return userService.updateUserRole(user.getId(), employeeId, roleName);
     }
@@ -91,7 +91,7 @@ public class UserController {
             SUCCESSFULLY_RETRIEVE_ALL_USERS)
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public List<UserProfileInfoDto> getAllUsers(
+    public List<UserProfileResponse> getAllUsers(
             @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {
         return userService.getAllUsers(pageable);
     }
@@ -101,15 +101,15 @@ public class UserController {
             SUCCESSFULLY_CHANGED_STATUS)
     @PostMapping("/change-user-account-status/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public UserProfileInfoDto changeUserAccountStatus(@AuthenticationPrincipal User user,
-                     @RequestParam UserAccountStatusDto accountStatusDto,
-                     @PathVariable @Positive Long userId) throws ForbiddenException {
+    public UserProfileResponse changeUserAccountStatus(@AuthenticationPrincipal User user,
+                                   @RequestParam UserAccountStatusDto accountStatusDto,
+                                   @PathVariable @Positive Long userId) throws ForbiddenException {
         return userService.changeStatus(user, userId, accountStatusDto);
     }
 
     @Operation(hidden = true)
     @GetMapping("/change-email-success")
-    public UserProfileInfoDto changeEmailSuccess(HttpServletRequest request) {
+    public UserProfileResponse changeEmailSuccess(HttpServletRequest request) {
         return userService.confirmEmailChange(request);
     }
 }

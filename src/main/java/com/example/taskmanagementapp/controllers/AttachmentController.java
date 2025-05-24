@@ -13,7 +13,7 @@ import static com.example.taskmanagementapp.constants.controllers.AttachmentCont
 import static com.example.taskmanagementapp.constants.controllers.AttachmentControllerConstants.UPLOAD_ATTACHMENT_SUMMARY;
 
 import com.dropbox.core.DbxException;
-import com.example.taskmanagementapp.dtos.attachment.response.AttachmentDto;
+import com.example.taskmanagementapp.dtos.attachment.response.AttachmentResponse;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.ForbiddenException;
 import com.example.taskmanagementapp.services.AttachmentService;
@@ -54,9 +54,9 @@ public class AttachmentController {
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
-    public List<AttachmentDto> addAttachment(@AuthenticationPrincipal User user,
-                                       MultipartFile[] attachmentFile,
-                                       @PathVariable @Positive Long taskId)
+    public List<AttachmentResponse> addAttachment(@AuthenticationPrincipal User user,
+                                                  MultipartFile[] attachmentFile,
+                                                  @PathVariable @Positive Long taskId)
             throws ForbiddenException, IOException, DbxException {
         return attachmentService.uploadAttachmentForTask(user, taskId, attachmentFile);
     }
@@ -66,8 +66,8 @@ public class AttachmentController {
             SUCCESSFULLY_GOT_ATTACHMENTS)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/{taskId}")
-    public List<AttachmentDto> getAttachment(@AuthenticationPrincipal User user,
-                                                        @PathVariable @Positive Long taskId)
+    public List<AttachmentResponse> getAttachment(@AuthenticationPrincipal User user,
+                                                  @PathVariable @Positive Long taskId)
             throws ForbiddenException {
         return attachmentService.getAttachmentForTask(user, taskId);
     }

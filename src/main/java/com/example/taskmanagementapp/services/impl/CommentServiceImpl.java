@@ -1,8 +1,8 @@
 package com.example.taskmanagementapp.services.impl;
 
-import com.example.taskmanagementapp.dtos.comment.request.AddCommentDto;
-import com.example.taskmanagementapp.dtos.comment.request.UpdateCommentDto;
-import com.example.taskmanagementapp.dtos.comment.response.CommentDto;
+import com.example.taskmanagementapp.dtos.comment.request.CommentRequest;
+import com.example.taskmanagementapp.dtos.comment.request.UpdateCommentRequest;
+import com.example.taskmanagementapp.dtos.comment.response.CommentResponse;
 import com.example.taskmanagementapp.entities.Comment;
 import com.example.taskmanagementapp.entities.Task;
 import com.example.taskmanagementapp.entities.User;
@@ -29,7 +29,7 @@ public class CommentServiceImpl implements CommentService {
     private final CommentMapper commentMapper;
 
     @Override
-    public CommentDto addComment(User authenticatedUser, AddCommentDto commentDto)
+    public CommentResponse addComment(User authenticatedUser, CommentRequest commentDto)
             throws ForbiddenException {
         Task thisTask = taskRepository.findByIdNotDeleted(
                 commentDto.taskId()).orElseThrow(
@@ -50,8 +50,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentDto updateComment(User authenticatedUser,
-                                    UpdateCommentDto commentDto, Long commentId)
+    public CommentResponse updateComment(User authenticatedUser,
+                                         UpdateCommentRequest commentDto, Long commentId)
             throws ForbiddenException {
         Comment thisComment = commentRepository.findById(commentId).orElseThrow(
                 () -> new EntityNotFoundException("No comment with id " + commentId));
@@ -77,8 +77,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentDto> getAllComments(User authenticatedUser, Long taskId,
-                                           Pageable pageable) throws ForbiddenException {
+    public List<CommentResponse> getAllComments(User authenticatedUser, Long taskId,
+                                                Pageable pageable) throws ForbiddenException {
         Task thisTask = taskRepository.findByIdNotDeleted(
                 taskId).orElseThrow(() -> new EntityNotFoundException(
                 "No active task with id " + taskId));

@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class LabelDto {
+public class LabelResponse {
     private Long id;
     private String name;
     private ColorDto colorDto;

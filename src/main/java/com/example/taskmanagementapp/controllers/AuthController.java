@@ -17,16 +17,16 @@ import static com.example.taskmanagementapp.constants.controllers.AuthController
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.SUCCESSFULLY_REGISTERED;
 
 import com.example.taskmanagementapp.constants.Constants;
+import com.example.taskmanagementapp.dtos.authentication.request.LoginRequest;
 import com.example.taskmanagementapp.dtos.authentication.request.PasswordChangeRequest;
 import com.example.taskmanagementapp.dtos.authentication.request.PasswordResetLinkRequest;
-import com.example.taskmanagementapp.dtos.authentication.request.UserLoginRequestDto;
-import com.example.taskmanagementapp.dtos.authentication.request.UserRegistrationRequestDto;
-import com.example.taskmanagementapp.dtos.authentication.response.ChangePasswordSuccessDto;
-import com.example.taskmanagementapp.dtos.authentication.response.LinkToResetPasswordSuccessDto;
-import com.example.taskmanagementapp.dtos.authentication.response.LoginSuccessDto;
-import com.example.taskmanagementapp.dtos.authentication.response.RegistrationConfirmationSuccessDto;
-import com.example.taskmanagementapp.dtos.authentication.response.RegistrationSuccessDto;
-import com.example.taskmanagementapp.dtos.authentication.response.SendLinkToResetPasswordDto;
+import com.example.taskmanagementapp.dtos.authentication.request.RegistrationRequest;
+import com.example.taskmanagementapp.dtos.authentication.response.LoginResponse;
+import com.example.taskmanagementapp.dtos.authentication.response.PasswordChangeResponse;
+import com.example.taskmanagementapp.dtos.authentication.response.PasswordResetLinkResponse;
+import com.example.taskmanagementapp.dtos.authentication.response.RegistrationConfirmationResponse;
+import com.example.taskmanagementapp.dtos.authentication.response.RegistrationResponse;
+import com.example.taskmanagementapp.dtos.authentication.response.ResetLinkSentResponse;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.LoginException;
 import com.example.taskmanagementapp.exceptions.PasswordMismatchException;
@@ -65,15 +65,15 @@ public class AuthController {
     @ApiResponse(responseCode = CODE_400, description = INVALID_ENTITY_VALUE)
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public RegistrationSuccessDto register(
-            @RequestBody @Valid UserRegistrationRequestDto requestDto)
+    public RegistrationResponse register(
+            @RequestBody @Valid RegistrationRequest requestDto)
                                             throws RegistrationException {
         return authenticationService.register(requestDto);
     }
 
     @Operation(hidden = true)
     @GetMapping("/register-success")
-    public RegistrationConfirmationSuccessDto confirmRegistration(
+    public RegistrationConfirmationResponse confirmRegistration(
             HttpServletRequest httpServletRequest) {
         return authenticationService
                     .confirmRegistration(httpServletRequest);
@@ -84,8 +84,8 @@ public class AuthController {
             SUCCESSFULLY_LOGGED_IN)
     @ApiResponse(responseCode = CODE_400, description = INVALID_ENTITY_VALUE)
     @PostMapping("/login")
-    public LoginSuccessDto login(@RequestBody @Valid UserLoginRequestDto request,
-                                 HttpServletResponse response) throws LoginException {
+    public LoginResponse login(@RequestBody @Valid LoginRequest request,
+                               HttpServletResponse response) throws LoginException {
         return authenticationService.authenticateUser(request, response);
     }
 
@@ -94,7 +94,7 @@ public class AuthController {
             SUCCESSFULLY_INITIATED_PASSWORD_RESET)
     @ApiResponse(responseCode = CODE_400, description = INVALID_ENTITY_VALUE)
     @PostMapping("/forgot-password")
-    public SendLinkToResetPasswordDto initiatePasswordReset(@RequestBody @Valid
+    public PasswordResetLinkResponse initiatePasswordReset(@RequestBody @Valid
                                                                 PasswordResetLinkRequest request)
                                                                         throws LoginException {
         return authenticationService.sendPasswordResetLink(request.emailOrUsername());
@@ -102,7 +102,7 @@ public class AuthController {
 
     @Operation(hidden = true)
     @GetMapping("/reset-password")
-    public LinkToResetPasswordSuccessDto resetPassword(HttpServletRequest httpServletRequest) {
+    public ResetLinkSentResponse resetPassword(HttpServletRequest httpServletRequest) {
         return authenticationService
                 .confirmResetPassword(httpServletRequest);
     }
@@ -114,8 +114,8 @@ public class AuthController {
     @ApiResponse(responseCode = Constants.CODE_401, description = AUTHORIZATION_REQUIRED)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping("/change-password")
-    public ChangePasswordSuccessDto changePassword(@AuthenticationPrincipal User user,
-                                                   @RequestBody @Valid
+    public PasswordChangeResponse changePassword(@AuthenticationPrincipal User user,
+                                                 @RequestBody @Valid
                                                    PasswordChangeRequest request)
                                                     throws PasswordMismatchException {
         return authenticationService.changePassword(user, request);

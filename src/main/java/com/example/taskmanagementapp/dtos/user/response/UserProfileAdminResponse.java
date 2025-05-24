@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UserProfileAdminInfoDto extends UserProfileInfoDto {
+public class UserProfileAdminResponse extends UserProfileResponse {
     private boolean isEnabled;
     private boolean isAccountNonLocked;
 }

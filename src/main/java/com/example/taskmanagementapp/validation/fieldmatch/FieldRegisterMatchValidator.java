@@ -1,13 +1,13 @@
 package com.example.taskmanagementapp.validation.fieldmatch;
 
-import com.example.taskmanagementapp.dtos.authentication.request.UserRegistrationRequestDto;
+import com.example.taskmanagementapp.dtos.authentication.request.RegistrationRequest;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 public class FieldRegisterMatchValidator implements ConstraintValidator<FieldRegisterMatch,
-        UserRegistrationRequestDto> {
+        RegistrationRequest> {
     @Override
-    public boolean isValid(UserRegistrationRequestDto userRegistrationRequestDto,
+    public boolean isValid(RegistrationRequest userRegistrationRequestDto,
                            ConstraintValidatorContext constraintValidatorContext) {
         if (userRegistrationRequestDto.password() == null
                 || userRegistrationRequestDto.repeatPassword() == null) {

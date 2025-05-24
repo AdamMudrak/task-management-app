@@ -21,9 +21,9 @@ import static com.example.taskmanagementapp.constants.controllers.LabelControlle
 import static com.example.taskmanagementapp.constants.controllers.LabelControllerConstants.UPDATE_LABEL_SUMMARY;
 
 import com.example.taskmanagementapp.dtos.comment.request.ColorDto;
-import com.example.taskmanagementapp.dtos.label.request.AddLabelDto;
-import com.example.taskmanagementapp.dtos.label.request.UpdateLabelDto;
-import com.example.taskmanagementapp.dtos.label.response.LabelDto;
+import com.example.taskmanagementapp.dtos.label.request.LabelRequest;
+import com.example.taskmanagementapp.dtos.label.request.UpdateLabelRequest;
+import com.example.taskmanagementapp.dtos.label.response.LabelResponse;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.ForbiddenException;
 import com.example.taskmanagementapp.services.LabelService;
@@ -64,9 +64,9 @@ public class LabelController {
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public LabelDto createLabel(@AuthenticationPrincipal User user,
-                         @RequestParam ColorDto colorDto,
-                         @RequestBody @Valid AddLabelDto addLabelDto) {
+    public LabelResponse createLabel(@AuthenticationPrincipal User user,
+                                     @RequestParam ColorDto colorDto,
+                                     @RequestBody @Valid LabelRequest addLabelDto) {
         return labelService.createLabel(user, colorDto, addLabelDto);
     }
 
@@ -74,10 +74,11 @@ public class LabelController {
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_UPDATED_LABEL)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping("/{labelId}")
-    public LabelDto updateLabel(@AuthenticationPrincipal User user,
-                         @RequestParam(value = "colorDto", required = false) ColorDto colorDto,
-                         @RequestBody @Valid UpdateLabelDto updateLabelDto,
-                         @PathVariable @Positive Long labelId) {
+    public LabelResponse updateLabel(@AuthenticationPrincipal User user,
+                                     @RequestParam(value = "colorDto", required = false)
+                                     ColorDto colorDto,
+                                     @RequestBody @Valid UpdateLabelRequest updateLabelDto,
+                                     @PathVariable @Positive Long labelId) {
         return labelService.updateLabel(user, colorDto, updateLabelDto, labelId);
     }
 
@@ -85,8 +86,8 @@ public class LabelController {
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_GOT_LABEL)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/{labelId}")
-    public LabelDto getLabel(@AuthenticationPrincipal User user,
-                         @PathVariable @Positive Long labelId) {
+    public LabelResponse getLabel(@AuthenticationPrincipal User user,
+                                  @PathVariable @Positive Long labelId) {
         return labelService.getLabelById(user, labelId);
     }
 
@@ -94,8 +95,8 @@ public class LabelController {
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_GOT_LABELS)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping()
-    public List<LabelDto> getLabels(@AuthenticationPrincipal User user,
-                             @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {
+    public List<LabelResponse> getLabels(@AuthenticationPrincipal User user,
+                                         @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {
         return labelService.getAllLabels(user, pageable);
     }
 

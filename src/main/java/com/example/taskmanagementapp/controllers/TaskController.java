@@ -21,11 +21,11 @@ import static com.example.taskmanagementapp.constants.controllers.TaskController
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.TASKS_API_NAME;
 import static com.example.taskmanagementapp.constants.controllers.TaskControllerConstants.UPDATE_TASK_BY_ID;
 
-import com.example.taskmanagementapp.dtos.task.request.CreateTaskDto;
 import com.example.taskmanagementapp.dtos.task.request.TaskPriorityDto;
+import com.example.taskmanagementapp.dtos.task.request.TaskRequest;
 import com.example.taskmanagementapp.dtos.task.request.TaskStatusDto;
-import com.example.taskmanagementapp.dtos.task.request.UpdateTaskDto;
-import com.example.taskmanagementapp.dtos.task.response.TaskDto;
+import com.example.taskmanagementapp.dtos.task.request.UpdateTaskRequest;
+import com.example.taskmanagementapp.dtos.task.response.TaskResponse;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.ForbiddenException;
 import com.example.taskmanagementapp.services.TaskService;
@@ -67,8 +67,8 @@ public class TaskController {
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping
-    public TaskDto createTask(@AuthenticationPrincipal User user,
-                       @RequestBody @Valid CreateTaskDto createTaskDto,
+    public TaskResponse createTask(@AuthenticationPrincipal User user,
+                       @RequestBody @Valid TaskRequest createTaskDto,
                        @RequestParam TaskPriorityDto taskPriorityDto) throws ForbiddenException {
         return taskService.createTask(user, createTaskDto, taskPriorityDto);
     }
@@ -77,9 +77,9 @@ public class TaskController {
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_GET_TASKS_BY_PROJECT_ID)
     @GetMapping("/all-project-tasks/{projectId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public List<TaskDto> getTasksByProjectId(@AuthenticationPrincipal User user,
-                                      @PathVariable @Positive Long projectId,
-                                      @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable)
+    public List<TaskResponse> getTasksByProjectId(@AuthenticationPrincipal User user,
+                                          @PathVariable @Positive Long projectId,
+                                          @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable)
             throws ForbiddenException {
         return taskService.getTasksForProject(user, projectId, pageable);
     }
@@ -88,8 +88,8 @@ public class TaskController {
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_GET_TASK_BY_ID)
     @GetMapping("/{taskId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public TaskDto getTaskById(@AuthenticationPrincipal User user,
-                           @PathVariable Long taskId) throws ForbiddenException {
+    public TaskResponse getTaskById(@AuthenticationPrincipal User user,
+                                    @PathVariable Long taskId) throws ForbiddenException {
         return taskService.getTaskById(user, taskId);
     }
 
@@ -97,12 +97,12 @@ public class TaskController {
     @ApiResponse(responseCode = CODE_200, description = SUCCESSFULLY_UPDATED_TASK_BY_ID)
     @PutMapping("/{taskId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public TaskDto updateTaskById(@AuthenticationPrincipal User user,
-                           @RequestBody @Valid UpdateTaskDto updateTaskDto,
-                           @PathVariable @Positive Long taskId,
-                           @RequestParam(value = "taskStatusDto", required = false)
+    public TaskResponse updateTaskById(@AuthenticationPrincipal User user,
+                                       @RequestBody @Valid UpdateTaskRequest updateTaskDto,
+                                       @PathVariable @Positive Long taskId,
+                                       @RequestParam(value = "taskStatusDto", required = false)
                            TaskStatusDto taskStatusDto,
-                           @RequestParam(value = "taskPriorityDto", required = false)
+                                       @RequestParam(value = "taskPriorityDto", required = false)
                            TaskPriorityDto taskPriorityDto)
                             throws ForbiddenException {
         return taskService.updateTask(user, updateTaskDto, taskId, taskStatusDto, taskPriorityDto);
@@ -122,9 +122,9 @@ public class TaskController {
     @ApiResponse(responseCode = CODE_204, description = SUCCESSFULLY_GET_TASK_BY_LABEL_ID)
     @GetMapping("/with-label/{labelId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public List<TaskDto> getTasksWithLabel(@AuthenticationPrincipal User user,
-                                    @PathVariable @Positive Long labelId,
-                                    @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {
+    public List<TaskResponse> getTasksWithLabel(@AuthenticationPrincipal User user,
+                                        @PathVariable @Positive Long labelId,
+                                        @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {
         return taskService.getTasksWithLabel(user, labelId, pageable);
     }
 }

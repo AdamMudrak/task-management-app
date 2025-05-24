@@ -4,7 +4,7 @@ import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.sharing.CreateSharedLinkWithSettingsErrorException;
 import com.dropbox.core.v2.sharing.ListSharedLinksResult;
-import com.example.taskmanagementapp.dtos.attachment.response.AttachmentDto;
+import com.example.taskmanagementapp.dtos.attachment.response.AttachmentResponse;
 import com.example.taskmanagementapp.entities.Attachment;
 import com.example.taskmanagementapp.entities.Task;
 import com.example.taskmanagementapp.entities.User;
@@ -37,11 +37,9 @@ public class AttachmentServiceImpl implements AttachmentService {
     private final TransliterationUtil transliterationService;
 
     @Override
-    public List<AttachmentDto> uploadAttachmentForTask(User authenticatedUser,
-                                          Long taskId,
-                                          MultipartFile[] uploadFiles) throws ForbiddenException,
-                                                                                    IOException,
-                                                                                    DbxException {
+    public List<AttachmentResponse> uploadAttachmentForTask(User authenticatedUser, Long taskId,
+                                            MultipartFile[] uploadFiles) throws ForbiddenException,
+                                            IOException, DbxException {
         Task task = taskRepository.findByIdNotDeleted(taskId).orElseThrow(
                 () -> new EntityNotFoundException("Active task with id "
                         + taskId + " not found"));
@@ -60,7 +58,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     @Override
-    public List<AttachmentDto> getAttachmentForTask(User authenticatedUser, Long taskId)
+    public List<AttachmentResponse> getAttachmentForTask(User authenticatedUser, Long taskId)
             throws ForbiddenException {
         Task task = taskRepository.findByIdNotDeleted(taskId).orElseThrow(
                 () -> new EntityNotFoundException("Active task with id "

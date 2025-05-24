@@ -15,9 +15,9 @@ import static com.example.taskmanagementapp.constants.controllers.CommentControl
 import static com.example.taskmanagementapp.constants.controllers.CommentControllerConstants.SUCCESSFULLY_UPDATED_COMMENT;
 import static com.example.taskmanagementapp.constants.controllers.CommentControllerConstants.UPDATE_COMMENT_SUMMARY;
 
-import com.example.taskmanagementapp.dtos.comment.request.AddCommentDto;
-import com.example.taskmanagementapp.dtos.comment.request.UpdateCommentDto;
-import com.example.taskmanagementapp.dtos.comment.response.CommentDto;
+import com.example.taskmanagementapp.dtos.comment.request.CommentRequest;
+import com.example.taskmanagementapp.dtos.comment.request.UpdateCommentRequest;
+import com.example.taskmanagementapp.dtos.comment.response.CommentResponse;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.ForbiddenException;
 import com.example.taskmanagementapp.services.CommentService;
@@ -58,8 +58,8 @@ public class CommentController {
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public CommentDto addComment(@AuthenticationPrincipal User user,
-                                 @RequestBody @Valid AddCommentDto addCommentDto)
+    public CommentResponse addComment(@AuthenticationPrincipal User user,
+                                      @RequestBody @Valid CommentRequest addCommentDto)
                                                 throws ForbiddenException {
         return commentService.addComment(user, addCommentDto);
     }
@@ -69,9 +69,9 @@ public class CommentController {
             SUCCESSFULLY_UPDATED_COMMENT)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping("/{commentId}")
-    public CommentDto updateComment(@AuthenticationPrincipal User user,
-                                    @RequestBody @Valid UpdateCommentDto updateCommentDto,
-                                    @PathVariable @Positive Long commentId)
+    public CommentResponse updateComment(@AuthenticationPrincipal User user,
+                                         @RequestBody @Valid UpdateCommentRequest updateCommentDto,
+                                         @PathVariable @Positive Long commentId)
                                                                 throws ForbiddenException {
         return commentService.updateComment(user, updateCommentDto, commentId);
     }
@@ -81,9 +81,9 @@ public class CommentController {
             SUCCESSFULLY_GOT_COMMENTS)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/{taskId}")
-    public List<CommentDto> getCommentsForTask(@AuthenticationPrincipal User user,
-                                               @PathVariable @Positive Long taskId,
-                                               @Parameter(example = PAGEABLE_EXAMPLE)
+    public List<CommentResponse> getCommentsForTask(@AuthenticationPrincipal User user,
+                                                    @PathVariable @Positive Long taskId,
+                                                    @Parameter(example = PAGEABLE_EXAMPLE)
                                                    Pageable pageable) throws ForbiddenException {
         return commentService.getAllComments(user, taskId, pageable);
     }

@@ -1,14 +1,14 @@
 package com.example.taskmanagementapp.services;
 
+import com.example.taskmanagementapp.dtos.authentication.request.LoginRequest;
 import com.example.taskmanagementapp.dtos.authentication.request.PasswordChangeRequest;
-import com.example.taskmanagementapp.dtos.authentication.request.UserLoginRequestDto;
-import com.example.taskmanagementapp.dtos.authentication.request.UserRegistrationRequestDto;
-import com.example.taskmanagementapp.dtos.authentication.response.ChangePasswordSuccessDto;
-import com.example.taskmanagementapp.dtos.authentication.response.LinkToResetPasswordSuccessDto;
-import com.example.taskmanagementapp.dtos.authentication.response.LoginSuccessDto;
-import com.example.taskmanagementapp.dtos.authentication.response.RegistrationConfirmationSuccessDto;
-import com.example.taskmanagementapp.dtos.authentication.response.RegistrationSuccessDto;
-import com.example.taskmanagementapp.dtos.authentication.response.SendLinkToResetPasswordDto;
+import com.example.taskmanagementapp.dtos.authentication.request.RegistrationRequest;
+import com.example.taskmanagementapp.dtos.authentication.response.LoginResponse;
+import com.example.taskmanagementapp.dtos.authentication.response.PasswordChangeResponse;
+import com.example.taskmanagementapp.dtos.authentication.response.PasswordResetLinkResponse;
+import com.example.taskmanagementapp.dtos.authentication.response.RegistrationConfirmationResponse;
+import com.example.taskmanagementapp.dtos.authentication.response.RegistrationResponse;
+import com.example.taskmanagementapp.dtos.authentication.response.ResetLinkSentResponse;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.LoginException;
 import com.example.taskmanagementapp.exceptions.PasswordMismatchException;
@@ -17,19 +17,19 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 public interface AuthenticationService {
-    LoginSuccessDto authenticateUser(UserLoginRequestDto requestDto,
-                                     HttpServletResponse httpServletResponse) throws LoginException;
+    LoginResponse authenticateUser(LoginRequest requestDto,
+                                   HttpServletResponse httpServletResponse) throws LoginException;
 
-    SendLinkToResetPasswordDto sendPasswordResetLink(String emailOrUsername) throws LoginException;
+    PasswordResetLinkResponse sendPasswordResetLink(String emailOrUsername) throws LoginException;
 
-    LinkToResetPasswordSuccessDto confirmResetPassword(HttpServletRequest request);
+    ResetLinkSentResponse confirmResetPassword(HttpServletRequest request);
 
-    ChangePasswordSuccessDto changePassword(User user,
-                                            PasswordChangeRequest userSetNewPasswordRequestDto)
+    PasswordChangeResponse changePassword(User user,
+                                          PasswordChangeRequest userSetNewPasswordRequestDto)
                                                                 throws PasswordMismatchException;
 
-    RegistrationSuccessDto register(UserRegistrationRequestDto requestDto)
+    RegistrationResponse register(RegistrationRequest requestDto)
                                                                     throws RegistrationException;
 
-    RegistrationConfirmationSuccessDto confirmRegistration(HttpServletRequest request);
+    RegistrationConfirmationResponse confirmRegistration(HttpServletRequest request);
 }

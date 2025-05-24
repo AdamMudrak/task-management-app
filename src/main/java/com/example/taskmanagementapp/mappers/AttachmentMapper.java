@@ -1,7 +1,7 @@
 package com.example.taskmanagementapp.mappers;
 
 import com.example.taskmanagementapp.config.MapperConfig;
-import com.example.taskmanagementapp.dtos.attachment.response.AttachmentDto;
+import com.example.taskmanagementapp.dtos.attachment.response.AttachmentResponse;
 import com.example.taskmanagementapp.entities.Attachment;
 import com.example.taskmanagementapp.entities.Task;
 import java.time.LocalDateTime;
@@ -21,7 +21,7 @@ public interface AttachmentMapper {
     }
 
     @Mapping(target = "taskId", source = "task.id")
-    AttachmentDto toAttachmentDto(Attachment attachment);
+    AttachmentResponse toAttachmentDto(Attachment attachment);
 
-    List<AttachmentDto> toAttachmentDtoList(List<Attachment> attachments);
+    List<AttachmentResponse> toAttachmentDtoList(List<Attachment> attachments);
 }

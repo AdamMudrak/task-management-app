@@ -1,3 +1,3 @@
 package com.example.taskmanagementapp.dtos.project.response;
 
-public record AssignEmployeeResponseDto(String response) {}
+public record EmployeeAssignmentResponse(String response) {}

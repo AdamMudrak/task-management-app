@@ -9,21 +9,21 @@ import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDate;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record CreateProjectDto(@Schema(name = "name",
+public record ProjectRequest(@Schema(name = "name",
                                         example = "Best Project",
                                         requiredMode = REQUIRED)
                                @NotBlank
                                String name,
-                               @Schema(name = "description",
+                             @Schema(name = "description",
                                        example = "Project for best company")
                                String description,
-                               @Schema(name = "startDate",
+                             @Schema(name = "startDate",
                                        example = "2025-01-01",
                                        requiredMode = REQUIRED)
                                @NotBlank
                                @Date
                                LocalDate startDate,
-                               @Schema(name = "endDate",
+                             @Schema(name = "endDate",
                                        example = "2025-12-31",
                                        requiredMode = REQUIRED)
                                @NotBlank

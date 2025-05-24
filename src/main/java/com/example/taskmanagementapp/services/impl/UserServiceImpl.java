@@ -1,11 +1,11 @@
 package com.example.taskmanagementapp.services.impl;
 
 import com.example.taskmanagementapp.dtos.role.RoleNameDto;
-import com.example.taskmanagementapp.dtos.user.request.UpdateUserProfileDto;
+import com.example.taskmanagementapp.dtos.user.request.UpdateUserProfileRequest;
 import com.example.taskmanagementapp.dtos.user.request.UserAccountStatusDto;
-import com.example.taskmanagementapp.dtos.user.response.UserProfileAdminInfoDto;
-import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDto;
-import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDtoOnUpdate;
+import com.example.taskmanagementapp.dtos.user.response.UpdateUserProfileResponse;
+import com.example.taskmanagementapp.dtos.user.response.UserProfileAdminResponse;
+import com.example.taskmanagementapp.dtos.user.response.UserProfileResponse;
 import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.EntityNotFoundException;
@@ -38,9 +38,9 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Override
-    public UserProfileInfoDto updateUserRole(Long authenticatedUserId,
-                                             Long employeeId,
-                                             RoleNameDto roleNameDto) throws ForbiddenException {
+    public UserProfileResponse updateUserRole(Long authenticatedUserId,
+                                              Long employeeId,
+                                              RoleNameDto roleNameDto) throws ForbiddenException {
         if (authenticatedUserId.equals(employeeId)) {
             throw new IllegalArgumentException(
                     "To prevent unwanted damage, self-assigning of roles is restricted. "
@@ -58,15 +58,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserProfileInfoDto getProfileInfo(Long authenticatedUserId) {
+    public UserProfileResponse getProfileInfo(Long authenticatedUserId) {
         return userMapper.toUserProfileInfoDto(userRepository.findById(authenticatedUserId)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Employee with id " + authenticatedUserId + " not found")));
     }
 
     @Override
-    public UserProfileInfoDtoOnUpdate updateProfileInfo(Long authenticatedUserId,
-                                                        UpdateUserProfileDto updateUserProfileDto) {
+    public UpdateUserProfileResponse updateProfileInfo(Long authenticatedUserId,
+                                                UpdateUserProfileRequest updateUserProfileDto) {
         User user = userRepository.findById(authenticatedUserId).orElseThrow(
                 () -> new EntityNotFoundException("User with id " + authenticatedUserId
                         + " not found"));
@@ -94,8 +94,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserProfileAdminInfoDto changeStatus(User user, Long disabledUserId,
-                                                UserAccountStatusDto accountStatusDto)
+    public UserProfileAdminResponse changeStatus(User user, Long disabledUserId,
+                                                 UserAccountStatusDto accountStatusDto)
             throws ForbiddenException {
         if (user.getId().equals(disabledUserId)) {
             throw new ForbiddenException("You can not change your own account status");
@@ -120,12 +120,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserProfileInfoDto> getAllUsers(Pageable pageable) {
+    public List<UserProfileResponse> getAllUsers(Pageable pageable) {
         return userRepository.findAll(pageable).map(userMapper::toUserProfileInfoDto).getContent();
     }
 
     @Override
-    public UserProfileInfoDto confirmEmailChange(HttpServletRequest httpServletRequest) {
+    public UserProfileResponse confirmEmailChange(HttpServletRequest httpServletRequest) {
         String token = randomParamFromHttpRequestUtil
                 .parseRandomParameterAndToken(httpServletRequest);
         JwtAbstractUtil jwtActionUtil = jwtStrategy.getStrategy(JwtType.ACTION);

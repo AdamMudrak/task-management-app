@@ -1,9 +1,9 @@
 package com.example.taskmanagementapp.services.impl;
 
 import com.example.taskmanagementapp.dtos.comment.request.ColorDto;
-import com.example.taskmanagementapp.dtos.label.request.AddLabelDto;
-import com.example.taskmanagementapp.dtos.label.request.UpdateLabelDto;
-import com.example.taskmanagementapp.dtos.label.response.LabelDto;
+import com.example.taskmanagementapp.dtos.label.request.LabelRequest;
+import com.example.taskmanagementapp.dtos.label.request.UpdateLabelRequest;
+import com.example.taskmanagementapp.dtos.label.response.LabelResponse;
 import com.example.taskmanagementapp.entities.Label;
 import com.example.taskmanagementapp.entities.Task;
 import com.example.taskmanagementapp.entities.User;
@@ -30,15 +30,15 @@ public class LabelServiceImpl implements LabelService {
     private final LabelMapper labelMapper;
 
     @Override
-    public LabelDto createLabel(User user, ColorDto colorDto, AddLabelDto labelDto) {
+    public LabelResponse createLabel(User user, ColorDto colorDto, LabelRequest labelDto) {
         return labelMapper.toLabelDto(
                 labelRepository.save(
                         labelMapper.toAddLabel(user, labelDto, colorDto)));
     }
 
     @Override
-    public LabelDto updateLabel(User user, ColorDto colorDto,
-                                UpdateLabelDto labelDto, Long labelId) {
+    public LabelResponse updateLabel(User user, ColorDto colorDto,
+                                     UpdateLabelRequest labelDto, Long labelId) {
         Label label = labelRepository.findByIdAndUserId(labelId, user.getId())
                 .orElseThrow(() -> new EntityNotFoundException(
                         "No label with id " + labelId + " for user with id " + user.getId()));
@@ -48,14 +48,14 @@ public class LabelServiceImpl implements LabelService {
     }
 
     @Override
-    public LabelDto getLabelById(User user, Long id) {
+    public LabelResponse getLabelById(User user, Long id) {
         return labelMapper.toLabelDto(labelRepository.findByIdAndUserId(id, user.getId())
                 .orElseThrow(() -> new EntityNotFoundException(
                         "No label with id " + id + " for user with id " + user.getId())));
     }
 
     @Override
-    public List<LabelDto> getAllLabels(User user, Pageable pageable) {
+    public List<LabelResponse> getAllLabels(User user, Pageable pageable) {
         return labelMapper.toLabelDtoList(
                 labelRepository.findAllByUserId(user.getId(), pageable).getContent());
     }

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record UpdateUserProfileDto(
+public record UpdateUserProfileRequest(
         @Schema(name = "firstName",
                 example = "John")
         String firstName,

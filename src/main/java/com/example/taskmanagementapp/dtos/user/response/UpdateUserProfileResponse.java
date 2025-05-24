@@ -5,6 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UserProfileInfoDtoOnUpdate extends UserProfileInfoDto {
+public class UpdateUserProfileResponse extends UserProfileResponse {
     private String message;
 }

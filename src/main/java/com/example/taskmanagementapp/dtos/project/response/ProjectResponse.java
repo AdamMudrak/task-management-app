@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public final class ProjectDto {
+public final class ProjectResponse {
     private Long id;
     private String name;
     private String description;

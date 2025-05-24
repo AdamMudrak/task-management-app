@@ -27,11 +27,11 @@ import static com.example.taskmanagementapp.constants.controllers.ProjectControl
 import static com.example.taskmanagementapp.constants.controllers.ProjectControllerConstants.SUCCESSFULLY_UPDATED_PROJECT_BY_ID;
 import static com.example.taskmanagementapp.constants.controllers.ProjectControllerConstants.UPDATE_PROJECT_BY_ID;
 
-import com.example.taskmanagementapp.dtos.project.request.CreateProjectDto;
+import com.example.taskmanagementapp.dtos.project.request.ProjectRequest;
 import com.example.taskmanagementapp.dtos.project.request.ProjectStatusDto;
-import com.example.taskmanagementapp.dtos.project.request.UpdateProjectDto;
-import com.example.taskmanagementapp.dtos.project.response.AssignEmployeeResponseDto;
-import com.example.taskmanagementapp.dtos.project.response.ProjectDto;
+import com.example.taskmanagementapp.dtos.project.request.UpdateProjectRequest;
+import com.example.taskmanagementapp.dtos.project.response.EmployeeAssignmentResponse;
+import com.example.taskmanagementapp.dtos.project.response.ProjectResponse;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.ConflictException;
 import com.example.taskmanagementapp.exceptions.ForbiddenException;
@@ -77,8 +77,8 @@ public class ProjectController {
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ProjectDto createProject(@AuthenticationPrincipal User user,
-                             @RequestBody @Valid CreateProjectDto createProjectDto) {
+    public ProjectResponse createProject(@AuthenticationPrincipal User user,
+                                         @RequestBody @Valid ProjectRequest createProjectDto) {
         return projectService.createProject(user, createProjectDto);
     }
 
@@ -87,8 +87,8 @@ public class ProjectController {
             SUCCESSFULLY_GET_ALL_ASSIGNED_PROJECTS)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/assigned")
-    public List<ProjectDto> getAssignedProjects(@AuthenticationPrincipal User user,
-                                    @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {
+    public List<ProjectResponse> getAssignedProjects(@AuthenticationPrincipal User user,
+                                         @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {
         return projectService.getAssignedProjects(user.getId(), pageable);
     }
 
@@ -97,8 +97,8 @@ public class ProjectController {
             SUCCESSFULLY_GET_ALL_CREATED_PROJECTS)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/created")
-    public List<ProjectDto> getCreatedProjects(@AuthenticationPrincipal User user,
-                                         @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {
+    public List<ProjectResponse> getCreatedProjects(@AuthenticationPrincipal User user,
+                                        @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {
         return projectService.getCreatedProjects(user.getId(), pageable);
     }
 
@@ -107,7 +107,7 @@ public class ProjectController {
             SUCCESSFULLY_GET_ALL_DELETED_PROJECTS)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/deleted")
-    public List<ProjectDto> getDeletedProjects(@AuthenticationPrincipal User user,
+    public List<ProjectResponse> getDeletedProjects(@AuthenticationPrincipal User user,
                                         @Parameter(example = PAGEABLE_EXAMPLE)Pageable pageable) {
         return projectService.getDeletedCreatedProjects(user.getId(), pageable);
     }
@@ -117,8 +117,8 @@ public class ProjectController {
             SUCCESSFULLY_GET_PROJECT_BY_ID)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/{projectId}")
-    public ProjectDto getProjectById(@AuthenticationPrincipal User user,
-                                       @PathVariable @Positive Long projectId)
+    public ProjectResponse getProjectById(@AuthenticationPrincipal User user,
+                                          @PathVariable @Positive Long projectId)
                                                     throws ForbiddenException {
         return projectService.getProjectById(user, projectId);
     }
@@ -128,10 +128,10 @@ public class ProjectController {
             SUCCESSFULLY_UPDATED_PROJECT_BY_ID)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping("/{projectId}")
-    public ProjectDto updateProjectById(@AuthenticationPrincipal User user,
-                                 @PathVariable @Positive Long projectId,
-                                 @RequestBody @Valid UpdateProjectDto updateProjectDto,
-                                 @RequestParam(value = "projectStatusDto", required = false)
+    public ProjectResponse updateProjectById(@AuthenticationPrincipal User user,
+                                         @PathVariable @Positive Long projectId,
+                                         @RequestBody @Valid UpdateProjectRequest updateProjectDto,
+                                         @RequestParam(value = "projectStatusDto", required = false)
                                  ProjectStatusDto projectStatusDto)
                                     throws ForbiddenException, ConflictException {
         return projectService.updateProjectById(user, projectId,
@@ -153,10 +153,10 @@ public class ProjectController {
             SUCCESSFULLY_ADDED_EMPLOYEE_TO_PROJECT)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping("assign-employee/{projectId}/{employeeId}")
-    public AssignEmployeeResponseDto assignEmployeeToProject(@AuthenticationPrincipal User user,
-                                                      @PathVariable @Positive Long projectId,
-                                                      @PathVariable @Positive Long employeeId,
-                                                      boolean isNewEmployeeManager)
+    public EmployeeAssignmentResponse assignEmployeeToProject(@AuthenticationPrincipal User user,
+                                                          @PathVariable @Positive Long projectId,
+                                                          @PathVariable @Positive Long employeeId,
+                                                          boolean isNewEmployeeManager)
                                                 throws ForbiddenException {
         return projectService.assignEmployeeToProject(user, projectId,
                 employeeId, isNewEmployeeManager);
@@ -164,7 +164,7 @@ public class ProjectController {
 
     @Operation(hidden = true)
     @GetMapping("/accept-invite")
-    public ProjectDto acceptInvite(HttpServletRequest request) {
+    public ProjectResponse acceptInvite(HttpServletRequest request) {
         return projectService.acceptAssignmentToProject(request);
     }
 
@@ -173,9 +173,9 @@ public class ProjectController {
             SUCCESSFULLY_DELETED_EMPLOYEE_FROM_PROJECT)
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping("remove-employee/{projectId}/{employeeId}")
-    public ProjectDto removeEmployeeFromProject(@AuthenticationPrincipal User user,
-                                 @PathVariable @Positive Long projectId,
-                                 @PathVariable @Positive Long employeeId)
+    public ProjectResponse removeEmployeeFromProject(@AuthenticationPrincipal User user,
+                                                     @PathVariable @Positive Long projectId,
+                                                     @PathVariable @Positive Long employeeId)
                                                 throws ForbiddenException {
         return projectService.removeEmployeeFromProject(user, projectId, employeeId);
     }

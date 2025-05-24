@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import java.time.LocalDate;
 
-public record CreateTaskDto(
+public record TaskRequest(
         @Schema(name = "name",
                 example = "Project Omega",
                 requiredMode = REQUIRED)

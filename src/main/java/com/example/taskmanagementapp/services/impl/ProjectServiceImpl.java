@@ -4,11 +4,11 @@ import static com.example.taskmanagementapp.constants.Constants.FIRST_POSITION;
 import static com.example.taskmanagementapp.constants.Constants.SECOND_POSITION;
 import static com.example.taskmanagementapp.constants.Constants.THIRD_POSITION;
 
-import com.example.taskmanagementapp.dtos.project.request.CreateProjectDto;
+import com.example.taskmanagementapp.dtos.project.request.ProjectRequest;
 import com.example.taskmanagementapp.dtos.project.request.ProjectStatusDto;
-import com.example.taskmanagementapp.dtos.project.request.UpdateProjectDto;
-import com.example.taskmanagementapp.dtos.project.response.AssignEmployeeResponseDto;
-import com.example.taskmanagementapp.dtos.project.response.ProjectDto;
+import com.example.taskmanagementapp.dtos.project.request.UpdateProjectRequest;
+import com.example.taskmanagementapp.dtos.project.response.EmployeeAssignmentResponse;
+import com.example.taskmanagementapp.dtos.project.response.ProjectResponse;
 import com.example.taskmanagementapp.entities.ActionToken;
 import com.example.taskmanagementapp.entities.Project;
 import com.example.taskmanagementapp.entities.User;
@@ -51,36 +51,36 @@ public class ProjectServiceImpl implements ProjectService {
     private final ActionTokenRepository actionTokenRepository;
 
     @Override
-    public ProjectDto createProject(User user,
-                                    CreateProjectDto createProjectDto) {
+    public ProjectResponse createProject(User user,
+                                         ProjectRequest createProjectDto) {
         return projectMapper.toProjectDto(
                 projectRepository.save(projectMapper.toCreateProject(createProjectDto, user)));
     }
 
     @Override
-    public List<ProjectDto> getAssignedProjects(Long userId, Pageable pageable) {
+    public List<ProjectResponse> getAssignedProjects(Long userId, Pageable pageable) {
         return projectMapper.toProjectDtoList(
                 projectRepository.findAllByEmployeeId(userId, pageable)
                         .getContent());
     }
 
     @Override
-    public List<ProjectDto> getCreatedProjects(Long userId, Pageable pageable) {
+    public List<ProjectResponse> getCreatedProjects(Long userId, Pageable pageable) {
         return projectMapper.toProjectDtoList(
                         projectRepository.findAllByOwnerId(userId, pageable)
                                 .getContent());
     }
 
     @Override
-    public List<ProjectDto> getDeletedCreatedProjects(Long userId, Pageable pageable) {
+    public List<ProjectResponse> getDeletedCreatedProjects(Long userId, Pageable pageable) {
         return projectMapper.toProjectDtoList(
                 projectRepository.findAllByOwnerIdDeleted(userId, pageable)
                         .getContent());
     }
 
     @Override
-    public ProjectDto getProjectById(User user,
-                                     Long projectId) throws ForbiddenException {
+    public ProjectResponse getProjectById(User user,
+                                          Long projectId) throws ForbiddenException {
         Project project = projectRepository.findByIdNotDeleted(projectId).orElseThrow(
                 () -> new EntityNotFoundException("No active project with id " + projectId));
         if (projectRepository.isUserEmployee(projectId, user.getId())
@@ -92,10 +92,10 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public ProjectDto updateProjectById(User user,
-                                        Long projectId,
-                                        UpdateProjectDto updateProjectDto,
-                                        ProjectStatusDto projectStatusDto)
+    public ProjectResponse updateProjectById(User user,
+                                             Long projectId,
+                                             UpdateProjectRequest updateProjectDto,
+                                             ProjectStatusDto projectStatusDto)
                                         throws ForbiddenException, ConflictException {
         Project project = projectRepository.findByIdNotDeleted(projectId).orElseThrow(
                 () -> new EntityNotFoundException("No active project with id " + projectId));
@@ -131,10 +131,10 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public AssignEmployeeResponseDto assignEmployeeToProject(User user,
-                                                             Long projectId,
-                                                             Long employeeId,
-                                                             boolean isNewEmployeeManager)
+    public EmployeeAssignmentResponse assignEmployeeToProject(User user,
+                                                              Long projectId,
+                                                              Long employeeId,
+                                                              boolean isNewEmployeeManager)
                                                         throws ForbiddenException {
         Project project = projectRepository.findByIdNotDeleted(projectId).orElseThrow(
                 () -> new EntityNotFoundException("No active project with id " + projectId));
@@ -150,7 +150,7 @@ public class ProjectServiceImpl implements ProjectService {
             actionTokenRepository.save(actionToken);
             emailService.sendChangeEmail(user.getEmail(), newEmployee.getEmail(),
                     project.getName(), actionToken.getActionToken());
-            return new AssignEmployeeResponseDto("Employee " + employeeId
+            return new EmployeeAssignmentResponse("Employee " + employeeId
                     + " has been invited to project " + projectId);
         } else {
             throw new ForbiddenException(
@@ -160,7 +160,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public ProjectDto acceptAssignmentToProject(HttpServletRequest request) {
+    public ProjectResponse acceptAssignmentToProject(HttpServletRequest request) {
         String token = paramFromHttpRequestUtil.parseRandomParameterAndToken(request);
         JwtAbstractUtil jwtActionUtil = jwtStrategy.getStrategy(JwtType.ACTION);
         jwtActionUtil.isValidToken(token);
@@ -193,9 +193,9 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public ProjectDto removeEmployeeFromProject(User user,
-                                          Long projectId,
-                                          Long employeeId) throws ForbiddenException {
+    public ProjectResponse removeEmployeeFromProject(User user,
+                                                     Long projectId,
+                                                     Long employeeId) throws ForbiddenException {
         Project project = projectRepository.findByIdNotDeleted(projectId).orElseThrow(
                 () -> new EntityNotFoundException("No active project with id " + projectId));
         if (projectRepository.isUserManager(projectId, user.getId())
@@ -221,7 +221,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     private void updatePresentField(Long currentUserId,
                                     Project project,
-                                    UpdateProjectDto updateProjectDto,
+                                    UpdateProjectRequest updateProjectDto,
                                     ProjectStatusDto projectStatusDto,
                                     List<ConflictException> exceptions) {
         if (updateProjectDto.name() != null

@@ -1,11 +1,11 @@
 package com.example.taskmanagementapp.services;
 
 import com.example.taskmanagementapp.dtos.role.RoleNameDto;
-import com.example.taskmanagementapp.dtos.user.request.UpdateUserProfileDto;
+import com.example.taskmanagementapp.dtos.user.request.UpdateUserProfileRequest;
 import com.example.taskmanagementapp.dtos.user.request.UserAccountStatusDto;
-import com.example.taskmanagementapp.dtos.user.response.UserProfileAdminInfoDto;
-import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDto;
-import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDtoOnUpdate;
+import com.example.taskmanagementapp.dtos.user.response.UpdateUserProfileResponse;
+import com.example.taskmanagementapp.dtos.user.response.UserProfileAdminResponse;
+import com.example.taskmanagementapp.dtos.user.response.UserProfileResponse;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.ForbiddenException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,20 +13,20 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 
 public interface UserService {
-    UserProfileInfoDto updateUserRole(Long authenticatedUserId,
-                                      Long employeeId,
-                                      RoleNameDto roleNameDto) throws ForbiddenException;
+    UserProfileResponse updateUserRole(Long authenticatedUserId,
+                                       Long employeeId,
+                                       RoleNameDto roleNameDto) throws ForbiddenException;
 
-    UserProfileInfoDto getProfileInfo(Long authenticatedUserId);
+    UserProfileResponse getProfileInfo(Long authenticatedUserId);
 
-    UserProfileInfoDtoOnUpdate updateProfileInfo(Long authenticatedUserId,
-                                                 UpdateUserProfileDto updateUserProfileDto);
+    UpdateUserProfileResponse updateProfileInfo(Long authenticatedUserId,
+                                                UpdateUserProfileRequest updateUserProfileDto);
 
-    UserProfileAdminInfoDto changeStatus(User user, Long disabledUserId,
-                                         UserAccountStatusDto accountStatusDto)
+    UserProfileAdminResponse changeStatus(User user, Long disabledUserId,
+                                          UserAccountStatusDto accountStatusDto)
             throws ForbiddenException;
 
-    List<UserProfileInfoDto> getAllUsers(Pageable pageable);
+    List<UserProfileResponse> getAllUsers(Pageable pageable);
 
-    UserProfileInfoDto confirmEmailChange(HttpServletRequest httpServletRequest);
+    UserProfileResponse confirmEmailChange(HttpServletRequest httpServletRequest);
 }

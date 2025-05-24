@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record AddCommentDto(
+public record CommentRequest(
         @Schema(name = "taskId",
                 example = "1",
                 requiredMode = REQUIRED)

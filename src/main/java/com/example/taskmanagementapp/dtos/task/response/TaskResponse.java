@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class TaskDto {
+public class TaskResponse {
     private Long id;
     private String name;
     private String description;

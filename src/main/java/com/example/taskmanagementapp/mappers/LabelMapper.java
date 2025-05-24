@@ -2,9 +2,9 @@ package com.example.taskmanagementapp.mappers;
 
 import com.example.taskmanagementapp.config.MapperConfig;
 import com.example.taskmanagementapp.dtos.comment.request.ColorDto;
-import com.example.taskmanagementapp.dtos.label.request.AddLabelDto;
-import com.example.taskmanagementapp.dtos.label.request.UpdateLabelDto;
-import com.example.taskmanagementapp.dtos.label.response.LabelDto;
+import com.example.taskmanagementapp.dtos.label.request.LabelRequest;
+import com.example.taskmanagementapp.dtos.label.request.UpdateLabelRequest;
+import com.example.taskmanagementapp.dtos.label.response.LabelResponse;
 import com.example.taskmanagementapp.entities.Label;
 import com.example.taskmanagementapp.entities.Task;
 import com.example.taskmanagementapp.entities.User;
@@ -15,7 +15,7 @@ import org.mapstruct.Mapper;
 
 @Mapper(config = MapperConfig.class)
 public interface LabelMapper {
-    default Label toAddLabel(User user, AddLabelDto addLabelDto, ColorDto colorDto) {
+    default Label toAddLabel(User user, LabelRequest addLabelDto, ColorDto colorDto) {
         Label label = new Label();
         label.setUser(user);
         label.setName(addLabelDto.name());
@@ -23,7 +23,8 @@ public interface LabelMapper {
         return label;
     }
 
-    default Label toUpdateLabel(Label thisLabel, UpdateLabelDto updateLabelDto, ColorDto colorDto) {
+    default Label toUpdateLabel(Label thisLabel,
+                                UpdateLabelRequest updateLabelDto, ColorDto colorDto) {
         if (updateLabelDto.name() != null
                 && !updateLabelDto.name().isBlank()) {
             thisLabel.setName(updateLabelDto.name());
@@ -34,8 +35,8 @@ public interface LabelMapper {
         return thisLabel;
     }
 
-    default LabelDto toLabelDto(Label label) {
-        LabelDto labelDto = new LabelDto();
+    default LabelResponse toLabelDto(Label label) {
+        LabelResponse labelDto = new LabelResponse();
         labelDto.setId(label.getId());
         labelDto.setName(label.getName());
         labelDto.setColorDto(ColorDto.valueOf(label.getColor().name()));
@@ -50,5 +51,5 @@ public interface LabelMapper {
                 .collect(Collectors.toSet());
     }
 
-    List<LabelDto> toLabelDtoList(List<Label> labels);
+    List<LabelResponse> toLabelDtoList(List<Label> labels);
 }

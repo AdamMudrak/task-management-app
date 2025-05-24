@@ -13,15 +13,15 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 import static com.example.taskmanagementapp.constants.validation.ValidationConstants.COMPILED_EMAIL_PATTERN;
 
 import com.example.taskmanagementapp.dtos.authentication.TokenBearerDto;
+import com.example.taskmanagementapp.dtos.authentication.request.LoginRequest;
 import com.example.taskmanagementapp.dtos.authentication.request.PasswordChangeRequest;
-import com.example.taskmanagementapp.dtos.authentication.request.UserLoginRequestDto;
-import com.example.taskmanagementapp.dtos.authentication.request.UserRegistrationRequestDto;
-import com.example.taskmanagementapp.dtos.authentication.response.ChangePasswordSuccessDto;
-import com.example.taskmanagementapp.dtos.authentication.response.LinkToResetPasswordSuccessDto;
-import com.example.taskmanagementapp.dtos.authentication.response.LoginSuccessDto;
-import com.example.taskmanagementapp.dtos.authentication.response.RegistrationConfirmationSuccessDto;
-import com.example.taskmanagementapp.dtos.authentication.response.RegistrationSuccessDto;
-import com.example.taskmanagementapp.dtos.authentication.response.SendLinkToResetPasswordDto;
+import com.example.taskmanagementapp.dtos.authentication.request.RegistrationRequest;
+import com.example.taskmanagementapp.dtos.authentication.response.LoginResponse;
+import com.example.taskmanagementapp.dtos.authentication.response.PasswordChangeResponse;
+import com.example.taskmanagementapp.dtos.authentication.response.PasswordResetLinkResponse;
+import com.example.taskmanagementapp.dtos.authentication.response.RegistrationConfirmationResponse;
+import com.example.taskmanagementapp.dtos.authentication.response.RegistrationResponse;
+import com.example.taskmanagementapp.dtos.authentication.response.ResetLinkSentResponse;
 import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.EntityNotFoundException;
@@ -72,8 +72,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private Long refreshExpiration;
 
     @Override
-    public LoginSuccessDto authenticateUser(UserLoginRequestDto requestDto,
-                                            HttpServletResponse httpServletResponse)
+    public LoginResponse authenticateUser(LoginRequest requestDto,
+                                          HttpServletResponse httpServletResponse)
                                                                             throws LoginException {
         TokenBearerDto tokenBearer;
         if (COMPILED_EMAIL_PATTERN.matcher(requestDto.emailOrUsername()).matches()) {
@@ -85,7 +85,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public SendLinkToResetPasswordDto sendPasswordResetLink(String emailOrUsername)
+    public PasswordResetLinkResponse sendPasswordResetLink(String emailOrUsername)
             throws LoginException {
         User currentUser;
         if (COMPILED_EMAIL_PATTERN.matcher(emailOrUsername).matches()) {
@@ -101,11 +101,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
         isEnabled(currentUser);
         passwordEmailService.sendActionMessage(currentUser.getEmail(), RequestType.PASSWORD_RESET);
-        return new SendLinkToResetPasswordDto(SEND_LINK_TO_RESET_PASSWORD);
+        return new PasswordResetLinkResponse(SEND_LINK_TO_RESET_PASSWORD);
     }
 
     @Override
-    public LinkToResetPasswordSuccessDto confirmResetPassword(HttpServletRequest request) {
+    public ResetLinkSentResponse confirmResetPassword(HttpServletRequest request) {
         String token = paramFromHttpRequestUtil.parseRandomParameterAndToken(request);
 
         JwtAbstractUtil jwtAbstractUtil = jwtStrategy.getStrategy(JwtType.ACTION);
@@ -125,12 +125,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setPassword(passwordEncoder.encode(randomPassword));
         userRepository.save(user);
         passwordEmailService.sendResetPassword(email, randomPassword);
-        return new LinkToResetPasswordSuccessDto(CHECK_YOUR_EMAIL);
+        return new ResetLinkSentResponse(CHECK_YOUR_EMAIL);
     }
 
     @Override
-    public ChangePasswordSuccessDto changePassword(User user,
-                                               PasswordChangeRequest userSetNewPasswordRequestDto)
+    public PasswordChangeResponse changePassword(User user,
+                                                 PasswordChangeRequest userSetNewPasswordRequestDto)
             throws PasswordMismatchException {
         if (!isCurrentPasswordValid(user, userSetNewPasswordRequestDto)) {
             throw new PasswordMismatchException("Wrong password. Try resetting "
@@ -139,11 +139,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setPassword(passwordEncoder
                 .encode(userSetNewPasswordRequestDto.newPassword()));
         userRepository.save(user);
-        return new ChangePasswordSuccessDto(PASSWORD_SET_SUCCESSFULLY);
+        return new PasswordChangeResponse(PASSWORD_SET_SUCCESSFULLY);
     }
 
     @Override
-    public RegistrationSuccessDto register(UserRegistrationRequestDto requestDto)
+    public RegistrationResponse register(RegistrationRequest requestDto)
             throws RegistrationException {
         if (userRepository.existsByUsername(requestDto.username())) {
             throw new RegistrationException("User with username "
@@ -161,11 +161,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         userRepository.save(user);
         passwordEmailService.sendActionMessage(user.getEmail(),
                 RequestType.REGISTRATION_CONFIRMATION);
-        return new RegistrationSuccessDto(REGISTERED);
+        return new RegistrationResponse(REGISTERED);
     }
 
     @Override
-    public RegistrationConfirmationSuccessDto confirmRegistration(HttpServletRequest request) {
+    public RegistrationConfirmationResponse confirmRegistration(HttpServletRequest request) {
         String token = paramFromHttpRequestUtil.parseRandomParameterAndToken(request);
         JwtAbstractUtil jwtAbstractUtil = jwtStrategy.getStrategy(JwtType.ACTION);
         String email = jwtAbstractUtil.getUsername(token);
@@ -174,16 +174,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         + email + " was not found"));
         user.setEnabled(true);
         userRepository.save(user);
-        return new RegistrationConfirmationSuccessDto(REGISTRATION_CONFIRMED);
+        return new RegistrationConfirmationResponse(REGISTRATION_CONFIRMED);
     }
 
-    private TokenBearerDto authenticateEmail(UserLoginRequestDto requestDto) throws LoginException {
+    private TokenBearerDto authenticateEmail(LoginRequest requestDto) throws LoginException {
         User currentUser = getIfExistsByEmail(requestDto.emailOrUsername());
         isEnabled(currentUser);
         return getTokens(currentUser.getUsername(), requestDto.password());
     }
 
-    private TokenBearerDto authenticateUsername(UserLoginRequestDto requestDto)
+    private TokenBearerDto authenticateUsername(LoginRequest requestDto)
             throws LoginException {
         User currentUser = getIfExistsByUsername(requestDto.emailOrUsername());
         isEnabled(currentUser);
@@ -242,8 +242,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return new TokenBearerDto(accessToken, refreshToken);
     }
 
-    private LoginSuccessDto addTokensToCookies(TokenBearerDto tokenBearerDto,
-                                                    HttpServletResponse httpServletResponse) {
+    private LoginResponse addTokensToCookies(TokenBearerDto tokenBearerDto,
+                                             HttpServletResponse httpServletResponse) {
         String accessCookie = "accessToken" + "=" + tokenBearerDto.accessToken()
                 + "; Path=/"
                 + "; HttpOnly"
@@ -259,6 +259,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 + "; SameSite=Strict"
                 + "; Max-Age=" + refreshExpiration / DIVIDER;
         httpServletResponse.addHeader("Set-Cookie", refreshCookie);
-        return new LoginSuccessDto(LOGIN_SUCCESS);
+        return new LoginResponse(LOGIN_SUCCESS);
     }
 }

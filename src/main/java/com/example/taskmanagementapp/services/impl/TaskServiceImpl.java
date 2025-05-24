@@ -1,10 +1,10 @@
 package com.example.taskmanagementapp.services.impl;
 
-import com.example.taskmanagementapp.dtos.task.request.CreateTaskDto;
 import com.example.taskmanagementapp.dtos.task.request.TaskPriorityDto;
+import com.example.taskmanagementapp.dtos.task.request.TaskRequest;
 import com.example.taskmanagementapp.dtos.task.request.TaskStatusDto;
-import com.example.taskmanagementapp.dtos.task.request.UpdateTaskDto;
-import com.example.taskmanagementapp.dtos.task.response.TaskDto;
+import com.example.taskmanagementapp.dtos.task.request.UpdateTaskRequest;
+import com.example.taskmanagementapp.dtos.task.response.TaskResponse;
 import com.example.taskmanagementapp.entities.Project;
 import com.example.taskmanagementapp.entities.Task;
 import com.example.taskmanagementapp.entities.User;
@@ -37,9 +37,9 @@ public class TaskServiceImpl implements TaskService {
     private final TaskAssignmentEmailService taskAssignmentEmailService;
 
     @Override
-    public TaskDto createTask(User authenticatedUser,
-                              CreateTaskDto createTaskDto,
-                              TaskPriorityDto taskPriorityDto) throws ForbiddenException {
+    public TaskResponse createTask(User authenticatedUser,
+                                   TaskRequest createTaskDto,
+                                   TaskPriorityDto taskPriorityDto) throws ForbiddenException {
         Long projectId = createTaskDto.projectId();
         Long assigneeId = createTaskDto.assigneeId();
 
@@ -73,9 +73,9 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskDto> getTasksForProject(User authenticatedUser,
-                                            Long projectId,
-                                            Pageable pageable)
+    public List<TaskResponse> getTasksForProject(User authenticatedUser,
+                                                 Long projectId,
+                                                 Pageable pageable)
             throws ForbiddenException {
         if (!projectRepository.existsByIdNotDeleted(projectId)) {
             throw new EntityNotFoundException("No active project with id " + projectId);
@@ -91,7 +91,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TaskDto getTaskById(User authenticatedUser, Long taskId) throws ForbiddenException {
+    public TaskResponse getTaskById(User authenticatedUser, Long taskId) throws ForbiddenException {
         Task task = taskRepository.findByIdNotDeleted(taskId).orElseThrow(
                 () -> new EntityNotFoundException("No active task with id " + taskId));
         Long thisTaskProjectId = task.getProject().getId();
@@ -106,8 +106,9 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TaskDto updateTask(User authenticatedUser, UpdateTaskDto updateTaskDto, Long taskId,
-                              TaskStatusDto taskStatusDto, TaskPriorityDto taskPriorityDto)
+    public TaskResponse updateTask(User authenticatedUser,
+                                   UpdateTaskRequest updateTaskDto, Long taskId,
+                                   TaskStatusDto taskStatusDto, TaskPriorityDto taskPriorityDto)
             throws ForbiddenException {
         Task task = taskRepository.findByIdNotDeleted(taskId).orElseThrow(
                 () -> new EntityNotFoundException("No active task with id " + taskId));
@@ -139,7 +140,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskDto> getTasksWithLabel(User user, Long labelId, Pageable pageable) {
+    public List<TaskResponse> getTasksWithLabel(User user, Long labelId, Pageable pageable) {
         if (labelRepository.existsByIdAndUserId(labelId, user.getId())) {
             return taskMapper.toTaskDtoList(
                     taskRepository.findAllByLabelIdNonDeleted(labelId, pageable).getContent());
@@ -151,7 +152,7 @@ public class TaskServiceImpl implements TaskService {
 
     private void updatePresentField(User authenticatedUser,
                                     Task task,
-                                    UpdateTaskDto updateTaskDto,
+                                    UpdateTaskRequest updateTaskDto,
                                     TaskStatusDto taskStatusDto,
                                     TaskPriorityDto taskPriorityDto) throws ForbiddenException {
         if (updateTaskDto.name() != null
