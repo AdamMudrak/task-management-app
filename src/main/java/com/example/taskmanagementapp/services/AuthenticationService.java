@@ -1,6 +1,6 @@
 package com.example.taskmanagementapp.services;
 
-import com.example.taskmanagementapp.dtos.authentication.request.SetNewPasswordDto;
+import com.example.taskmanagementapp.dtos.authentication.request.PasswordChangeRequest;
 import com.example.taskmanagementapp.dtos.authentication.request.UserLoginRequestDto;
 import com.example.taskmanagementapp.dtos.authentication.request.UserRegistrationRequestDto;
 import com.example.taskmanagementapp.dtos.authentication.response.ChangePasswordSuccessDto;
@@ -25,7 +25,7 @@ public interface AuthenticationService {
     LinkToResetPasswordSuccessDto confirmResetPassword(HttpServletRequest request);
 
     ChangePasswordSuccessDto changePassword(User user,
-                                            SetNewPasswordDto userSetNewPasswordRequestDto)
+                                            PasswordChangeRequest userSetNewPasswordRequestDto)
                                                                 throws PasswordMismatchException;
 
     RegistrationSuccessDto register(UserRegistrationRequestDto requestDto)

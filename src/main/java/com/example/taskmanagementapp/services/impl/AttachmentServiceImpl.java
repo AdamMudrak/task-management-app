@@ -1,8 +1,5 @@
 package com.example.taskmanagementapp.services.impl;
 
-import static com.example.taskmanagementapp.constants.services.attachment.AttachmentServiceConstants.PATH_SPLITERATOR;
-import static com.example.taskmanagementapp.constants.services.attachment.AttachmentServiceConstants.TASK_PATH;
-
 import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.sharing.CreateSharedLinkWithSettingsErrorException;
@@ -98,8 +95,8 @@ public class AttachmentServiceImpl implements AttachmentService {
         if (projectRepository.isUserOwner(thisTaskProjectId, thisUserId)
                 || projectRepository.isUserEmployee(thisTaskProjectId, thisUserId)
                 || projectRepository.isUserManager(thisTaskProjectId, thisUserId)) {
-            client.files().deleteV2(TASK_PATH + task.getId()
-                    + PATH_SPLITERATOR + attachment.getFileName());
+            client.files().deleteV2("/task" + task.getId()
+                    + "/" + attachment.getFileName());
             attachmentRepository.deleteById(attachmentId);
         } else {
             throw new ForbiddenException("You have no permission to delete attachment from task "
@@ -114,11 +111,11 @@ public class AttachmentServiceImpl implements AttachmentService {
             String fileName = transliterationService
                     .transliterate(uploadFile.getOriginalFilename());
             try (InputStream stream = uploadFile.getInputStream()) {
-                client.files().uploadBuilder(TASK_PATH + task.getId() + PATH_SPLITERATOR
+                client.files().uploadBuilder("/task" + task.getId() + "/"
                         + fileName).uploadAndFinish(stream);
             }
             String sharedLink = makeDropboxLinkToRawFile(getOrCreateSharedLink(client,
-                    TASK_PATH + task.getId() + PATH_SPLITERATOR + fileName));
+                    "/task" + task.getId() + "/" + fileName));
             Attachment thisAttachment = attachmentMapper.toAttachment(
                     task, sharedLink, fileName);
             attachments.add(thisAttachment);

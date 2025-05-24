@@ -2,7 +2,6 @@ package com.example.taskmanagementapp.dtos.comment.request;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
-import com.example.taskmanagementapp.constants.dtos.CommentDtoConstants;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -11,14 +10,14 @@ import jakarta.validation.constraints.Positive;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record AddCommentDto(
-        @Schema(name = CommentDtoConstants.TASK_ID,
-                example = CommentDtoConstants.TASK_ID_EXAMPLE,
+        @Schema(name = "taskId",
+                example = "1",
                 requiredMode = REQUIRED)
         @Positive
         @NotNull
         Long taskId,
         @NotBlank
-        @Schema(name = CommentDtoConstants.TEXT,
-                example = CommentDtoConstants.TEXT_EXAMPLE,
+        @Schema(name = "text",
+                example = "This task should be done using...",
                 requiredMode = REQUIRED)
         String text) {}

@@ -10,10 +10,10 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.REGISTERED_BUT_NOT_ACTIVATED;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.REGISTRATION_CONFIRMED;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.SEND_LINK_TO_RESET_PASSWORD;
-import static com.example.taskmanagementapp.constants.validation.ValidationConstants.COMPILED_PATTERN;
+import static com.example.taskmanagementapp.constants.validation.ValidationConstants.COMPILED_EMAIL_PATTERN;
 
 import com.example.taskmanagementapp.dtos.authentication.TokenBearerDto;
-import com.example.taskmanagementapp.dtos.authentication.request.SetNewPasswordDto;
+import com.example.taskmanagementapp.dtos.authentication.request.PasswordChangeRequest;
 import com.example.taskmanagementapp.dtos.authentication.request.UserLoginRequestDto;
 import com.example.taskmanagementapp.dtos.authentication.request.UserRegistrationRequestDto;
 import com.example.taskmanagementapp.dtos.authentication.response.ChangePasswordSuccessDto;
@@ -76,7 +76,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                                             HttpServletResponse httpServletResponse)
                                                                             throws LoginException {
         TokenBearerDto tokenBearer;
-        if (COMPILED_PATTERN.matcher(requestDto.emailOrUsername()).matches()) {
+        if (COMPILED_EMAIL_PATTERN.matcher(requestDto.emailOrUsername()).matches()) {
             tokenBearer = authenticateEmail(requestDto);
         } else {
             tokenBearer = authenticateUsername(requestDto);
@@ -88,7 +88,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public SendLinkToResetPasswordDto sendPasswordResetLink(String emailOrUsername)
             throws LoginException {
         User currentUser;
-        if (COMPILED_PATTERN.matcher(emailOrUsername).matches()) {
+        if (COMPILED_EMAIL_PATTERN.matcher(emailOrUsername).matches()) {
             currentUser = userRepository.findByEmail(emailOrUsername)
                     .orElseThrow(
                             () -> new EntityNotFoundException("No user with email "
@@ -130,7 +130,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public ChangePasswordSuccessDto changePassword(User user,
-                                                   SetNewPasswordDto userSetNewPasswordRequestDto)
+                                               PasswordChangeRequest userSetNewPasswordRequestDto)
             throws PasswordMismatchException {
         if (!isCurrentPasswordValid(user, userSetNewPasswordRequestDto)) {
             throw new PasswordMismatchException("Wrong password. Try resetting "
@@ -196,7 +196,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     private boolean isCurrentPasswordValid(User user,
-                                           SetNewPasswordDto userSetNewPasswordRequestDto) {
+                                           PasswordChangeRequest userSetNewPasswordRequestDto) {
         return passwordEncoder
                 .matches(userSetNewPasswordRequestDto.currentPassword(), user.getPassword());
     }

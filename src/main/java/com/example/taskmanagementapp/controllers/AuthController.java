@@ -17,8 +17,8 @@ import static com.example.taskmanagementapp.constants.controllers.AuthController
 import static com.example.taskmanagementapp.constants.controllers.AuthControllerConstants.SUCCESSFULLY_REGISTERED;
 
 import com.example.taskmanagementapp.constants.Constants;
-import com.example.taskmanagementapp.dtos.authentication.request.GetLinkToResetPasswordDto;
-import com.example.taskmanagementapp.dtos.authentication.request.SetNewPasswordDto;
+import com.example.taskmanagementapp.dtos.authentication.request.PasswordChangeRequest;
+import com.example.taskmanagementapp.dtos.authentication.request.PasswordResetLinkRequest;
 import com.example.taskmanagementapp.dtos.authentication.request.UserLoginRequestDto;
 import com.example.taskmanagementapp.dtos.authentication.request.UserRegistrationRequestDto;
 import com.example.taskmanagementapp.dtos.authentication.response.ChangePasswordSuccessDto;
@@ -95,7 +95,7 @@ public class AuthController {
     @ApiResponse(responseCode = CODE_400, description = INVALID_ENTITY_VALUE)
     @PostMapping("/forgot-password")
     public SendLinkToResetPasswordDto initiatePasswordReset(@RequestBody @Valid
-                                                                GetLinkToResetPasswordDto request)
+                                                                PasswordResetLinkRequest request)
                                                                         throws LoginException {
         return authenticationService.sendPasswordResetLink(request.emailOrUsername());
     }
@@ -115,8 +115,9 @@ public class AuthController {
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping("/change-password")
     public ChangePasswordSuccessDto changePassword(@AuthenticationPrincipal User user,
-                                                   @RequestBody @Valid SetNewPasswordDto request)
-                                                                throws PasswordMismatchException {
+                                                   @RequestBody @Valid
+                                                   PasswordChangeRequest request)
+                                                    throws PasswordMismatchException {
         return authenticationService.changePassword(user, request);
     }
 }

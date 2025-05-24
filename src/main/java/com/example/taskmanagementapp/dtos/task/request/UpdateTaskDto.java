@@ -1,26 +1,25 @@
 package com.example.taskmanagementapp.dtos.task.request;
 
-import com.example.taskmanagementapp.constants.dtos.TaskDtoConstants;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Positive;
 import java.time.LocalDate;
 
 public record UpdateTaskDto(
-        @Schema(name = TaskDtoConstants.NAME,
-                example = TaskDtoConstants.NAME_EXAMPLE)
+        @Schema(name = "name",
+                example = "Project Omega")
         String name,
-        @Schema(name = TaskDtoConstants.DESCRIPTION,
-                example = TaskDtoConstants.DESCRIPTION_EXAMPLE)
+        @Schema(name = "description",
+                example = "Omega description")
         String description,
-        @Schema(name = TaskDtoConstants.DUE_DATE,
-                example = TaskDtoConstants.DUE_DATE_EXAMPLE)
+        @Schema(name = "dueDate",
+                example = "2026-01-01")
         LocalDate dueDate,
-        @Schema(name = TaskDtoConstants.PROJECT_ID,
-                example = TaskDtoConstants.PROJECT_ID_EXAMPLE)
+        @Schema(name = "projectId",
+                example = "1")
         @Positive
         Long projectId,
-        @Schema(name = TaskDtoConstants.ASSIGNEE_ID,
-                example = TaskDtoConstants.ASSIGNEE_ID_EXAMPLE)
+        @Schema(name = "assigneeId",
+                example = "1")
         @Positive
         Long assigneeId) {}
 

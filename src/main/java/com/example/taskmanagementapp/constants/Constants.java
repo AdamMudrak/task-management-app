@@ -20,4 +20,12 @@ public class Constants {
     public static final int FIRST_POSITION = 0;
     public static final int SECOND_POSITION = 1;
     public static final int THIRD_POSITION = 2;
+
+    public static final String PASSWORD_DESCRIPTION = """
+                    Your password should contain:
+                    1) at least one lowercase letter, like 'a';
+                    2) at least one uppercase letter, like 'A';
+                    3) at least one number, like '0';
+                    4) at least one special character, like '?!@#$%^&*~';
+                    5) from 8 to 32 characters.""";
 }
