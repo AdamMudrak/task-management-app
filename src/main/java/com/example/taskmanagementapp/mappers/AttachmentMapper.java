@@ -4,21 +4,17 @@ import com.example.taskmanagementapp.config.MapperConfig;
 import com.example.taskmanagementapp.dtos.attachment.response.AttachmentResponse;
 import com.example.taskmanagementapp.entities.Attachment;
 import com.example.taskmanagementapp.entities.Task;
-import java.time.LocalDateTime;
 import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(config = MapperConfig.class)
 public interface AttachmentMapper {
-    default Attachment toAttachment(Task task, String fileId, String fileName) {
-        Attachment attachment = new Attachment();
-        attachment.setTask(task);
-        attachment.setFileId(fileId);
-        attachment.setFileName(fileName);
-        attachment.setUploadDate(LocalDateTime.now());
-        return attachment;
-    }
+    @Mapping(target = "task", source = "task")
+    @Mapping(target = "fileId", source = "fileId")
+    @Mapping(target = "fileName", source = "fileName")
+    @Mapping(target = "uploadDate", expression = "java(java.time.LocalDateTime.now())")
+    Attachment toAttachment(Task task, String fileId, String fileName);
 
     @Mapping(target = "taskId", source = "task.id")
     AttachmentResponse toAttachmentDto(Attachment attachment);

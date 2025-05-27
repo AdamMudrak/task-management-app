@@ -15,20 +15,24 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(config = MapperConfig.class)
 public interface ProjectMapper {
-    default Project toCreateProject(ProjectRequest createProjectDto, User user) {
-        Project project = new Project();
-        project.setName(createProjectDto.name());
+    @Mapping(target = "name", source = "createProjectDto.name")
+    @Mapping(target = "description", ignore = true)
+    @Mapping(target = "startDate", source = "createProjectDto.startDate")
+    @Mapping(target = "owner", source = "user")
+    @Mapping(target = "status",
+            expression = "java(com.example.taskmanagementapp.entities.Project.Status.INITIATED)")
+    Project toCreateProject(ProjectRequest createProjectDto, User user);
+
+    @AfterMapping
+    default void setEmployeesAndManagers(@MappingTarget Project project,
+                                         User user,
+                                         ProjectRequest createProjectDto) {
         if (createProjectDto.description() != null
                 && !createProjectDto.description().isBlank()) {
             project.setDescription(createProjectDto.description());
         }
-        project.setStartDate(createProjectDto.startDate());
-        project.setEndDate(createProjectDto.endDate());
-        project.setOwner(user);
         project.getEmployees().add(user);
         project.getManagers().add(user);
-        project.setStatus(Project.Status.INITIATED);
-        return project;
     }
 
     @Mapping(target = "statusDto", ignore = true)

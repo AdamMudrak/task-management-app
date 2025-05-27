@@ -42,9 +42,13 @@ public class LabelServiceImpl implements LabelService {
         Label label = labelRepository.findByIdAndUserId(labelId, user.getId())
                 .orElseThrow(() -> new EntityNotFoundException(
                         "No label with id " + labelId + " for user with id " + user.getId()));
-        return labelMapper.toLabelDto(
-                labelRepository.save(
-                        labelMapper.toUpdateLabel(label, labelDto, colorDto)));
+        if (colorDto != null) {
+            label.setColor(Label.Color.valueOf(colorDto.name()));
+        }
+        if (labelDto.name() != null && !labelDto.name().isBlank()) {
+            label.setName(labelDto.name());
+        }
+        return labelMapper.toLabelDto(labelRepository.save(label));
     }
 
     @Override
