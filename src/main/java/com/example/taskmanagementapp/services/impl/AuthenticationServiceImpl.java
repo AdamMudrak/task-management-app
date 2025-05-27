@@ -63,7 +63,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtStrategy jwtStrategy;
     private final PasswordEmailService passwordEmailService;
-    private final RandomStringUtil randomStringUtil;
     private final ParamFromHttpRequestUtil paramFromHttpRequestUtil;
     private final RoleRepository roleRepository;
     @Value("${jwt.access.expiration}")
@@ -118,7 +117,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             hide the usage of JWT from the client.*/
         }
         String email = jwtAbstractUtil.getUsername(token);
-        String randomPassword = randomStringUtil.generateRandomString(RANDOM_PASSWORD_STRENGTH)
+        String randomPassword = RandomStringUtil.generateRandomString(RANDOM_PASSWORD_STRENGTH)
                 + RANDOM_PASSWORD_REQUIRED_CHARS;
         User user = userRepository.findByEmail(email).orElseThrow(() ->
                 new EntityNotFoundException("User with email " + email + " was not found"));

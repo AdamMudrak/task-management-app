@@ -32,7 +32,6 @@ public class AttachmentServiceImpl implements AttachmentService {
     private final AttachmentRepository attachmentRepository;
     private final TaskRepository taskRepository;
     private final AttachmentMapper attachmentMapper;
-    private final TransliterationUtil transliterationService;
     private final ProjectAuthorityUtil projectAuthorityUtil;
 
     @Override
@@ -90,7 +89,7 @@ public class AttachmentServiceImpl implements AttachmentService {
                                                         throws IOException, DbxException {
         List<Attachment> attachments = new ArrayList<>();
         for (MultipartFile uploadFile : uploadFiles) {
-            String fileName = transliterationService
+            String fileName = TransliterationUtil
                     .transliterate(uploadFile.getOriginalFilename());
             try (InputStream stream = uploadFile.getInputStream()) {
                 client.files().uploadBuilder("/task" + task.getId() + "/"

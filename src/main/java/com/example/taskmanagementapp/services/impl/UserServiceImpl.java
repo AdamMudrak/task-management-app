@@ -1,5 +1,7 @@
 package com.example.taskmanagementapp.services.impl;
 
+import static com.example.taskmanagementapp.services.utils.UpdateValueValidatorUtil.areStringsValid;
+
 import com.example.taskmanagementapp.dtos.role.RoleNameDto;
 import com.example.taskmanagementapp.dtos.user.request.UpdateUserProfileRequest;
 import com.example.taskmanagementapp.dtos.user.request.UserAccountStatusDto;
@@ -70,19 +72,13 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(authenticatedUserId).orElseThrow(
                 () -> new EntityNotFoundException("User with id " + authenticatedUserId
                         + " not found"));
-        if (updateUserProfileDto.firstName() != null
-                && !updateUserProfileDto.firstName().isBlank()
-                && !user.getFirstName().equals(updateUserProfileDto.firstName())) {
+        if (areStringsValid(updateUserProfileDto.firstName(), user.getFirstName())) {
             user.setFirstName(updateUserProfileDto.firstName());
         }
-        if (updateUserProfileDto.lastName() != null
-                && !updateUserProfileDto.lastName().isBlank()
-                && !user.getLastName().equals(updateUserProfileDto.lastName())) {
+        if (areStringsValid(updateUserProfileDto.lastName(), user.getLastName())) {
             user.setLastName(updateUserProfileDto.lastName());
         }
-        if (updateUserProfileDto.email() != null
-                && !updateUserProfileDto.email().isBlank()
-                && !user.getEmail().equals(updateUserProfileDto.email())) {
+        if (areStringsValid(updateUserProfileDto.email(), user.getEmail())) {
             userRepository.findByEmail(updateUserProfileDto.email())
                     .ifPresent(existingUser -> {
                         throw new IllegalArgumentException("Email " + updateUserProfileDto.email()

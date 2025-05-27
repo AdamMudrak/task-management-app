@@ -120,7 +120,7 @@ public class ProjectController {
     public ProjectResponse getProjectById(@AuthenticationPrincipal User user,
                                           @PathVariable @Positive Long projectId)
                                                     throws ForbiddenException {
-        return projectService.getProjectById(user, projectId);
+        return projectService.getProjectById(user.getId(), projectId);
     }
 
     @Operation(summary = UPDATE_PROJECT_BY_ID)
@@ -145,7 +145,7 @@ public class ProjectController {
     @DeleteMapping("/{projectId}")
     public void deleteProjectById(@AuthenticationPrincipal User user,
                            @PathVariable @Positive Long projectId) throws ForbiddenException {
-        projectService.deleteProjectById(user, projectId);
+        projectService.deleteProjectById(user.getId(), projectId);
     }
 
     @Operation(summary = ADD_EMPLOYEE_TO_PROJECT)

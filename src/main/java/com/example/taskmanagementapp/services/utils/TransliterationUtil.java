@@ -2,9 +2,7 @@ package com.example.taskmanagementapp.services.utils;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.springframework.stereotype.Service;
 
-@Service
 public class TransliterationUtil {
 
     private static final Map<Character, String> TRANSLIT_MAP = new HashMap<>();
@@ -85,7 +83,7 @@ public class TransliterationUtil {
         TRANSLIT_MAP.put('ъ', "");
     }
 
-    public String transliterate(String input) {
+    public static String transliterate(String input) {
         if (input == null || input.isEmpty()) {
             return input;
         }

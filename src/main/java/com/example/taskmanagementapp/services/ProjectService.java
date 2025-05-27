@@ -21,7 +21,7 @@ public interface ProjectService {
 
     List<ProjectResponse> getDeletedCreatedProjects(Long userId, Pageable pageable);
 
-    ProjectResponse getProjectById(User authenticatedUser,
+    ProjectResponse getProjectById(Long authenticatedUserId,
                                    Long projectId) throws ForbiddenException;
 
     ProjectResponse updateProjectById(Long authenticatedUserId, Long projectId,
@@ -29,7 +29,7 @@ public interface ProjectService {
                                       ProjectStatusDto projectStatusDto) throws ForbiddenException,
                                                                             ConflictException;
 
-    void deleteProjectById(User authenticatedUser, Long projectId) throws ForbiddenException;
+    void deleteProjectById(Long authenticatedUserId, Long projectId) throws ForbiddenException;
 
     EmployeeAssignmentResponse assignEmployeeToProject(User authenticatedUser, Long projectId,
                                                    Long employeeId, boolean isNewEmployeeManager)

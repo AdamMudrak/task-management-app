@@ -1,5 +1,8 @@
 package com.example.taskmanagementapp.services.impl;
 
+import static com.example.taskmanagementapp.services.utils.UpdateValueValidatorUtil.areDatesValid;
+import static com.example.taskmanagementapp.services.utils.UpdateValueValidatorUtil.areStringsValid;
+
 import com.example.taskmanagementapp.dtos.task.request.TaskPriorityDto;
 import com.example.taskmanagementapp.dtos.task.request.TaskRequest;
 import com.example.taskmanagementapp.dtos.task.request.TaskStatusDto;
@@ -150,18 +153,13 @@ public class TaskServiceImpl implements TaskService {
                                     UpdateTaskRequest updateTaskDto,
                                     TaskStatusDto taskStatusDto,
                                     TaskPriorityDto taskPriorityDto) throws ForbiddenException {
-        if (updateTaskDto.name() != null
-                && !updateTaskDto.name().isBlank()
-                && !updateTaskDto.name().equals(task.getName())) {
+        if (areStringsValid(updateTaskDto.name(), task.getName())) {
             task.setName(updateTaskDto.name());
         }
-        if (updateTaskDto.description() != null
-                && !updateTaskDto.description().isBlank()
-                && !updateTaskDto.description().equals(task.getDescription())) {
+        if (areStringsValid(updateTaskDto.description(), task.getDescription())) {
             task.setDescription(updateTaskDto.description());
         }
-        if (updateTaskDto.dueDate() != null
-                && !updateTaskDto.dueDate().isEqual(task.getDueDate())) {
+        if (areDatesValid(updateTaskDto.dueDate(), task.getDueDate())) {
             task.setDueDate(updateTaskDto.dueDate());
         }
 
