@@ -79,7 +79,7 @@ public class LabelController {
                                      ColorDto colorDto,
                                      @RequestBody @Valid UpdateLabelRequest updateLabelDto,
                                      @PathVariable @Positive Long labelId) {
-        return labelService.updateLabel(user, colorDto, updateLabelDto, labelId);
+        return labelService.updateLabel(user.getId(), colorDto, updateLabelDto, labelId);
     }
 
     @Operation(summary = GET_LABEL_BY_ID_SUMMARY)
@@ -88,7 +88,7 @@ public class LabelController {
     @GetMapping("/{labelId}")
     public LabelResponse getLabel(@AuthenticationPrincipal User user,
                                   @PathVariable @Positive Long labelId) {
-        return labelService.getLabelById(user, labelId);
+        return labelService.getLabelById(user.getId(), labelId);
     }
 
     @Operation(summary = GET_LABELS_SUMMARY)
@@ -97,7 +97,7 @@ public class LabelController {
     @GetMapping()
     public List<LabelResponse> getLabels(@AuthenticationPrincipal User user,
                                          @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {
-        return labelService.getAllLabels(user, pageable);
+        return labelService.getAllLabels(user.getId(), pageable);
     }
 
     @Operation(summary = DELETE_LABEL_BY_ID_SUMMARY)
@@ -107,7 +107,7 @@ public class LabelController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteLabelById(@AuthenticationPrincipal User user,
                          @PathVariable @Positive Long labelId) {
-        labelService.deleteLabelById(user, labelId);
+        labelService.deleteLabelById(user.getId(), labelId);
     }
 
     @Operation(summary = ATTACH_LABEL_TO_TASK)

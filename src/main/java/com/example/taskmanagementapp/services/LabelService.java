@@ -12,14 +12,14 @@ import org.springframework.data.domain.Pageable;
 public interface LabelService {
     LabelResponse createLabel(User user, ColorDto colorDto, LabelRequest labelDto);
 
-    LabelResponse updateLabel(User user, ColorDto colorDto,
+    LabelResponse updateLabel(Long authenticatedUserId, ColorDto colorDto,
                               UpdateLabelRequest labelDto, Long labelId);
 
-    LabelResponse getLabelById(User user, Long id);
+    LabelResponse getLabelById(Long authenticatedUserId, Long id);
 
-    List<LabelResponse> getAllLabels(User user, Pageable pageable);
+    List<LabelResponse> getAllLabels(Long authenticatedUserId, Pageable pageable);
 
-    void deleteLabelById(User user, Long id);
+    void deleteLabelById(Long authenticatedUserId, Long id);
 
     void attachLabelToTask(Long authenticatedUserId, Long taskId, Long labelId)
             throws ForbiddenException;
