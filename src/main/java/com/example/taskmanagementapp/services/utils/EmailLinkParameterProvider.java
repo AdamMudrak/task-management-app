@@ -17,14 +17,13 @@ import org.springframework.stereotype.Component;
 @Getter
 @Setter
 public class EmailLinkParameterProvider {
-    private final RandomStringUtil randomStringUtil;
     private final ParamTokenRepository paramTokenRepository;
     private final JwtStrategy jwtStrategy;
     private String emailLinkParameter;
     private String token;
 
     public void formRandomParamTokenPair(String email) {
-        setEmailLinkParameter(randomStringUtil.generateRandomString(RANDOM_LINK_STRENGTH));
+        setEmailLinkParameter(RandomStringUtil.generateRandomString(RANDOM_LINK_STRENGTH));
         JwtAbstractUtil abstractUtil = jwtStrategy.getStrategy(JwtType.ACTION);
         setToken(abstractUtil.generateToken(email));
 
