@@ -7,14 +7,13 @@ import com.dropbox.core.v2.sharing.ListSharedLinksResult;
 import com.example.taskmanagementapp.dtos.attachment.response.AttachmentResponse;
 import com.example.taskmanagementapp.entities.Attachment;
 import com.example.taskmanagementapp.entities.Task;
-import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.EntityNotFoundException;
 import com.example.taskmanagementapp.exceptions.ForbiddenException;
 import com.example.taskmanagementapp.mappers.AttachmentMapper;
 import com.example.taskmanagementapp.repositories.AttachmentRepository;
-import com.example.taskmanagementapp.repositories.ProjectRepository;
 import com.example.taskmanagementapp.repositories.TaskRepository;
 import com.example.taskmanagementapp.services.AttachmentService;
+import com.example.taskmanagementapp.services.utils.ProjectAuthorityUtil;
 import com.example.taskmanagementapp.services.utils.TransliterationUtil;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,23 +31,20 @@ public class AttachmentServiceImpl implements AttachmentService {
     private final DbxClientV2 client;
     private final AttachmentRepository attachmentRepository;
     private final TaskRepository taskRepository;
-    private final ProjectRepository projectRepository;
     private final AttachmentMapper attachmentMapper;
     private final TransliterationUtil transliterationService;
+    private final ProjectAuthorityUtil projectAuthorityUtil;
 
     @Override
-    public List<AttachmentResponse> uploadAttachmentForTask(User authenticatedUser, Long taskId,
+    public List<AttachmentResponse> uploadAttachmentForTask(Long authenticatedUserId, Long taskId,
                                             MultipartFile[] uploadFiles) throws ForbiddenException,
                                             IOException, DbxException {
         Task task = taskRepository.findByIdNotDeleted(taskId).orElseThrow(
                 () -> new EntityNotFoundException("Active task with id "
                         + taskId + " not found"));
         Long thisTaskProjectId = task.getProject().getId();
-        Long thisUserId = authenticatedUser.getId();
 
-        if (projectRepository.isUserOwner(thisTaskProjectId, thisUserId)
-                || projectRepository.isUserEmployee(thisTaskProjectId, thisUserId)
-                || projectRepository.isUserManager(thisTaskProjectId, thisUserId)) {
+        if (projectAuthorityUtil.hasAnyAuthority(thisTaskProjectId, authenticatedUserId)) {
             List<Attachment> attachments = uploadFilesToDropbox(uploadFiles, task);
             return attachmentMapper.toAttachmentDtoList(attachmentRepository.saveAll(attachments));
         } else {
@@ -58,17 +54,14 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     @Override
-    public List<AttachmentResponse> getAttachmentForTask(User authenticatedUser, Long taskId)
+    public List<AttachmentResponse> getAttachmentForTask(Long authenticatedUserId, Long taskId)
             throws ForbiddenException {
         Task task = taskRepository.findByIdNotDeleted(taskId).orElseThrow(
                 () -> new EntityNotFoundException("Active task with id "
                         + taskId + " not found"));
         Long thisTaskProjectId = task.getProject().getId();
-        Long thisUserId = authenticatedUser.getId();
 
-        if (projectRepository.isUserOwner(thisTaskProjectId, thisUserId)
-                || projectRepository.isUserEmployee(thisTaskProjectId, thisUserId)
-                || projectRepository.isUserManager(thisTaskProjectId, thisUserId)) {
+        if (projectAuthorityUtil.hasAnyAuthority(thisTaskProjectId, authenticatedUserId)) {
             return attachmentMapper.toAttachmentDtoList(
                     attachmentRepository.findAllByTaskId(taskId));
         } else {
@@ -78,7 +71,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     @Override
-    public void deleteAttachmentFromTask(User authenticatedUser, Long taskId, Long attachmentId)
+    public void deleteAttachmentFromTask(Long authenticatedUserId, Long taskId, Long attachmentId)
             throws DbxException, ForbiddenException {
         Task task = taskRepository.findByIdNotDeleted(taskId).orElseThrow(
                 () -> new EntityNotFoundException("Active task with id "
@@ -88,11 +81,8 @@ public class AttachmentServiceImpl implements AttachmentService {
                 + attachmentId + " not found"));
 
         Long thisTaskProjectId = task.getProject().getId();
-        Long thisUserId = authenticatedUser.getId();
 
-        if (projectRepository.isUserOwner(thisTaskProjectId, thisUserId)
-                || projectRepository.isUserEmployee(thisTaskProjectId, thisUserId)
-                || projectRepository.isUserManager(thisTaskProjectId, thisUserId)) {
+        if (projectAuthorityUtil.hasAnyAuthority(thisTaskProjectId, authenticatedUserId)) {
             client.files().deleteV2("/task" + task.getId()
                     + "/" + attachment.getFileName());
             attachmentRepository.deleteById(attachmentId);

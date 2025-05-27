@@ -73,7 +73,7 @@ public class CommentController {
                                          @RequestBody @Valid UpdateCommentRequest updateCommentDto,
                                          @PathVariable @Positive Long commentId)
                                                                 throws ForbiddenException {
-        return commentService.updateComment(user, updateCommentDto, commentId);
+        return commentService.updateComment(user.getId(), updateCommentDto, commentId);
     }
 
     @Operation(summary = GET_COMMENTS_SUMMARY)
@@ -85,7 +85,7 @@ public class CommentController {
                                                     @PathVariable @Positive Long taskId,
                                                     @Parameter(example = PAGEABLE_EXAMPLE)
                                                    Pageable pageable) throws ForbiddenException {
-        return commentService.getAllComments(user, taskId, pageable);
+        return commentService.getAllComments(user.getId(), taskId, pageable);
     }
 
     @Operation(summary = DELETE_COMMENT_SUMMARY)
@@ -97,6 +97,6 @@ public class CommentController {
     public void deleteComment(@AuthenticationPrincipal User user,
                                     @PathVariable @Positive Long commentId)
             throws ForbiddenException {
-        commentService.deleteComment(user, commentId);
+        commentService.deleteComment(user.getId(), commentId);
     }
 }

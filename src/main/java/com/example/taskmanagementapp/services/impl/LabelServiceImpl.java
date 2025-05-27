@@ -11,9 +11,9 @@ import com.example.taskmanagementapp.exceptions.EntityNotFoundException;
 import com.example.taskmanagementapp.exceptions.ForbiddenException;
 import com.example.taskmanagementapp.mappers.LabelMapper;
 import com.example.taskmanagementapp.repositories.LabelRepository;
-import com.example.taskmanagementapp.repositories.ProjectRepository;
 import com.example.taskmanagementapp.repositories.TaskRepository;
 import com.example.taskmanagementapp.services.LabelService;
+import com.example.taskmanagementapp.services.utils.ProjectAuthorityUtil;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -26,8 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class LabelServiceImpl implements LabelService {
     private final LabelRepository labelRepository;
     private final TaskRepository taskRepository;
-    private final ProjectRepository projectRepository;
     private final LabelMapper labelMapper;
+    private final ProjectAuthorityUtil projectAuthorityUtil;
 
     @Override
     public LabelResponse createLabel(User user, ColorDto colorDto, LabelRequest labelDto) {
@@ -75,25 +75,24 @@ public class LabelServiceImpl implements LabelService {
     }
 
     @Override
-    public void attachLabelToTask(User user, Long taskId, Long labelId)
+    public void attachLabelToTask(Long authenticatedUserId, Long taskId, Long labelId)
                                                         throws ForbiddenException {
-        Label thisLabel = labelRepository.findByIdAndUserId(labelId, user.getId())
+        Label thisLabel = labelRepository.findByIdAndUserId(labelId, authenticatedUserId)
                 .orElseThrow(() -> new EntityNotFoundException(
-                        "No label with id " + labelId + " for user with id " + user.getId()));
+                        "No label with id " + labelId + " for user with id "
+                                + authenticatedUserId));
 
         Task thisTask = taskRepository.findByIdNotDeleted(
                 taskId).orElseThrow(
                     () -> new EntityNotFoundException(
                         "No active task with id " + taskId));
 
-        if (!thisTask.getAssignee().getId().equals(user.getId())) {
+        if (!thisTask.getAssignee().getId().equals(authenticatedUserId)) {
             throw new ForbiddenException("You can attach labels only to tasks you are assigned to");
         }
         Long thisProjectId = thisTask.getProject().getId();
 
-        if (projectRepository.isUserOwner(thisProjectId, user.getId())
-                || projectRepository.isUserEmployee(thisProjectId, user.getId())
-                || projectRepository.isUserManager(thisProjectId, user.getId())) {
+        if (projectAuthorityUtil.hasAnyAuthority(thisProjectId, authenticatedUserId)) {
             thisLabel.getTasks().add(thisTask);
             labelRepository.save(thisLabel);
         } else {
@@ -103,26 +102,25 @@ public class LabelServiceImpl implements LabelService {
     }
 
     @Override
-    public void detachLabelFromTask(User user, Long taskId, Long labelId)
+    public void detachLabelFromTask(Long authenticatedUserId, Long taskId, Long labelId)
                                                 throws ForbiddenException {
-        Label thisLabel = labelRepository.findByIdAndUserId(labelId, user.getId())
+        Label thisLabel = labelRepository.findByIdAndUserId(labelId, authenticatedUserId)
                 .orElseThrow(() -> new EntityNotFoundException(
-                        "No label with id " + labelId + " for user with id " + user.getId()));
+                        "No label with id " + labelId + " for user with id "
+                                + authenticatedUserId));
 
         Task thisTask = taskRepository.findByIdNotDeleted(
                 taskId).orElseThrow(
                     () -> new EntityNotFoundException(
                         "No active task with id " + taskId));
 
-        if (!thisTask.getAssignee().getId().equals(user.getId())) {
+        if (!thisTask.getAssignee().getId().equals(authenticatedUserId)) {
             throw new ForbiddenException("You can detach labels only"
                     + " from tasks you are assigned to");
         }
         Long thisProjectId = thisTask.getProject().getId();
 
-        if (projectRepository.isUserOwner(thisProjectId, user.getId())
-                || projectRepository.isUserEmployee(thisProjectId, user.getId())
-                || projectRepository.isUserManager(thisProjectId, user.getId())) {
+        if (projectAuthorityUtil.hasAnyAuthority(thisProjectId, authenticatedUserId)) {
             thisLabel.getTasks().remove(thisTask);
             labelRepository.save(thisLabel);
         } else {

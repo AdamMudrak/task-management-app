@@ -58,7 +58,7 @@ public class AttachmentController {
                                                   MultipartFile[] attachmentFile,
                                                   @PathVariable @Positive Long taskId)
             throws ForbiddenException, IOException, DbxException {
-        return attachmentService.uploadAttachmentForTask(user, taskId, attachmentFile);
+        return attachmentService.uploadAttachmentForTask(user.getId(), taskId, attachmentFile);
     }
 
     @Operation(summary = GET_ATTACHMENT_SUMMARY)
@@ -69,7 +69,7 @@ public class AttachmentController {
     public List<AttachmentResponse> getAttachment(@AuthenticationPrincipal User user,
                                                   @PathVariable @Positive Long taskId)
             throws ForbiddenException {
-        return attachmentService.getAttachmentForTask(user, taskId);
+        return attachmentService.getAttachmentForTask(user.getId(), taskId);
     }
 
     @Operation(summary = DELETE_ATTACHMENT_SUMMARY)
@@ -82,6 +82,6 @@ public class AttachmentController {
                                  @PathVariable @Positive Long taskId,
                                  @PathVariable @Positive Long attachmentId)
             throws DbxException, ForbiddenException {
-        attachmentService.deleteAttachmentFromTask(user, taskId, attachmentId);
+        attachmentService.deleteAttachmentFromTask(user.getId(), taskId, attachmentId);
     }
 }

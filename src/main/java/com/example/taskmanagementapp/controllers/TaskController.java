@@ -81,7 +81,7 @@ public class TaskController {
                                           @PathVariable @Positive Long projectId,
                                           @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable)
             throws ForbiddenException {
-        return taskService.getTasksForProject(user, projectId, pageable);
+        return taskService.getTasksForProject(user.getId(), projectId, pageable);
     }
 
     @Operation(summary = GET_TASK_BY_ID)
@@ -90,7 +90,7 @@ public class TaskController {
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public TaskResponse getTaskById(@AuthenticationPrincipal User user,
                                     @PathVariable Long taskId) throws ForbiddenException {
-        return taskService.getTaskById(user, taskId);
+        return taskService.getTaskById(user.getId(), taskId);
     }
 
     @Operation(summary = UPDATE_TASK_BY_ID)
@@ -115,7 +115,7 @@ public class TaskController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTaskById(@AuthenticationPrincipal User user,
                         @PathVariable @Positive Long taskId) throws ForbiddenException {
-        taskService.deleteTask(user, taskId);
+        taskService.deleteTask(user.getId(), taskId);
     }
 
     @Operation(summary = GET_TASK_BY_LABEL_ID)

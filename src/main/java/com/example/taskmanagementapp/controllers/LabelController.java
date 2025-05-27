@@ -117,7 +117,7 @@ public class LabelController {
     public void attachLabelToTask(@AuthenticationPrincipal User user,
                            @PathVariable @Positive Long taskId,
                            @PathVariable @Positive Long labelId) throws ForbiddenException {
-        labelService.attachLabelToTask(user, taskId, labelId);
+        labelService.attachLabelToTask(user.getId(), taskId, labelId);
     }
 
     @Operation(summary = DETACH_LABEL_TO_TASK)
@@ -127,6 +127,6 @@ public class LabelController {
     public void detachLabelFromTask(@AuthenticationPrincipal User user,
                            @PathVariable @Positive Long taskId,
                            @PathVariable @Positive Long labelId) throws ForbiddenException {
-        labelService.detachLabelFromTask(user, taskId, labelId);
+        labelService.detachLabelFromTask(user.getId(), taskId, labelId);
     }
 }

@@ -12,12 +12,12 @@ public interface CommentService {
     CommentResponse addComment(User authenticatedUser,
                                CommentRequest commentDto) throws ForbiddenException;
 
-    CommentResponse updateComment(User authenticatedUser,
+    CommentResponse updateComment(Long authenticatedUserId,
                                   UpdateCommentRequest commentDto,
                                   Long commentId) throws ForbiddenException;
 
-    List<CommentResponse> getAllComments(User authenticatedUser, Long taskId,
+    List<CommentResponse> getAllComments(Long authenticatedUserId, Long taskId,
                                          Pageable pageable) throws ForbiddenException;
 
-    void deleteComment(User authenticatedUser, Long commentId) throws ForbiddenException;
+    void deleteComment(Long authenticatedUserId, Long commentId) throws ForbiddenException;
 }

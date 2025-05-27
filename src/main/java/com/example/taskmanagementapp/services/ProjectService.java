@@ -24,7 +24,7 @@ public interface ProjectService {
     ProjectResponse getProjectById(User authenticatedUser,
                                    Long projectId) throws ForbiddenException;
 
-    ProjectResponse updateProjectById(User authenticatedUser, Long projectId,
+    ProjectResponse updateProjectById(Long authenticatedUserId, Long projectId,
                                       UpdateProjectRequest updateProjectDto,
                                       ProjectStatusDto projectStatusDto) throws ForbiddenException,
                                                                             ConflictException;
@@ -37,6 +37,6 @@ public interface ProjectService {
 
     ProjectResponse acceptAssignmentToProject(HttpServletRequest request);
 
-    ProjectResponse removeEmployeeFromProject(User authenticatedUser, Long projectId,
+    ProjectResponse removeEmployeeFromProject(Long authenticatedUserId, Long projectId,
                                               Long employeeId) throws ForbiddenException;
 }

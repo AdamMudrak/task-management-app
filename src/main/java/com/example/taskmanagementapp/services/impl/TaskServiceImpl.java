@@ -18,6 +18,7 @@ import com.example.taskmanagementapp.repositories.TaskRepository;
 import com.example.taskmanagementapp.repositories.UserRepository;
 import com.example.taskmanagementapp.services.TaskService;
 import com.example.taskmanagementapp.services.email.TaskAssignmentEmailService;
+import com.example.taskmanagementapp.services.utils.ProjectAuthorityUtil;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -35,6 +36,7 @@ public class TaskServiceImpl implements TaskService {
     private final CommentRepository commentRepository;
     private final LabelRepository labelRepository;
     private final TaskAssignmentEmailService taskAssignmentEmailService;
+    private final ProjectAuthorityUtil projectAuthorityUtil;
 
     @Override
     public TaskResponse createTask(User authenticatedUser,
@@ -49,11 +51,8 @@ public class TaskServiceImpl implements TaskService {
         User assignee = userRepository.findById(assigneeId)
                 .orElseThrow(() -> new EntityNotFoundException("No user with id " + assigneeId));
 
-        if (projectRepository.isUserManager(projectId, authenticatedUser.getId())
-                || projectRepository.isUserOwner(projectId, authenticatedUser.getId())) {
-            if (projectRepository.isUserManager(projectId, assigneeId)
-                    || projectRepository.isUserOwner(projectId, assigneeId)
-                    || projectRepository.isUserEmployee(projectId, assigneeId)) {
+        if (projectAuthorityUtil.hasManagerialAuthority(projectId, authenticatedUser.getId())) {
+            if (projectAuthorityUtil.hasAnyAuthority(projectId, assigneeId)) {
                 Task createTask = taskMapper.toCreateTask(createTaskDto);
                 createTask.setStatus(Task.Status.NOT_STARTED);
                 createTask.setPriority(Task.Priority.valueOf(taskPriorityDto.name()));
@@ -73,16 +72,14 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskResponse> getTasksForProject(User authenticatedUser,
+    public List<TaskResponse> getTasksForProject(Long authenticatedUserId,
                                                  Long projectId,
                                                  Pageable pageable)
             throws ForbiddenException {
         if (!projectRepository.existsByIdNotDeleted(projectId)) {
             throw new EntityNotFoundException("No active project with id " + projectId);
         }
-        if (projectRepository.isUserEmployee(projectId, authenticatedUser.getId())
-                || projectRepository.isUserOwner(projectId, authenticatedUser.getId())
-                || projectRepository.isUserManager(projectId, authenticatedUser.getId())) {
+        if (projectAuthorityUtil.hasAnyAuthority(projectId, authenticatedUserId)) {
             return taskMapper.toTaskDtoList(
                     taskRepository.findAllByProjectIdNonDeleted(projectId, pageable).getContent());
         } else {
@@ -91,14 +88,13 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TaskResponse getTaskById(User authenticatedUser, Long taskId) throws ForbiddenException {
+    public TaskResponse getTaskById(Long authenticatedUserId, Long taskId)
+            throws ForbiddenException {
         Task task = taskRepository.findByIdNotDeleted(taskId).orElseThrow(
                 () -> new EntityNotFoundException("No active task with id " + taskId));
         Long thisTaskProjectId = task.getProject().getId();
 
-        if (projectRepository.isUserOwner(thisTaskProjectId, authenticatedUser.getId())
-                || projectRepository.isUserEmployee(thisTaskProjectId, authenticatedUser.getId())
-                || projectRepository.isUserManager(thisTaskProjectId, authenticatedUser.getId())) {
+        if (projectAuthorityUtil.hasAnyAuthority(thisTaskProjectId, authenticatedUserId)) {
             return taskMapper.toTaskDto(task);
         } else {
             throw new ForbiddenException("You have no permission to access this task");
@@ -114,8 +110,8 @@ public class TaskServiceImpl implements TaskService {
                 () -> new EntityNotFoundException("No active task with id " + taskId));
         Long thisTaskProjectId = task.getProject().getId();
 
-        if (projectRepository.isUserOwner(thisTaskProjectId, authenticatedUser.getId())
-                || projectRepository.isUserManager(thisTaskProjectId, authenticatedUser.getId())) {
+        if (projectAuthorityUtil.hasManagerialAuthority(
+                thisTaskProjectId, authenticatedUser.getId())) {
             updatePresentField(authenticatedUser, task, updateTaskDto,
                     taskStatusDto, taskPriorityDto);
             return taskMapper.toTaskDto(taskRepository.save(task));
@@ -125,13 +121,12 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void deleteTask(User authenticatedUser, Long taskId) throws ForbiddenException {
+    public void deleteTask(Long authenticatedUserId, Long taskId) throws ForbiddenException {
         Task task = taskRepository.findByIdNotDeleted(taskId).orElseThrow(
                 () -> new EntityNotFoundException("No active task with id " + taskId));
         Long thisTaskProjectId = task.getProject().getId();
 
-        if (projectRepository.isUserOwner(thisTaskProjectId, authenticatedUser.getId())
-                || projectRepository.isUserManager(thisTaskProjectId, authenticatedUser.getId())) {
+        if (projectAuthorityUtil.hasManagerialAuthority(thisTaskProjectId, authenticatedUserId)) {
             commentRepository.deleteAllByTaskId(taskId);
             taskRepository.deleteById(taskId);
         } else {
@@ -175,9 +170,8 @@ public class TaskServiceImpl implements TaskService {
                     () -> new EntityNotFoundException(
                             "No project with id " + updateTaskDto.projectId()));
 
-            if (projectRepository.isUserOwner(updateTaskDto.projectId(), authenticatedUser.getId())
-                    || projectRepository.isUserManager(
-                            updateTaskDto.projectId(), authenticatedUser.getId())) {
+            if (projectAuthorityUtil.hasManagerialAuthority(
+                    updateTaskDto.projectId(), authenticatedUser.getId())) {
                 task.setProject(project);
             } else {
                 throw new ForbiddenException(

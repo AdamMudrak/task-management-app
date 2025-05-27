@@ -15,10 +15,10 @@ public interface TaskService {
                             TaskRequest createTaskDto,
                             TaskPriorityDto taskPriorityDto) throws ForbiddenException;
 
-    List<TaskResponse> getTasksForProject(User authenticatedUser, Long projectId,
+    List<TaskResponse> getTasksForProject(Long authenticatedUserId, Long projectId,
                                           Pageable pageable) throws ForbiddenException;
 
-    TaskResponse getTaskById(User authenticatedUser,
+    TaskResponse getTaskById(Long authenticatedUserId,
                              Long taskId) throws ForbiddenException;
 
     TaskResponse updateTask(User authenticatedUser,
@@ -27,7 +27,7 @@ public interface TaskService {
                             TaskStatusDto taskStatusDto,
                             TaskPriorityDto taskPriorityDto) throws ForbiddenException;
 
-    void deleteTask(User authenticatedUser,
+    void deleteTask(Long authenticatedUserId,
                     Long taskId) throws ForbiddenException;
 
     List<TaskResponse> getTasksWithLabel(User user, Long labelId, Pageable pageable);

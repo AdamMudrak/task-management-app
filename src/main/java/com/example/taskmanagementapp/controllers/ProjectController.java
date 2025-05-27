@@ -134,7 +134,7 @@ public class ProjectController {
                                          @RequestParam(value = "projectStatusDto", required = false)
                                  ProjectStatusDto projectStatusDto)
                                     throws ForbiddenException, ConflictException {
-        return projectService.updateProjectById(user, projectId,
+        return projectService.updateProjectById(user.getId(), projectId,
                 updateProjectDto, projectStatusDto);
     }
 
@@ -177,6 +177,6 @@ public class ProjectController {
                                                      @PathVariable @Positive Long projectId,
                                                      @PathVariable @Positive Long employeeId)
                                                 throws ForbiddenException {
-        return projectService.removeEmployeeFromProject(user, projectId, employeeId);
+        return projectService.removeEmployeeFromProject(user.getId(), projectId, employeeId);
     }
 }

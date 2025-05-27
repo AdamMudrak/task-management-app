@@ -21,7 +21,9 @@ public interface LabelService {
 
     void deleteLabelById(User user, Long id);
 
-    void attachLabelToTask(User user, Long taskId, Long labelId) throws ForbiddenException;
+    void attachLabelToTask(Long authenticatedUserId, Long taskId, Long labelId)
+            throws ForbiddenException;
 
-    void detachLabelFromTask(User user, Long taskId, Long labelId) throws ForbiddenException;
+    void detachLabelFromTask(Long authenticatedUserId, Long taskId, Long labelId)
+            throws ForbiddenException;
 }
