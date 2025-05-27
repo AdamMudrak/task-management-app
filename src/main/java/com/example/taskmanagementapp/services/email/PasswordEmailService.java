@@ -12,11 +12,14 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 import com.example.taskmanagementapp.exceptions.ActionNotFoundException;
 import com.example.taskmanagementapp.security.RequestType;
 import com.example.taskmanagementapp.services.utils.EmailLinkParameterProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PasswordEmailService extends EmailService {
     private final EmailLinkParameterProvider emailLinkParameterProvider;
+    @Value("${server.path}")
+    private String serverPath;
 
     public PasswordEmailService(EmailLinkParameterProvider emailLinkParameterProvider) {
         this.emailLinkParameterProvider = emailLinkParameterProvider;
@@ -25,11 +28,12 @@ public class PasswordEmailService extends EmailService {
     public void sendActionMessage(String toEmail, RequestType requestType) {
         switch (requestType) {
             case PASSWORD_RESET -> this.sendMessage(toEmail, INITIATE_RANDOM_PASSWORD_SUBJECT,
-                    formTextForAction(toEmail, INITIATE_RANDOM_PASSWORD_BODY, "http://localhost:8080/auth/reset-password?"));
+                    formTextForAction(toEmail, INITIATE_RANDOM_PASSWORD_BODY,
+                            serverPath + "/auth/reset-password?"));
             case REGISTRATION_CONFIRMATION ->
                     this.sendMessage(toEmail, CONFIRM_REGISTRATION_SUBJECT,
                         formTextForAction(toEmail, CONFIRM_REGISTRATION_BODY,
-                            "http://localhost:8080/auth/register-success?"));
+                                serverPath + "/auth/register-success?"));
             default -> throw new ActionNotFoundException("Unknown request type " + requestType);
         }
     }

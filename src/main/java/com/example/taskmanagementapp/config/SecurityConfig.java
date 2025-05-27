@@ -6,6 +6,7 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 import com.example.taskmanagementapp.security.JwtAuthenticationFilter;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,6 +28,8 @@ import org.springframework.web.cors.CorsConfiguration;
 public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    @Value("${server.path}")
+    private String serverPath;
 
     @Bean
     public PasswordEncoder getPasswordEncoder() {
@@ -38,7 +41,7 @@ public class SecurityConfig {
         return http
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(List.of("http://localhost:8080"));
+                    config.setAllowedOrigins(List.of(serverPath));
                     config.setAllowCredentials(true);
                     config.setAllowedMethods(List.of("*"));
                     config.setAllowedHeaders(List.of("*"));

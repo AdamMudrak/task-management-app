@@ -8,11 +8,14 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACCEPT_PROJECT_INVITATION_SUBJECT;
 
 import com.example.taskmanagementapp.services.utils.EmailLinkParameterProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AssignmentToProjectEmailService extends EmailService {
     private final EmailLinkParameterProvider emailLinkParameterProvider;
+    @Value("${server.path}")
+    private String serverPath;
 
     public AssignmentToProjectEmailService(
             EmailLinkParameterProvider emailLinkParameterProvider) {
@@ -30,7 +33,7 @@ public class AssignmentToProjectEmailService extends EmailService {
         return ACCEPT_PROJECT_INVITATION_BODY_1 + SPACE + sender + SPACE
                 + ACCEPT_PROJECT_INVITATION_BODY_2
                 + SPACE + projectName + SPACE + ACCEPT_PROJECT_INVITATION_BODY_3
-                + "http://localhost:8080/projects/accept-invite?"
+                + serverPath + "/projects/accept-invite?"
                 + emailLinkParameterProvider.getEmailLinkParameter()
                 + SPLITERATOR + emailLinkParameterProvider.getToken()
                 + "&actionToken" + SPLITERATOR + token;

@@ -5,11 +5,14 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.CONFIRM_CHANGE_EMAIL_SUBJECT;
 
 import com.example.taskmanagementapp.services.utils.EmailLinkParameterProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ChangeEmailService extends EmailService {
     private final EmailLinkParameterProvider emailLinkParameterProvider;
+    @Value("${server.path}")
+    private String serverPath;
 
     public ChangeEmailService(EmailLinkParameterProvider emailLinkParameterProvider) {
         this.emailLinkParameterProvider = emailLinkParameterProvider;
@@ -23,7 +26,7 @@ public class ChangeEmailService extends EmailService {
     private String formTextForChangeEmail(String oldEmail, String newEmail) {
         emailLinkParameterProvider.formRandomParamTokenPair(oldEmail);
         return CONFIRM_CHANGE_EMAIL_BODY + System.lineSeparator()
-                + "http://localhost:8080/users/change-email-success?"
+                + serverPath + "/users/change-email-success?"
                 + emailLinkParameterProvider.getEmailLinkParameter()
                 + SPLITERATOR + emailLinkParameterProvider.getToken()
                 + "&newEmail" + SPLITERATOR + newEmail;
