@@ -1,6 +1,7 @@
 package com.example.taskmanagementapp.repositories;
 
 import com.example.taskmanagementapp.entities.Comment;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,4 +16,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     void deleteAllByTaskId(Long taskId);
 
     Page<Comment> findAllByTaskId(Long taskId, Pageable pageable);
+
+    Optional<Comment> findByIdAndUserId(Long id, Long userId);
 }

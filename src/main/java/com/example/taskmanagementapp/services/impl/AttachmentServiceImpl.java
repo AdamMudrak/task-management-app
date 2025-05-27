@@ -39,9 +39,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     public List<AttachmentResponse> uploadAttachmentForTask(Long authenticatedUserId, Long taskId,
                                             MultipartFile[] uploadFiles) throws ForbiddenException,
                                             IOException, DbxException {
-        Task task = taskRepository.findByIdNotDeleted(taskId).orElseThrow(
-                () -> new EntityNotFoundException("Active task with id "
-                        + taskId + " not found"));
+        Task task = getTaskById(taskId);
         Long thisTaskProjectId = task.getProject().getId();
 
         if (projectAuthorityUtil.hasAnyAuthority(thisTaskProjectId, authenticatedUserId)) {
@@ -49,16 +47,14 @@ public class AttachmentServiceImpl implements AttachmentService {
             return attachmentMapper.toAttachmentDtoList(attachmentRepository.saveAll(attachments));
         } else {
             throw new ForbiddenException("You have no permission to add attachment to task "
-                    + task.getId() + " since you are not in project " + task.getProject().getId());
+                    + taskId + " since you are not in project " + thisTaskProjectId);
         }
     }
 
     @Override
     public List<AttachmentResponse> getAttachmentForTask(Long authenticatedUserId, Long taskId)
             throws ForbiddenException {
-        Task task = taskRepository.findByIdNotDeleted(taskId).orElseThrow(
-                () -> new EntityNotFoundException("Active task with id "
-                        + taskId + " not found"));
+        Task task = getTaskById(taskId);
         Long thisTaskProjectId = task.getProject().getId();
 
         if (projectAuthorityUtil.hasAnyAuthority(thisTaskProjectId, authenticatedUserId)) {
@@ -66,16 +62,14 @@ public class AttachmentServiceImpl implements AttachmentService {
                     attachmentRepository.findAllByTaskId(taskId));
         } else {
             throw new ForbiddenException("You have no permission to get attachments for task "
-                    + task.getId() + " since you are not in project " + task.getProject().getId());
+                    + taskId + " since you are not in project " + thisTaskProjectId);
         }
     }
 
     @Override
     public void deleteAttachmentFromTask(Long authenticatedUserId, Long taskId, Long attachmentId)
             throws DbxException, ForbiddenException {
-        Task task = taskRepository.findByIdNotDeleted(taskId).orElseThrow(
-                () -> new EntityNotFoundException("Active task with id "
-                        + taskId + " not found"));
+        Task task = getTaskById(taskId);
         Attachment attachment = attachmentRepository.findById(attachmentId).orElseThrow(
                 () -> new EntityNotFoundException("Attachment with id "
                 + attachmentId + " not found"));
@@ -83,12 +77,12 @@ public class AttachmentServiceImpl implements AttachmentService {
         Long thisTaskProjectId = task.getProject().getId();
 
         if (projectAuthorityUtil.hasAnyAuthority(thisTaskProjectId, authenticatedUserId)) {
-            client.files().deleteV2("/task" + task.getId()
+            client.files().deleteV2("/task" + taskId
                     + "/" + attachment.getFileName());
             attachmentRepository.deleteById(attachmentId);
         } else {
             throw new ForbiddenException("You have no permission to delete attachment from task "
-                    + task.getId() + " since you are not in project " + task.getProject().getId());
+                    + taskId + " since you are not in project " + thisTaskProjectId);
         }
     }
 
@@ -133,5 +127,11 @@ public class AttachmentServiceImpl implements AttachmentService {
 
     private String makeDropboxLinkToRawFile(String link) {
         return link.replace("dl=0", "raw=1");
+    }
+
+    private Task getTaskById(Long taskId) {
+        return taskRepository.findByIdNotDeleted(taskId).orElseThrow(
+                () -> new EntityNotFoundException("Active task with id "
+                        + taskId + " not found"));
     }
 }
