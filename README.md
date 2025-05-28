@@ -130,7 +130,7 @@ Here you'll find a comprehensive overview of how to add, get, update and delete 
 
 - **SpringDoc OpenAPI (Swagger UI) 2.8.6** – Generates interactive and testable API documentation.
 
-### 🧪 Testing and Containers
+### 🧪 Testing and Containers (YET IN DEVELOPMENT!!!)//TODO
 
 - **Spring Boot Starter Test** – Standard utilities for unit and integration testing.
 - **Testcontainers (JDBC & MySQL)** – Enables containerized integration tests with ephemeral databases.
@@ -175,7 +175,7 @@ Not ready for setting up my application locally yet? Then explore [Landing](http
         - After successful registration, domain verification and getting API token, in [.env.sample](.env.sample) replace values for:
           - RESEND_API_KEY=your_resend_api_key
           - MAIL=your_domained_email
-   - Having a dropbox refresh token, key and secret **is required**. [Tutorial](https://www.codemzy.com/blog/dropbox-long-lived-access-refresh-token). When you get them, replace placeholders with actual token, key and secret in [envrironment variables](.env.sample) for keys:
+   - Having a dropbox refresh token, key and secret **is required**. [Tutorial](DropboxTutorial.md). When you get them, replace placeholders with actual token, key and secret in [envrironment variables](.env.sample) for keys:
      - DROPBOX_REFRESH_TOKEN=your_dropbox_refresh_token
      - DROPBOX_KEY=your_dropbox_key
      - DROPBOX_SECRET=your_dropbox_refresh_secret
