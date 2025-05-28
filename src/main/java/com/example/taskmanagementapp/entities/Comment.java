@@ -1,11 +1,8 @@
 package com.example.taskmanagementapp.entities;
 
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.COMMENTS;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.TASK_ID;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.USER_ID;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -17,18 +14,18 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = COMMENTS)
+@Table(name = "comments")
 @Getter
 @Setter
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne
-    @JoinColumn(nullable = false, name = TASK_ID)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false, name = "task_id")
     private Task task;
-    @ManyToOne
-    @JoinColumn(nullable = false, name = USER_ID)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false, name = "user_id")
     private User user;
     @Column(nullable = false)
     private String text;

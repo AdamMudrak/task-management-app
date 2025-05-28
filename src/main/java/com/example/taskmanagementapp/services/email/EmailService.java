@@ -1,8 +1,5 @@
 package com.example.taskmanagementapp.services.email;
 
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.RESEND_API_KEY;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.SENDER_EMAIL;
-
 import com.resend.Resend;
 import com.resend.core.exception.ResendException;
 import com.resend.services.emails.model.CreateEmailOptions;
@@ -15,16 +12,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmailService {
     private static final Logger logger = LogManager.getLogger(EmailService.class);
-    @Value(SENDER_EMAIL)
-    protected String supportEmail;
-    @Value(RESEND_API_KEY)
+    @Value("${resend.api.key}")
     private String resendApiKey;
+    @Value("${mail}")
+    private String senderEmail;
 
     public void sendMessage(String toEmail, String subject, String body) {
         Resend resend = new Resend(resendApiKey);
 
         CreateEmailOptions params = CreateEmailOptions.builder()
-                .from(supportEmail)
+                .from(senderEmail)
                 .to(toEmail)
                 .subject(subject)
                 .text(body)

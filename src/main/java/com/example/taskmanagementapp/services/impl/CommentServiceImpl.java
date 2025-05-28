@@ -1,33 +1,35 @@
 package com.example.taskmanagementapp.services.impl;
 
-import com.example.taskmanagementapp.dtos.comment.request.AddCommentDto;
-import com.example.taskmanagementapp.dtos.comment.request.UpdateCommentDto;
-import com.example.taskmanagementapp.dtos.comment.response.CommentDto;
+import com.example.taskmanagementapp.dtos.comment.request.CommentRequest;
+import com.example.taskmanagementapp.dtos.comment.request.UpdateCommentRequest;
+import com.example.taskmanagementapp.dtos.comment.response.CommentResponse;
 import com.example.taskmanagementapp.entities.Comment;
 import com.example.taskmanagementapp.entities.Task;
 import com.example.taskmanagementapp.entities.User;
-import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
-import com.example.taskmanagementapp.exceptions.notfoundexceptions.EntityNotFoundException;
+import com.example.taskmanagementapp.exceptions.EntityNotFoundException;
+import com.example.taskmanagementapp.exceptions.ForbiddenException;
 import com.example.taskmanagementapp.mappers.CommentMapper;
-import com.example.taskmanagementapp.repositories.comment.CommentRepository;
-import com.example.taskmanagementapp.repositories.project.ProjectRepository;
-import com.example.taskmanagementapp.repositories.task.TaskRepository;
+import com.example.taskmanagementapp.repositories.CommentRepository;
+import com.example.taskmanagementapp.repositories.TaskRepository;
 import com.example.taskmanagementapp.services.CommentService;
+import com.example.taskmanagementapp.services.utils.ProjectAuthorityUtil;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final TaskRepository taskRepository;
-    private final ProjectRepository projectRepository;
     private final CommentMapper commentMapper;
+    private final ProjectAuthorityUtil projectAuthorityUtil;
 
     @Override
-    public CommentDto addComment(User authenticatedUser, AddCommentDto commentDto)
+    public CommentResponse addComment(User authenticatedUser, CommentRequest commentDto)
             throws ForbiddenException {
         Task thisTask = taskRepository.findByIdNotDeleted(
                 commentDto.taskId()).orElseThrow(
@@ -35,9 +37,7 @@ public class CommentServiceImpl implements CommentService {
                         "No active task with id " + commentDto.taskId()));
         Long thisProjectId = thisTask.getProject().getId();
 
-        if (projectRepository.isUserOwner(thisProjectId, authenticatedUser.getId())
-                || projectRepository.isUserEmployee(thisProjectId, authenticatedUser.getId())
-                || projectRepository.isUserManager(thisProjectId, authenticatedUser.getId())) {
+        if (projectAuthorityUtil.hasAnyAuthority(thisProjectId, authenticatedUser.getId())) {
             return commentMapper.toCommentDto(
                     commentRepository.save(
                             commentMapper.toAddComment(commentDto, thisTask, authenticatedUser)));
@@ -48,43 +48,28 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentDto updateComment(User authenticatedUser,
-                                    UpdateCommentDto commentDto, Long commentId)
+    public CommentResponse updateComment(Long authenticatedUserId,
+                                         UpdateCommentRequest commentDto, Long commentId)
             throws ForbiddenException {
-        Comment thisComment = commentRepository.findById(commentId).orElseThrow(
-                () -> new EntityNotFoundException("No comment with id " + commentId));
-        if (!thisComment.getUser().getId().equals(authenticatedUser.getId())) {
-            throw new ForbiddenException("You cannot update other people's comments");
-        }
-        Long thisCommentTaskId = thisComment.getTask().getId();
+        Comment comment = getCommentByIdAndUserId(commentId, authenticatedUserId);
+        Long commentTaskId = comment.getTask().getId();
+        Long taskProjectId = getProjectIdForTaskWithId(commentTaskId);
 
-        Task thisTask = taskRepository.findByIdNotDeleted(
-                thisCommentTaskId).orElseThrow(() -> new EntityNotFoundException(
-                "No active task with id " + thisCommentTaskId));
-        Long thisProjectId = thisTask.getProject().getId();
-
-        if (projectRepository.isUserOwner(thisProjectId, authenticatedUser.getId())
-                || projectRepository.isUserEmployee(thisProjectId, authenticatedUser.getId())
-                || projectRepository.isUserManager(thisProjectId, authenticatedUser.getId())) {
-            thisComment.setText(commentDto.text());
-            return commentMapper.toCommentDto(commentRepository.save(thisComment));
+        if (projectAuthorityUtil.hasAnyAuthority(taskProjectId, authenticatedUserId)) {
+            comment.setText(commentDto.text());
+            return commentMapper.toCommentDto(commentRepository.save(comment));
         } else {
-            throw new ForbiddenException("You can't update comments for task " + thisCommentTaskId
-                    + " since you are not participant in project " + thisProjectId);
+            throw new ForbiddenException("You can't update comments for task " + commentTaskId
+                    + " since you are not participant in project " + taskProjectId);
         }
     }
 
     @Override
-    public List<CommentDto> getAllComments(User authenticatedUser, Long taskId,
-                                           Pageable pageable) throws ForbiddenException {
-        Task thisTask = taskRepository.findByIdNotDeleted(
-                taskId).orElseThrow(() -> new EntityNotFoundException(
-                "No active task with id " + taskId));
-        Long thisProjectId = thisTask.getProject().getId();
+    public List<CommentResponse> getAllComments(Long authenticatedUserId, Long taskId,
+                                                Pageable pageable) throws ForbiddenException {
+        Long thisProjectId = getProjectIdForTaskWithId(taskId);
 
-        if (projectRepository.isUserOwner(thisProjectId, authenticatedUser.getId())
-                || projectRepository.isUserEmployee(thisProjectId, authenticatedUser.getId())
-                || projectRepository.isUserManager(thisProjectId, authenticatedUser.getId())) {
+        if (projectAuthorityUtil.hasAnyAuthority(thisProjectId, authenticatedUserId)) {
             return commentMapper.toCommentDtoList(commentRepository
                     .findAllByTaskId(taskId, pageable).getContent());
         } else {
@@ -94,26 +79,28 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void deleteComment(User authenticatedUser, Long commentId) throws ForbiddenException {
-        Comment thisComment = commentRepository.findById(commentId).orElseThrow(
-                () -> new EntityNotFoundException("No comment with id " + commentId));
-        if (!thisComment.getUser().getId().equals(authenticatedUser.getId())) {
-            throw new ForbiddenException("You cannot delete other people's comments");
-        }
+    public void deleteComment(Long authenticatedUserId, Long commentId) throws ForbiddenException {
+        Comment thisComment = getCommentByIdAndUserId(commentId, authenticatedUserId);
         Long thisCommentTaskId = thisComment.getTask().getId();
+        Long thisProjectId = getProjectIdForTaskWithId(thisCommentTaskId);
 
-        Task thisTask = taskRepository.findByIdNotDeleted(
-                thisCommentTaskId).orElseThrow(() -> new EntityNotFoundException(
-                "No active task with id " + thisCommentTaskId));
-        Long thisProjectId = thisTask.getProject().getId();
-
-        if (projectRepository.isUserOwner(thisProjectId, authenticatedUser.getId())
-                || projectRepository.isUserEmployee(thisProjectId, authenticatedUser.getId())
-                || projectRepository.isUserManager(thisProjectId, authenticatedUser.getId())) {
+        if (projectAuthorityUtil.hasAnyAuthority(thisProjectId, authenticatedUserId)) {
             commentRepository.deleteById(commentId);
         } else {
             throw new ForbiddenException("You can't delete comments from task " + thisCommentTaskId
                     + " since you are not participant in project " + thisProjectId);
         }
+    }
+
+    private Comment getCommentByIdAndUserId(Long commentId, Long userId) {
+        return commentRepository.findByIdAndUserId(commentId, userId).orElseThrow(
+                () -> new EntityNotFoundException("No comment with id " + commentId
+                        + " found for user " + userId));
+    }
+
+    private Long getProjectIdForTaskWithId(Long taskId) {
+        return taskRepository.findByIdNotDeleted(
+                taskId).orElseThrow(() -> new EntityNotFoundException(
+                "No active task with id " + taskId)).getProject().getId();
     }
 }

@@ -1,23 +1,23 @@
 package com.example.taskmanagementapp.services.impl;
 
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACTION;
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.NEW_EMAIL;
+import static com.example.taskmanagementapp.services.utils.UpdateValueValidatorUtil.areStringsValid;
 
 import com.example.taskmanagementapp.dtos.role.RoleNameDto;
-import com.example.taskmanagementapp.dtos.user.request.UpdateUserProfileDto;
+import com.example.taskmanagementapp.dtos.user.request.UpdateUserProfileRequest;
 import com.example.taskmanagementapp.dtos.user.request.UserAccountStatusDto;
-import com.example.taskmanagementapp.dtos.user.response.UserProfileAdminInfoDto;
-import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDto;
-import com.example.taskmanagementapp.dtos.user.response.UserProfileInfoDtoOnUpdate;
+import com.example.taskmanagementapp.dtos.user.response.UpdateUserProfileResponse;
+import com.example.taskmanagementapp.dtos.user.response.UserProfileAdminResponse;
+import com.example.taskmanagementapp.dtos.user.response.UserProfileResponse;
 import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.User;
-import com.example.taskmanagementapp.exceptions.forbidden.ForbiddenException;
-import com.example.taskmanagementapp.exceptions.notfoundexceptions.EntityNotFoundException;
+import com.example.taskmanagementapp.exceptions.EntityNotFoundException;
+import com.example.taskmanagementapp.exceptions.ForbiddenException;
 import com.example.taskmanagementapp.mappers.UserMapper;
-import com.example.taskmanagementapp.repositories.role.RoleRepository;
-import com.example.taskmanagementapp.repositories.user.UserRepository;
+import com.example.taskmanagementapp.repositories.RoleRepository;
+import com.example.taskmanagementapp.repositories.UserRepository;
 import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
 import com.example.taskmanagementapp.security.jwtutils.strategy.JwtStrategy;
+import com.example.taskmanagementapp.security.jwtutils.strategy.JwtType;
 import com.example.taskmanagementapp.services.UserService;
 import com.example.taskmanagementapp.services.email.ChangeEmailService;
 import com.example.taskmanagementapp.services.utils.ParamFromHttpRequestUtil;
@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserServiceImpl implements UserService {
     private final ChangeEmailService changeEmailService;
     private final ParamFromHttpRequestUtil randomParamFromHttpRequestUtil;
@@ -39,9 +40,9 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Override
-    public UserProfileInfoDto updateUserRole(Long authenticatedUserId,
-                                             Long employeeId,
-                                             RoleNameDto roleNameDto) throws ForbiddenException {
+    public UserProfileResponse updateUserRole(Long authenticatedUserId,
+                                              Long employeeId,
+                                              RoleNameDto roleNameDto) throws ForbiddenException {
         if (authenticatedUserId.equals(employeeId)) {
             throw new IllegalArgumentException(
                     "To prevent unwanted damage, self-assigning of roles is restricted. "
@@ -59,31 +60,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserProfileInfoDto getProfileInfo(Long authenticatedUserId) {
+    public UserProfileResponse getProfileInfo(Long authenticatedUserId) {
         return userMapper.toUserProfileInfoDto(userRepository.findById(authenticatedUserId)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Employee with id " + authenticatedUserId + " not found")));
     }
 
     @Override
-    public UserProfileInfoDtoOnUpdate updateProfileInfo(Long authenticatedUserId,
-                                                        UpdateUserProfileDto updateUserProfileDto) {
+    public UpdateUserProfileResponse updateProfileInfo(Long authenticatedUserId,
+                                                UpdateUserProfileRequest updateUserProfileDto) {
         User user = userRepository.findById(authenticatedUserId).orElseThrow(
                 () -> new EntityNotFoundException("User with id " + authenticatedUserId
                         + " not found"));
-        if (updateUserProfileDto.firstName() != null
-                && !updateUserProfileDto.firstName().isBlank()
-                && !user.getFirstName().equals(updateUserProfileDto.firstName())) {
+        if (areStringsValid(updateUserProfileDto.firstName(), user.getFirstName())) {
             user.setFirstName(updateUserProfileDto.firstName());
         }
-        if (updateUserProfileDto.lastName() != null
-                && !updateUserProfileDto.lastName().isBlank()
-                && !user.getLastName().equals(updateUserProfileDto.lastName())) {
+        if (areStringsValid(updateUserProfileDto.lastName(), user.getLastName())) {
             user.setLastName(updateUserProfileDto.lastName());
         }
-        if (updateUserProfileDto.email() != null
-                && !updateUserProfileDto.email().isBlank()
-                && !user.getEmail().equals(updateUserProfileDto.email())) {
+        if (areStringsValid(updateUserProfileDto.email(), user.getEmail())) {
             userRepository.findByEmail(updateUserProfileDto.email())
                     .ifPresent(existingUser -> {
                         throw new IllegalArgumentException("Email " + updateUserProfileDto.email()
@@ -95,8 +90,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserProfileAdminInfoDto changeStatus(User user, Long disabledUserId,
-                                                UserAccountStatusDto accountStatusDto)
+    public UserProfileAdminResponse changeStatus(User user, Long disabledUserId,
+                                                 UserAccountStatusDto accountStatusDto)
             throws ForbiddenException {
         if (user.getId().equals(disabledUserId)) {
             throw new ForbiddenException("You can not change your own account status");
@@ -121,16 +116,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserProfileInfoDto> getAllUsers(Pageable pageable) {
+    public List<UserProfileResponse> getAllUsers(Pageable pageable) {
         return userRepository.findAll(pageable).map(userMapper::toUserProfileInfoDto).getContent();
     }
 
     @Override
-    @Transactional
-    public UserProfileInfoDto confirmEmailChange(HttpServletRequest httpServletRequest) {
+    public UserProfileResponse confirmEmailChange(HttpServletRequest httpServletRequest) {
         String token = randomParamFromHttpRequestUtil
                 .parseRandomParameterAndToken(httpServletRequest);
-        JwtAbstractUtil jwtActionUtil = jwtStrategy.getStrategy(ACTION);
+        JwtAbstractUtil jwtActionUtil = jwtStrategy.getStrategy(JwtType.ACTION);
         jwtActionUtil.isValidToken(token);
 
         String email = jwtActionUtil.getUsername(token);
@@ -138,7 +132,7 @@ public class UserServiceImpl implements UserService {
                 () -> new EntityNotFoundException("User with email "
                         + email + " was not found"));
         user.setEmail(randomParamFromHttpRequestUtil.getNamedParameter(httpServletRequest,
-                NEW_EMAIL));
+                "newEmail"));
 
         return userMapper.toUserProfileInfoDto(userRepository.save(user));
     }

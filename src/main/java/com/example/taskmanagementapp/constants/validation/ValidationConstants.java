@@ -6,14 +6,12 @@ public class ValidationConstants {
     public static final String INVALID_DATE_FORMAT = ": invalid date format. Should be YYYY-MM-dd.";
     public static final String END_DATE_EARLIER_THAN_START_DATE = ": invalid date. "
             + "endDate can't be earlier than startDate";
-    public static final String DATE_PATTERN = "^\\d{4}-\\d{2}-\\d{2}$";
-    public static final Pattern COMPILED_DATE_PATTERN = Pattern.compile(DATE_PATTERN);
+    public static final Pattern COMPILED_DATE_PATTERN = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}$");
 
     public static final String INVALID_EMAIL = ": invalid email. Try again.";
     public static final String INVALID_USERNAME = ": invalid username. Can't be like email.";
-    public static final String PATTERN_OF_EMAIL = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*"
-            + "@[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
-    public static final Pattern COMPILED_PATTERN = Pattern.compile(PATTERN_OF_EMAIL);
+    public static final Pattern COMPILED_EMAIL_PATTERN = Pattern.compile("^(?=.{1,64}@)[A-Za-z0-9_-"
+            + "]+(\\.[A-Za-z0-9_-]+)*@[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$");
 
     public static final String PASSWORD_COLLISION =
             "currentPassword collides with newPassword. Try again.";
@@ -24,8 +22,7 @@ public class ValidationConstants {
 
     public static final String INVALID_PASSWORD =
             " should contain 1 lowercase letter, 1 uppercase letter, 1 digit, 1 special character.";
-    public static final String ESCAPED_SPECIAL_CHARS =
-            Pattern.quote("^$*{}[]()|~`!@#%&-_=+;:'\"<>,./?");
-    public static final String PASSWORD_PATTERN = "(?=^.*[A-Z])(?=^.*[a-z])(?=^.*\\d)"
-            + "(?=^.*[" + ESCAPED_SPECIAL_CHARS + "]).{8,32}$";
+    public static final Pattern COMPILED_PASSWORD_PATTERN = Pattern.compile("(?=^.*[A-Z])(?=^.*[a-z"
+            + "])(?=^.*\\d)(?=^.*[" + Pattern.quote("^$*{}["
+            + "]()|~`!@#%&-_=+;:'\"<>,./?") + "]).{8,32}$");
 }

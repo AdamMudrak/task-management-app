@@ -14,13 +14,18 @@ public class Constants {
     public static final String CODE_400 = "400";
     public static final String CODE_401 = "401";
 
-    public static final String ROLE_USER = "hasRole('ROLE_USER')";
-    public static final String ROLE_ADMIN = "hasRole('ROLE_ADMIN')";
-
     public static final String GREEN = "\033[0;32m";// GREEN
     public static final String RESET = "\033[0m";//Reset
 
     public static final int FIRST_POSITION = 0;
     public static final int SECOND_POSITION = 1;
     public static final int THIRD_POSITION = 2;
+
+    public static final String PASSWORD_DESCRIPTION = """
+                    Your password should contain:
+                    1) at least one lowercase letter, like 'a';
+                    2) at least one uppercase letter, like 'A';
+                    3) at least one number, like '0';
+                    4) at least one special character, like '?!@#$%^&*~';
+                    5) from 8 to 32 characters.""";
 }

@@ -3,11 +3,9 @@ package com.example.taskmanagementapp.services.utils;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RANDOM_STRING_BASE;
 
 import java.util.Random;
-import org.springframework.stereotype.Component;
 
-@Component
 public class RandomStringUtil {
-    public String generateRandomString(int strength) {
+    public static String generateRandomString(int strength) {
         String characters = RANDOM_STRING_BASE;
         StringBuilder randomString =
                 new StringBuilder(strength);

@@ -7,10 +7,6 @@ public class CommentControllerConstants {
             of how to add, get, update and delete comments.
             """;
 
-    public static final String COMMENTS = "/comments";
-    public static final String COMMENT_ID = "/{commentId}";
-    public static final String TASK_ID = "/{taskId}";
-
     public static final String ADD_COMMENT_SUMMARY =
             "Add comment to a task if you are participant of the project the task belongs to.";
     public static final String SUCCESSFULLY_ADDED_COMMENT =
@@ -22,7 +18,7 @@ public class CommentControllerConstants {
             "Successfully updated comment.";
 
     public static final String GET_COMMENTS_SUMMARY =
-            "Retrieve all comments from the task if you are participant of "
+            "Retrieve all comments for the task if you are participant of "
                     + "the project the task belongs to.";
     public static final String SUCCESSFULLY_GOT_COMMENTS =
             "Successfully retrieved comments.";

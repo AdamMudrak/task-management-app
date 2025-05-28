@@ -1,10 +1,10 @@
 package com.example.taskmanagementapp.mappers;
 
 import com.example.taskmanagementapp.config.MapperConfig;
-import com.example.taskmanagementapp.dtos.task.request.CreateTaskDto;
 import com.example.taskmanagementapp.dtos.task.request.TaskPriorityDto;
+import com.example.taskmanagementapp.dtos.task.request.TaskRequest;
 import com.example.taskmanagementapp.dtos.task.request.TaskStatusDto;
-import com.example.taskmanagementapp.dtos.task.response.TaskDto;
+import com.example.taskmanagementapp.dtos.task.response.TaskResponse;
 import com.example.taskmanagementapp.entities.Task;
 import java.util.List;
 import org.mapstruct.AfterMapping;
@@ -16,23 +16,23 @@ import org.mapstruct.MappingTarget;
 public interface TaskMapper {
     @Mapping(target = "project.id", source = "projectId")
     @Mapping(target = "assignee.id", source = "assigneeId")
-    Task toCreateTask(CreateTaskDto createTaskDto);
+    Task toCreateTask(TaskRequest createTaskDto);
 
     @Mapping(target = "projectId", source = "project.id")
     @Mapping(target = "assigneeId", source = "assignee.id")
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "priority", ignore = true)
-    TaskDto toTaskDto(Task task);
+    TaskResponse toTaskDto(Task task);
 
     @AfterMapping
-    default void setStatus(Task task, @MappingTarget TaskDto taskDto) {
+    default void setStatus(Task task, @MappingTarget TaskResponse taskDto) {
         taskDto.setStatus(TaskStatusDto.valueOf(task.getStatus().name()));
     }
 
     @AfterMapping
-    default void setPriority(Task task, @MappingTarget TaskDto taskDto) {
+    default void setPriority(Task task, @MappingTarget TaskResponse taskDto) {
         taskDto.setPriority(TaskPriorityDto.valueOf(task.getPriority().name()));
     }
 
-    List<TaskDto> toTaskDtoList(List<Task> tasks);
+    List<TaskResponse> toTaskDtoList(List<Task> tasks);
 }

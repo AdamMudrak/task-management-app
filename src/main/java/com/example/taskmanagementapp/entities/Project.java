@@ -1,21 +1,10 @@
 package com.example.taskmanagementapp.entities;
 
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.BOOLEAN_TO_INT;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.EMPLOYEE_ID;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.END_DATE;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.IS_DELETED;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.MANAGER_ID;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.OWNER_ID;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.PROJECTS;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.PROJECT_EMPLOYEES;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.PROJECT_ID;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.PROJECT_MANAGERS;
-import static com.example.taskmanagementapp.constants.entitities.EntitiesConstants.START_DATE;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -34,7 +23,7 @@ import org.hibernate.annotations.SQLDelete;
 @Getter
 @Setter
 @Entity
-@Table(name = PROJECTS)
+@Table(name = "projects")
 @SQLDelete(sql = "UPDATE projects SET is_deleted = TRUE WHERE id = ?")
 public class Project {
     @Id
@@ -43,28 +32,28 @@ public class Project {
     @Column(nullable = false)
     private String name;
     private String description;
-    @Column(nullable = false, name = START_DATE)
+    @Column(nullable = false, name = "start_date")
     private LocalDate startDate;
-    @Column(nullable = false, name = END_DATE)
+    @Column(nullable = false, name = "end_date")
     private LocalDate endDate;
     @Enumerated(EnumType.STRING)
     private Status status;
-    @Column(nullable = false, name = IS_DELETED, columnDefinition = BOOLEAN_TO_INT)
+    @Column(nullable = false, name = "is_deleted", columnDefinition = "TINYINT(1)")
     private boolean isDeleted = false;
-    @ManyToOne
-    @JoinColumn(nullable = false, name = OWNER_ID)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false, name = "owner_id")
     private User owner;
     @ManyToMany
     @JoinTable(
-            name = PROJECT_MANAGERS,
-            joinColumns = @JoinColumn(name = PROJECT_ID),
-            inverseJoinColumns = @JoinColumn(name = MANAGER_ID))
+            name = "project_managers",
+            joinColumns = @JoinColumn(name = "project_id"),
+            inverseJoinColumns = @JoinColumn(name = "manager_id"))
     private Set<User> managers = new HashSet<>();
     @ManyToMany
     @JoinTable(
-            name = PROJECT_EMPLOYEES,
-            joinColumns = @JoinColumn(name = PROJECT_ID),
-            inverseJoinColumns = @JoinColumn(name = EMPLOYEE_ID))
+            name = "project_employees",
+            joinColumns = @JoinColumn(name = "project_id"),
+            inverseJoinColumns = @JoinColumn(name = "employee_id"))
     private Set<User> employees = new HashSet<>();
 
     public enum Status {
