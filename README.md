@@ -143,30 +143,46 @@ Here you'll find a comprehensive overview of how to add, get, update and delete 
 Not ready for setting up my application locally yet? Then explore [Landing](https://facio-landing.adammudrak.space/) first!<br>There, you will be able to explore Swagger documentation.
 
 1. **Prerequisites:**
-    - If you want to use your **own** MySQL, update [application.properties](src/main/resources/application.properties) directly or [envrironment variables](.env.sample) with your MySQL credentials.
-        - If not, just proceed with the next step as follow-up commands are ready to start MySQL locally in docker container.
-    - Having a resend API key **or** adjusting [EmailService](src/main/java/com/example/taskmanagementapp/services/email/EmailService.java) to use Google SMTP **is a must**.
-        - Having a [Resend account](https://resend.com) **is a must** if using Google SMTP is unwanted;
-        - Having a domain for email address to use Resend **is a must**;
-    - Software **required**:
-        - Git
-        - Maven
-        - Docker
+   - Software **required**:
+   - Git
+   - Maven
+   - Docker
     ```sh
       #check if everything is installed
       #by checking version of software
       git -v
       mvn -v
       docker -v
-    ```
-
-2. **Run the application:**
-    ```sh
+    ``` 
+    **Open git bash**
+   ```sh
       #clone the repository
       git clone https://github.com/AdamMudrak/task-management-app.git
       #change to task-management-app root package
       cd task-management-app/
     ```
+   ```sh
+      #to change environment variables, you can now use
+      nano .env.sample
+   ```
+   - If you want to use your **own** MySQL, update [application.properties](src/main/resources/application.properties) directly or [.env.sample](.env.sample) with your MySQL credentials.
+       - If not, just proceed with the next step as follow-up commands are ready to start MySQL locally in docker container.
+    - Having a resend API key **or** adjusting [EmailService](src/main/java/com/example/taskmanagementapp/services/email/EmailService.java) to use Google SMTP **is a must**.
+        - Having a [Resend account](https://resend.com) **is a must** if using Google SMTP is unwanted;
+          - [Get API key](https://apidog.com/blog/resend-api/#1-sign-up-and-create-an-api-key)
+        - Having a spare domain for email address to use Resend **is highly recommended**;
+          - [Verify your domain](https://apidog.com/blog/resend-api/#2-verify-your-domain)
+        - After successful registration, domain verification and getting API token, in [.env.sample](.env.sample) replace values for:
+          - RESEND_API_KEY=your_resend_api_key
+          - MAIL=your_domained_email
+   - Having a dropbox refresh token, key and secret **is required**. [Tutorial](https://www.codemzy.com/blog/dropbox-long-lived-access-refresh-token). When you get them, replace placeholders with actual token, key and secret in [envrironment variables](.env.sample) for keys:
+     - DROPBOX_REFRESH_TOKEN=your_dropbox_refresh_token
+     - DROPBOX_KEY=your_dropbox_key
+     - DROPBOX_SECRET=your_dropbox_refresh_secret
+   - Recommended, but app will start without adjustment:
+     - JWT_SECRET - secure your JWTs with something meaningful
+
+2. **Run the application:**
     ```sh
       #build application archive
       mvn clean package
@@ -188,11 +204,6 @@ Not ready for setting up my application locally yet? Then explore [Landing](http
         -e MYSQL_PASSWORD=facio_pass \
         -p 3307:3306 -v mysql_data:/var/lib/mysql -d mysql
     ```
-    - Adjusting [application.properties](src/main/resources/application.properties) directly or [envrironment variables](.env.sample) **required**:
-        - RESEND_API_KEY - key required to enable [EmailService](src/main/java/com/example/taskmanagementapp/services/email/EmailService.java)
-    - **Recommended**, but app will start without them:
-        - JWT_SECRET - secure your JWTs
-        - EMAIL_SECRET - secure your email links with a random string
     ```sh
       #run application using .env.sample
       docker run -p 8080:8080 --env-file .env.sample taskmanagementapp

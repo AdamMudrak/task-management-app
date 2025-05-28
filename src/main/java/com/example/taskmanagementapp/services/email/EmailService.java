@@ -14,12 +14,14 @@ public class EmailService {
     private static final Logger logger = LogManager.getLogger(EmailService.class);
     @Value("${resend.api.key}")
     private String resendApiKey;
+    @Value("${mail}")
+    private String senderEmail;
 
     public void sendMessage(String toEmail, String subject, String body) {
         Resend resend = new Resend(resendApiKey);
 
         CreateEmailOptions params = CreateEmailOptions.builder()
-                .from("facio@adammudrak.space")
+                .from(senderEmail)
                 .to(toEmail)
                 .subject(subject)
                 .text(body)
