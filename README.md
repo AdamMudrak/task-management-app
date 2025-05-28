@@ -144,9 +144,9 @@ Not ready for setting up my application locally yet? Then explore [Landing](http
 
 1. **Prerequisites:**
    - Software **required**:
-   - Git
-   - Maven
-   - Docker
+     - Git
+     - Maven
+     - Docker
     ```sh
       #check if everything is installed
       #by checking version of software
