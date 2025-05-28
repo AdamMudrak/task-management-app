@@ -27,7 +27,7 @@ public record RegistrationRequest(
         @NotBlank
         @Password
         String password,
-        @Schema(name = "repeatNewPassword",
+        @Schema(name = "repeatPassword",
                 example = "Best_Password1@3$",
                 description = "This field must be the same as password!",
                 requiredMode = REQUIRED)
