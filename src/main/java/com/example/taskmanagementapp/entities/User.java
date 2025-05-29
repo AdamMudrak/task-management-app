@@ -2,7 +2,6 @@ package com.example.taskmanagementapp.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -35,7 +34,7 @@ public class User implements UserDetails {
     private String firstName;
     @Column(nullable = false, name = "last_name")
     private String lastName;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;
     @Column(nullable = false, columnDefinition = "TINYINT(1)", name = "is_enabled")
