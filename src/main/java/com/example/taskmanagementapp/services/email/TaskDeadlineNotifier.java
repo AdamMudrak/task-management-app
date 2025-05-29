@@ -44,7 +44,7 @@ public class TaskDeadlineNotifier extends EmailService {
         Predicate<Task> whereDueTomorrow = task -> task.getDueDate()
                 .isEqual(LocalDate.now().plusDays(1));
 
-        return taskRepository.findAllNonDeleted().stream()
+        return taskRepository.findAllNonDeletedWithAssigneeAndProject().stream()
                 .filter(whereDueTomorrow)
                 .collect(Collectors.groupingBy(Task::getAssignee));
     }

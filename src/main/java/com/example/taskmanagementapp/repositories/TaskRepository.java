@@ -17,8 +17,10 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     Page<Task> findAllByProjectIdNonDeleted(Long projectId, Pageable pageable);
 
     @Query("SELECT t FROM Task t "
+            + "JOIN FETCH t.assignee "
+            + "JOIN FETCH t.project "
             + "WHERE t.isDeleted = false")
-    List<Task> findAllNonDeleted();
+    List<Task> findAllNonDeletedWithAssigneeAndProject();
 
     @Query("SELECT t FROM Task t "
             + "WHERE t.id = :id "
@@ -31,9 +33,10 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
             + "WHERE t.project.id = :projectId")
     void deleteAllByProjectId(Long projectId);
 
-    @Query(value = "SELECT * FROM tasks "
+    @Query(value = "SELECT t.* FROM tasks t "
             + "JOIN labels_tasks "
-            + "ON tasks.id = labels_tasks.task_id "
-            + " WHERE labels_tasks.label_id = :labelId", nativeQuery = true)
+            + "ON t.id = labels_tasks.task_id "
+            + " WHERE labels_tasks.label_id = :labelId"
+            + " AND t.is_deleted = false", nativeQuery = true)
     Page<Task> findAllByLabelIdNonDeleted(Long labelId, Pageable pageable);
 }
