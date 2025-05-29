@@ -15,6 +15,7 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(config = MapperConfig.class)
 public interface ProjectMapper {
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "name", source = "createProjectDto.name")
     @Mapping(target = "description", ignore = true)
     @Mapping(target = "startDate", source = "createProjectDto.startDate")

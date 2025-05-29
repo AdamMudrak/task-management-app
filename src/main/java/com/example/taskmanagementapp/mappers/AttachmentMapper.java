@@ -10,6 +10,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(config = MapperConfig.class)
 public interface AttachmentMapper {
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "task", source = "task")
     @Mapping(target = "fileId", source = "fileId")
     @Mapping(target = "fileName", source = "fileName")

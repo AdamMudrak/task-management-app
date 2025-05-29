@@ -16,7 +16,7 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(config = MapperConfig.class)
 public interface LabelMapper {
-
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", source = "user")
     @Mapping(target = "name", source = "addLabelDto.name")
     @Mapping(target = "color", expression = "java(com.example.taskmanagementapp.entities."
