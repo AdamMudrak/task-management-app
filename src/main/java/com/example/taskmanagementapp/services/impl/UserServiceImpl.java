@@ -13,6 +13,7 @@ import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.EntityNotFoundException;
 import com.example.taskmanagementapp.exceptions.ForbiddenException;
 import com.example.taskmanagementapp.mappers.UserMapper;
+import com.example.taskmanagementapp.repositories.ActionTokenRepository;
 import com.example.taskmanagementapp.repositories.RoleRepository;
 import com.example.taskmanagementapp.repositories.UserRepository;
 import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
@@ -38,11 +39,12 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final UserMapper userMapper;
+    private final ActionTokenRepository actionTokenRepository;
 
     @Override
     public UserProfileResponse updateUserRole(Long authenticatedUserId,
                                               Long employeeId,
-                                              RoleNameDto roleNameDto) throws ForbiddenException {
+                                              RoleNameDto roleNameDto) {
         if (authenticatedUserId.equals(employeeId)) {
             throw new IllegalArgumentException(
                     "To prevent unwanted damage, self-assigning of roles is restricted. "
@@ -51,9 +53,6 @@ public class UserServiceImpl implements UserService {
         }
         User employee = userRepository.findById(employeeId).orElseThrow(
                 () -> new EntityNotFoundException("Employee with id " + employeeId + " not found"));
-        if (employee.getRole().getName().equals(Role.RoleName.ROLE_ADMIN)) {
-            throw new ForbiddenException("SUPERVISOR role can be revoked only via SQL directly");
-        }
         Role role = roleRepository.findByName(Role.RoleName.valueOf(roleNameDto.name()));
         employee.setRole(role);
         return userMapper.toUserProfileInfoDto(userRepository.save(employee));
@@ -126,13 +125,18 @@ public class UserServiceImpl implements UserService {
                 .parseRandomParameterAndToken(httpServletRequest);
         JwtAbstractUtil jwtActionUtil = jwtStrategy.getStrategy(JwtType.ACTION);
         jwtActionUtil.isValidToken(token);
-
+        String newEmail = randomParamFromHttpRequestUtil.getNamedParameter(httpServletRequest,
+                "newEmail");
+        if (!actionTokenRepository.existsByActionToken(token + newEmail)) {
+            throw new EntityNotFoundException(
+                    "No such request was found. You shouldn't change the url.");
+        }
+        actionTokenRepository.deleteByActionToken(token + newEmail);
         String email = jwtActionUtil.getUsername(token);
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new EntityNotFoundException("User with email "
                         + email + " was not found"));
-        user.setEmail(randomParamFromHttpRequestUtil.getNamedParameter(httpServletRequest,
-                "newEmail"));
+        user.setEmail(newEmail);
 
         return userMapper.toUserProfileInfoDto(userRepository.save(user));
     }

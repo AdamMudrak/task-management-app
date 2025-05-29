@@ -81,8 +81,7 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public UserProfileResponse updateUserRole(@AuthenticationPrincipal User user,
                                               @PathVariable @Positive Long employeeId,
-                                              @RequestParam RoleNameDto roleName)
-            throws ForbiddenException {
+                                              @RequestParam RoleNameDto roleName) {
         return userService.updateUserRole(user.getId(), employeeId, roleName);
     }
 

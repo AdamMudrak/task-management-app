@@ -15,7 +15,7 @@ import org.springframework.data.domain.Pageable;
 public interface UserService {
     UserProfileResponse updateUserRole(Long authenticatedUserId,
                                        Long employeeId,
-                                       RoleNameDto roleNameDto) throws ForbiddenException;
+                                       RoleNameDto roleNameDto);
 
     UserProfileResponse getProfileInfo(Long authenticatedUserId);
 
