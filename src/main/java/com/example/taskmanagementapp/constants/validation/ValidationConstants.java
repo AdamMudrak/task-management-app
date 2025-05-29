@@ -20,8 +20,8 @@ public class ValidationConstants {
     public static final String NEW_PASSWORD_MISMATCH =
             "newPassword and repeatPassword don't match. Try again.";
 
-    public static final String INVALID_PASSWORD =
-            " should contain 1 lowercase letter, 1 uppercase letter, 1 digit, 1 special character.";
+    public static final String INVALID_PASSWORD = " should contain 1 lowercase letter, 1 uppercase "
+            + "letter, 1 digit, 1 special character and be from 8 to 32 characters long";
     public static final Pattern COMPILED_PASSWORD_PATTERN = Pattern.compile("(?=^.*[A-Z])(?=^.*[a-z"
             + "])(?=^.*\\d)(?=^.*[" + Pattern.quote("^$*{}["
             + "]()|~`!@#%&-_=+;:'\"<>,./?") + "]).{8,32}$");
