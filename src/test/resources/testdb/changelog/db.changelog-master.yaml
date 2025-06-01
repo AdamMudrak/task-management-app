@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - include:
+      file: testdb/changelog/changes/01-create-roles-table.yaml
+  - include:
+      file: testdb/changelog/changes/02-create-users-table.yaml
+  - include:
+      file: testdb/changelog/changes/03-create-param-tokens-table.yaml
+  - include:
+      file: testdb/changelog/changes/04-create-action-tokens-table.yaml
+  - include:
+      file: testdb/changelog/changes/05-create-projects-table.yaml
+  - include:
+      file: testdb/changelog/changes/06-create-project-managers-table.yaml
+  - include:
+      file: testdb/changelog/changes/07-create-project-employees-table.yaml
+  - include:
+      file: testdb/changelog/changes/08-create-tasks-table.yaml
+  - include:
+      file: testdb/changelog/changes/09-create-attachments-table.yaml
+  - include:
+      file: testdb/changelog/changes/10-create-comments-table.yaml
+  - include:
+      file: testdb/changelog/changes/11-create-labels-table.yaml
+  - include:
+      file: testdb/changelog/changes/12-create-labels-tasks.yaml

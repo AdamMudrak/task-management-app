@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-param-tokens-table
+      author: AdamMudrak
+      changes:
+        - createTable:
+            tableName: param_tokens
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: parameter
+                  type: varchar(512)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: action_token
+                  type: varchar(512)
+                  constraints:
+                    nullable: false
