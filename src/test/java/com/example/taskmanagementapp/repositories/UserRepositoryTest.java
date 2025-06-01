@@ -54,7 +54,7 @@ class UserRepositoryTest {
     @Test
     void givenNotExistingUser_whenFindByUsername_thenReturnEmptyUser() {
         Assertions.assertTrue(userRepository.findByUsername(
-                Constants.NOT_EXISTING_USERNAME).isEmpty());
+                Constants.ANOTHER_USERNAME).isEmpty());
     }
 
     @Test
@@ -69,7 +69,7 @@ class UserRepositoryTest {
     @Test
     void givenNotExistingUser_whenFindByEmail_thenReturnEmptyUser() {
         Assertions.assertTrue(userRepository.findByEmail(
-                Constants.NOT_EXISTING_EMAIL).isEmpty());
+                Constants.ANOTHER_EMAIL).isEmpty());
     }
 
     @Test
@@ -80,7 +80,7 @@ class UserRepositoryTest {
     @Test
     void givenNotExistingUser_whenExistsByUsername_thenReturnFalse() {
         Assertions.assertFalse(userRepository.existsByUsername(
-                Constants.NOT_EXISTING_USERNAME));
+                Constants.ANOTHER_USERNAME));
     }
 
     @Test
@@ -90,7 +90,7 @@ class UserRepositoryTest {
 
     @Test
     void givenNotExistingUser_whenExistsByEmail_thenReturnFalse() {
-        Assertions.assertFalse(userRepository.existsByEmail(Constants.NOT_EXISTING_EMAIL));
+        Assertions.assertFalse(userRepository.existsByEmail(Constants.ANOTHER_EMAIL));
     }
 
     private void userAssertions(User user) {
