@@ -48,15 +48,7 @@ class UserRepositoryTest {
                 () -> new EntityNotFoundException("No user found with username \""
                         + Constants.USERNAME + "\""));
 
-        Assertions.assertNotNull(user);
-        Assertions.assertEquals(Constants.USERNAME, user.getUsername());
-        Assertions.assertEquals(Constants.PASSWORD, user.getPassword());
-        Assertions.assertEquals(Constants.EMAIL, user.getEmail());
-        Assertions.assertEquals(Constants.FIRST_NAME, user.getFirstName());
-        Assertions.assertEquals(Constants.LAST_NAME, user.getLastName());
-        Assertions.assertEquals(Constants.ROLE_USER, user.getRole().getName().name());
-        Assertions.assertTrue(user.isEnabled());
-        Assertions.assertTrue(user.isAccountNonLocked());
+        userAssertions(user);
     }
 
     @Test
@@ -71,15 +63,7 @@ class UserRepositoryTest {
                 () -> new EntityNotFoundException("No user found with username \""
                         + Constants.EMAIL + "\""));
 
-        Assertions.assertNotNull(user);
-        Assertions.assertEquals(Constants.USERNAME, user.getUsername());
-        Assertions.assertEquals(Constants.PASSWORD, user.getPassword());
-        Assertions.assertEquals(Constants.EMAIL, user.getEmail());
-        Assertions.assertEquals(Constants.FIRST_NAME, user.getFirstName());
-        Assertions.assertEquals(Constants.LAST_NAME, user.getLastName());
-        Assertions.assertEquals(Constants.ROLE_USER, user.getRole().getName().name());
-        Assertions.assertTrue(user.isEnabled());
-        Assertions.assertTrue(user.isAccountNonLocked());
+        userAssertions(user);
     }
 
     @Test
@@ -107,5 +91,17 @@ class UserRepositoryTest {
     @Test
     void givenNotExistingUser_whenExistsByEmail_thenReturnFalse() {
         Assertions.assertFalse(userRepository.existsByEmail(Constants.NOT_EXISTING_EMAIL));
+    }
+
+    private void userAssertions(User user) {
+        Assertions.assertNotNull(user);
+        Assertions.assertEquals(Constants.USERNAME, user.getUsername());
+        Assertions.assertEquals(Constants.PASSWORD, user.getPassword());
+        Assertions.assertEquals(Constants.EMAIL, user.getEmail());
+        Assertions.assertEquals(Constants.FIRST_NAME, user.getFirstName());
+        Assertions.assertEquals(Constants.LAST_NAME, user.getLastName());
+        Assertions.assertEquals(Constants.ROLE_USER, user.getRole().getName().name());
+        Assertions.assertTrue(user.isEnabled());
+        Assertions.assertTrue(user.isAccountNonLocked());
     }
 }
