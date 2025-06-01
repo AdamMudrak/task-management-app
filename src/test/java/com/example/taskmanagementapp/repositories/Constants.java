@@ -11,6 +11,8 @@ public class Constants {
     public static final String NOT_EXISTING_USERNAME = "RichardRoe";
     public static final String NOT_EXISTING_EMAIL = "richard_roe@mail.com";
 
+    public static final String PARAMETER = "parameter";
+    public static final String NOT_EXISTING_PARAMETER = "blaBlaBlaParameter";
     public static final String ACTION_TOKEN = "actionToken";
     public static final String NOT_EXISTING_ACTION_TOKEN = "blaBlaBlaActionToken";
 }
