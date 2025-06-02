@@ -26,7 +26,9 @@ public class Constants {
     public static final LocalDate PROJECT_END_DATE = LocalDate.of(2025, 12, 31);
 
     public static final String TASK_NAME = "taskName";
+    public static final String ANOTHER_TASK_NAME = "anotherTaskName";
     public static final String TASK_DESCRIPTION = "taskDescription";
+    public static final String ANOTHER_TASK_DESCRIPTION = "anotherTaskDescription";
     public static final LocalDate TASK_DUE_DATE = LocalDate.of(2025, 12, 31);
 
     public static final String LABEL_NAME = "labelName";
