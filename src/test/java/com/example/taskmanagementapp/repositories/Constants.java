@@ -20,8 +20,15 @@ public class Constants {
 
     public static final String PROJECT_NAME = "projectName";
     public static final String PROJECT_DESCRIPTION = "projectDescription";
-    public static final String DELETED_PROJECT_NAME = "deletedProjectName";
-    public static final String DELETED_PROJECT_DESCRIPTION = "deletedProjectDescription";
+    public static final String ANOTHER_PROJECT_NAME = "anotherProjectName";
+    public static final String ANOTHER_PROJECT_DESCRIPTION = "anotherProjectDescription";
     public static final LocalDate PROJECT_START_DATE = LocalDate.of(2025, 1, 1);
     public static final LocalDate PROJECT_END_DATE = LocalDate.of(2025, 12, 31);
+
+    public static final String TASK_NAME = "taskName";
+    public static final String TASK_DESCRIPTION = "taskDescription";
+    public static final LocalDate TASK_DUE_DATE = LocalDate.of(2025, 12, 31);
+
+    public static final String LABEL_NAME = "labelName";
+    public static final String ANOTHER_LABEL_NAME = "anotherLabelName";
 }

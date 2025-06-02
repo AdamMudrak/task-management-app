@@ -85,8 +85,8 @@ public class ProjectRepositoryTest {
         existingProjectId = projectRepository.save(project).getId();
 
         Project deletedProject = new Project();
-        deletedProject.setName(Constants.DELETED_PROJECT_NAME);
-        deletedProject.setDescription(Constants.DELETED_PROJECT_DESCRIPTION);
+        deletedProject.setName(Constants.ANOTHER_PROJECT_NAME);
+        deletedProject.setDescription(Constants.ANOTHER_PROJECT_DESCRIPTION);
         deletedProject.setStartDate(Constants.PROJECT_START_DATE);
         deletedProject.setEndDate(Constants.PROJECT_END_DATE);
         deletedProject.setStatus(Project.Status.INITIATED);
@@ -124,7 +124,7 @@ public class ProjectRepositoryTest {
                 .findAllByOwnerIdDeleted(testUser.getId(), Pageable.unpaged()).getContent();
         Assertions.assertEquals(1, projectList.size());
         projectAssertions(projectList.getFirst(), true,
-                Constants.DELETED_PROJECT_NAME, Constants.DELETED_PROJECT_DESCRIPTION);
+                Constants.ANOTHER_PROJECT_NAME, Constants.ANOTHER_PROJECT_DESCRIPTION);
     }
 
     @Test
