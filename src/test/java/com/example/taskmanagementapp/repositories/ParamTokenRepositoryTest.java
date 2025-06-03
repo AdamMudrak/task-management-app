@@ -1,7 +1,7 @@
 package com.example.taskmanagementapp.repositories;
 
 import com.dropbox.core.v2.DbxClientV2;
-import com.example.taskmanagementapp.entities.ParamToken;
+import com.example.taskmanagementapp.EntityFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,10 +20,7 @@ public class ParamTokenRepositoryTest {
 
     @BeforeEach
     public void setUp() {
-        ParamToken paramToken = new ParamToken();
-        paramToken.setParameter(Constants.PARAMETER);
-        paramToken.setActionToken(Constants.ACTION_TOKEN);
-        paramTokenRepository.save(paramToken);
+        paramTokenRepository.save(EntityFactory.getParamToken());
     }
 
     @Test

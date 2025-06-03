@@ -1,7 +1,7 @@
 package com.example.taskmanagementapp.repositories;
 
 import com.dropbox.core.v2.DbxClientV2;
-import com.example.taskmanagementapp.entities.ActionToken;
+import com.example.taskmanagementapp.EntityFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,9 +20,7 @@ public class ActionTokenRepositoryTest {
 
     @BeforeEach
     public void setUp() {
-        ActionToken actionToken = new ActionToken();
-        actionToken.setActionToken(Constants.ACTION_TOKEN);
-        actionTokenRepository.save(actionToken);
+        actionTokenRepository.save(EntityFactory.getActionToken());
     }
 
     @Test

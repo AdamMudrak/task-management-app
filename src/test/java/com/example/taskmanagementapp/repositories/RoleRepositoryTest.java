@@ -1,6 +1,7 @@
 package com.example.taskmanagementapp.repositories;
 
 import com.dropbox.core.v2.DbxClientV2;
+import com.example.taskmanagementapp.EntityFactory;
 import com.example.taskmanagementapp.entities.Role;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,13 +21,8 @@ public class RoleRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        Role userRole = new Role();
-        userRole.setName(Role.RoleName.ROLE_USER);
-        roleRepository.save(userRole);
-
-        Role adminRole = new Role();
-        adminRole.setName(Role.RoleName.ROLE_ADMIN);
-        roleRepository.save(adminRole);
+        roleRepository.save(EntityFactory.getUserRole());
+        roleRepository.save(EntityFactory.getAdminRole());
     }
 
     @Test

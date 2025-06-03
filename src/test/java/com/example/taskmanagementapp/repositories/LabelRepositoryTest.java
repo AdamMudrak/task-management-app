@@ -1,6 +1,7 @@
 package com.example.taskmanagementapp.repositories;
 
 import com.dropbox.core.v2.DbxClientV2;
+import com.example.taskmanagementapp.EntityFactory;
 import com.example.taskmanagementapp.entities.Label;
 import com.example.taskmanagementapp.entities.Project;
 import com.example.taskmanagementapp.entities.Role;
@@ -44,75 +45,22 @@ public class LabelRepositoryTest {
     private TaskRepository taskRepository;
     @Autowired
     private LabelRepository labelRepository;
-    private User testUser;
-    private User anotherTestUser;
-    private Task testTask;
-    private Task anotherTestTask;
-    private Long labelId;
-    private Long anotherLabelId;
+    private User user1;
+    private User user2;
+    private Task task1;
+    private Task task2;
+    private Long labelId1;
+    private Long labelId2;
 
     @BeforeAll
     void setUpBeforeAll() {
-        Role role = new Role();
-        role.setName(Role.RoleName.ROLE_USER);
-        Role savedRole = roleRepository.save(role);
-
-        User user = new User();
-        user.setUsername(Constants.USERNAME);
-        user.setPassword(Constants.PASSWORD);
-        user.setEmail(Constants.EMAIL);
-        user.setFirstName(Constants.FIRST_NAME);
-        user.setLastName(Constants.LAST_NAME);
-        user.setRole(savedRole);
-        user.setEnabled(true);
-        user.setAccountNonLocked(true);
-        testUser = userRepository.save(user);
-
-        User user2 = new User();
-        user2.setUsername(Constants.ANOTHER_USERNAME);
-        user2.setPassword(Constants.PASSWORD);
-        user2.setEmail(Constants.ANOTHER_EMAIL);
-        user2.setFirstName(Constants.FIRST_NAME);
-        user2.setLastName(Constants.LAST_NAME);
-        user2.setRole(savedRole);
-        user2.setEnabled(true);
-        user2.setAccountNonLocked(true);
-        anotherTestUser = userRepository.save(user2);
-
-        Project project = new Project();
-        project.setName(Constants.PROJECT_NAME);
-        project.setDescription(Constants.PROJECT_DESCRIPTION);
-        project.setStartDate(Constants.PROJECT_START_DATE);
-        project.setEndDate(Constants.PROJECT_END_DATE);
-        project.setStatus(Project.Status.INITIATED);
-        project.setDeleted(false);
-        project.setOwner(user);
-        project.getManagers().add(user);
-        project.getEmployees().add(user);
-        project.getEmployees().add(user2);
-        projectRepository.save(project);
-
-        Task task = new Task();
-        task.setName(Constants.TASK_NAME);
-        task.setDescription(Constants.TASK_DESCRIPTION);
-        task.setPriority(Task.Priority.LOW);
-        task.setStatus(Task.Status.NOT_STARTED);
-        task.setDueDate(Constants.TASK_DUE_DATE);
-        task.setProject(project);
-        task.setAssignee(user);
-        task.setDeleted(false);
-        testTask = taskRepository.save(task);
-
-        Task anotherTask = new Task();
-        anotherTask.setName(Constants.ANOTHER_TASK_NAME);
-        anotherTask.setDescription(Constants.ANOTHER_TASK_DESCRIPTION);
-        anotherTask.setPriority(Task.Priority.HIGH);
-        anotherTask.setStatus(Task.Status.IN_PROGRESS);
-        anotherTask.setDueDate(Constants.TASK_DUE_DATE);
-        anotherTask.setProject(project);
-        anotherTask.setAssignee(user);
-        anotherTask.setDeleted(false);
-        anotherTestTask = taskRepository.save(anotherTask);
+        Role savedRole = roleRepository.save(EntityFactory.getUserRole());
+        user1 = userRepository.save(EntityFactory.getUser1(savedRole));
+        user2 = userRepository.save(EntityFactory.getUser2(savedRole));
+        Project project =
+                projectRepository.save(EntityFactory.getProjectWithTwoEmployees(user1, user2));
+        task1 = taskRepository.save(EntityFactory.getTask1(project, user1));
+        task2 = taskRepository.save(EntityFactory.getTask2(project, user2));
     }
 
     /**Project, Task, User and Role related tables have to be cleaned manually via sql
@@ -135,76 +83,65 @@ public class LabelRepositoryTest {
 
     @BeforeEach
     public void setUp() {
-        Label label = new Label();
-        label.setName(Constants.LABEL_NAME);
-        label.setUser(testUser);
-        label.setColor(Label.Color.GREEN);
-        label.getTasks().add(testTask);
-        labelId = labelRepository.save(label).getId();
-
-        Label anotherLabel = new Label();
-        anotherLabel.setName(Constants.ANOTHER_LABEL_NAME);
-        anotherLabel.setUser(testUser);
-        anotherLabel.setColor(Label.Color.RED);
-        anotherLabel.getTasks().add(anotherTestTask);
-        anotherLabelId = labelRepository.save(anotherLabel).getId();
+        labelId1 = labelRepository.save(EntityFactory.getLabel1(user1, task1)).getId();
+        labelId2 = labelRepository.save(EntityFactory.getLabel2(user1, task2)).getId();
     }
 
     @Test
     void givenTwoLabels_whenFindByIdAndUserId_thenReturnBoth() {
-        Label label = labelRepository.findByIdAndUserId(labelId, testUser.getId()).orElseThrow(
-                () -> new EntityNotFoundException("Label with id " + labelId + " not found"));
-        labelAssertions(label, labelId, Constants.LABEL_NAME, Label.Color.GREEN, testTask);
+        Label label = labelRepository.findByIdAndUserId(labelId1, user1.getId()).orElseThrow(
+                () -> new EntityNotFoundException("Label with id " + labelId1 + " not found"));
+        labelAssertions(label, labelId1, Constants.LABEL_NAME, Label.Color.GREEN, task1);
 
-        Label anotherLabel = labelRepository.findByIdAndUserId(anotherLabelId, testUser.getId())
+        Label anotherLabel = labelRepository.findByIdAndUserId(labelId2, user1.getId())
                 .orElseThrow(() -> new EntityNotFoundException(
-                        "Label with id " + anotherLabelId + " not found"));
-        labelAssertions(anotherLabel, anotherLabelId, Constants.ANOTHER_LABEL_NAME,
-                Label.Color.RED, anotherTestTask);
+                        "Label with id " + labelId2 + " not found"));
+        labelAssertions(anotherLabel, labelId2, Constants.ANOTHER_LABEL_NAME,
+                Label.Color.RED, task2);
     }
 
     @Test
     void givenTwoLabelsAndUserWithNoLabels_whenFindByIdAndUserId_thenReturnEmpty() {
         Assertions.assertTrue(labelRepository.findByIdAndUserId(
-                labelId, anotherTestUser.getId()).isEmpty());
+                labelId1, user2.getId()).isEmpty());
     }
 
     @Test
     void givenTwoLabelsAndUserWithNoLabels_whenFindAllByUserId_thenReturnEmpty() {
         Assertions.assertTrue(labelRepository
-                .findAllByUserId(anotherTestUser.getId(), Pageable.unpaged()).isEmpty());
+                .findAllByUserId(user2.getId(), Pageable.unpaged()).isEmpty());
     }
 
     @Test
     void givenTwoLabelsAndUserWithLabels_whenExistsByIdAndUserId_thenReturnTrue() {
         Assertions.assertTrue(labelRepository
-                .existsByIdAndUserId(labelId, testUser.getId()));
+                .existsByIdAndUserId(labelId1, user1.getId()));
         Assertions.assertTrue(labelRepository
-                .existsByIdAndUserId(anotherLabelId, testUser.getId()));
+                .existsByIdAndUserId(labelId2, user1.getId()));
 
     }
 
     @Test
     void givenTwoLabelsAndUserWithNoLabels_whenExistsByIdAndUserId_thenReturnFalse() {
         Assertions.assertFalse(labelRepository
-                .existsByIdAndUserId(labelId, anotherTestUser.getId()));
+                .existsByIdAndUserId(labelId1, user2.getId()));
         Assertions.assertFalse(labelRepository
-                .existsByIdAndUserId(anotherLabelId, anotherTestUser.getId()));
+                .existsByIdAndUserId(labelId2, user2.getId()));
 
     }
 
     @Test
     void givenTwoLabels_whenFindAllByUserId_thenReturnBoth() {
         List<Label> labels = labelRepository.findAllByUserId(
-                testUser.getId(), Pageable.unpaged()).getContent();
+                user1.getId(), Pageable.unpaged()).getContent();
         Assertions.assertEquals(2, labels.size());
 
         for (Label label : labels) {
-            if (label.getId().equals(labelId)) {
-                labelAssertions(label, labelId, Constants.LABEL_NAME, Label.Color.GREEN, testTask);
-            } else if (label.getId().equals(anotherLabelId)) {
-                labelAssertions(label, anotherLabelId, Constants.ANOTHER_LABEL_NAME,
-                        Label.Color.RED, anotherTestTask);
+            if (label.getId().equals(labelId1)) {
+                labelAssertions(label, labelId1, Constants.LABEL_NAME, Label.Color.GREEN, task1);
+            } else if (label.getId().equals(labelId2)) {
+                labelAssertions(label, labelId2, Constants.ANOTHER_LABEL_NAME,
+                        Label.Color.RED, task2);
             }
         }
     }
@@ -216,16 +153,16 @@ public class LabelRepositoryTest {
         int size = 1;
 
         List<Label> listOfFirstLabel = labelRepository.findAllByUserId(
-                testUser.getId(), PageRequest.of(firstPage, size)).getContent();
+                user1.getId(), PageRequest.of(firstPage, size)).getContent();
         Assertions.assertEquals(1, listOfFirstLabel.size());
-        labelAssertions(listOfFirstLabel.getFirst(), labelId,
-                Constants.LABEL_NAME, Label.Color.GREEN, testTask);
+        labelAssertions(listOfFirstLabel.getFirst(), labelId1,
+                Constants.LABEL_NAME, Label.Color.GREEN, task1);
 
         List<Label> listOfSecondLabel = labelRepository.findAllByUserId(
-                testUser.getId(), PageRequest.of(secondPage, size)).getContent();
+                user1.getId(), PageRequest.of(secondPage, size)).getContent();
         Assertions.assertEquals(1, listOfSecondLabel.size());
-        labelAssertions(listOfSecondLabel.getFirst(), anotherLabelId, Constants.ANOTHER_LABEL_NAME,
-                Label.Color.RED, anotherTestTask);
+        labelAssertions(listOfSecondLabel.getFirst(), labelId2, Constants.ANOTHER_LABEL_NAME,
+                Label.Color.RED, task2);
     }
 
     private void labelAssertions(Label label,Long id, String name, Label.Color color, Task task) {
@@ -233,7 +170,7 @@ public class LabelRepositoryTest {
         Assertions.assertEquals(id, label.getId());
         Assertions.assertEquals(name, label.getName());
         Assertions.assertEquals(color, label.getColor());
-        Assertions.assertEquals(testUser, label.getUser());
+        Assertions.assertEquals(user1, label.getUser());
         Assertions.assertEquals(1, label.getTasks().size());
         Assertions.assertTrue(label.getTasks().contains(task));
     }

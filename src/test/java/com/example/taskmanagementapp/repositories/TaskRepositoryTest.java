@@ -1,6 +1,7 @@
 package com.example.taskmanagementapp.repositories;
 
 import com.dropbox.core.v2.DbxClientV2;
+import com.example.taskmanagementapp.EntityFactory;
 import com.example.taskmanagementapp.entities.Label;
 import com.example.taskmanagementapp.entities.Project;
 import com.example.taskmanagementapp.entities.Role;
@@ -43,53 +44,22 @@ public class TaskRepositoryTest {
     private TaskRepository taskRepository;
     @Autowired
     private LabelRepository labelRepository;
-    private User testUser;
-    private Project testProject;
-    private Long anotherTestProjectId;
-    private Long taskId;
-    private Long labelId;
-    private Long anotherLabelId;
+    private User user1;
+    private Project project1;
+    private Long project2Id;
+    private Long task1Id;
+    private Long label1Id;
+    private Long label2Id;
 
     @BeforeAll
     public void setUpBeforeAll() {
-        Role role = new Role();
-        role.setName(Role.RoleName.ROLE_USER);
-        Role savedRole = roleRepository.save(role);
-
-        User user = new User();
-        user.setUsername(Constants.USERNAME);
-        user.setPassword(Constants.PASSWORD);
-        user.setEmail(Constants.EMAIL);
-        user.setFirstName(Constants.FIRST_NAME);
-        user.setLastName(Constants.LAST_NAME);
-        user.setRole(savedRole);
-        user.setEnabled(true);
-        user.setAccountNonLocked(true);
-        testUser = userRepository.save(user);
-
-        Project project = new Project();
-        project.setName(Constants.PROJECT_NAME);
-        project.setDescription(Constants.PROJECT_DESCRIPTION);
-        project.setStartDate(Constants.PROJECT_START_DATE);
-        project.setEndDate(Constants.PROJECT_END_DATE);
-        project.setStatus(Project.Status.INITIATED);
-        project.setDeleted(false);
-        project.setOwner(user);
-        project.getManagers().add(user);
-        project.getEmployees().add(user);
-        testProject = projectRepository.save(project);
-
-        Project anotherProject = new Project();
-        anotherProject.setName(Constants.ANOTHER_PROJECT_NAME);
-        anotherProject.setDescription(Constants.ANOTHER_PROJECT_DESCRIPTION);
-        anotherProject.setStartDate(Constants.PROJECT_START_DATE);
-        anotherProject.setEndDate(Constants.PROJECT_END_DATE);
-        anotherProject.setStatus(Project.Status.INITIATED);
-        anotherProject.setDeleted(true);
-        anotherProject.setOwner(testUser);
-        anotherProject.getManagers().add(testUser);
-        anotherProject.getEmployees().add(testUser);
-        anotherTestProjectId = projectRepository.save(anotherProject).getId();
+        Role savedRole = roleRepository.save(EntityFactory.getUserRole());
+        user1 = userRepository.save(EntityFactory.getUser1(savedRole));
+        project1 = projectRepository.save(EntityFactory.getProjectWithOneEmployee(user1));
+        project2Id = projectRepository
+                .save(EntityFactory
+                        .getDeletedProject(user1))
+                                                .getId();
     }
 
     /**Project, User and Role related tables have to be cleaned manually via sql
@@ -111,43 +81,26 @@ public class TaskRepositoryTest {
 
     @BeforeEach
     public void setUp() {
-        Task task = new Task();
-        task.setName(Constants.TASK_NAME);
-        task.setDescription(Constants.TASK_DESCRIPTION);
-        task.setPriority(Task.Priority.LOW);
-        task.setStatus(Task.Status.NOT_STARTED);
-        task.setDueDate(Constants.TASK_DUE_DATE);
-        task.setProject(testProject);
-        task.setAssignee(testUser);
-        task.setDeleted(false);
-        taskId = taskRepository.save(task).getId();
-
-        Label label = new Label();
-        label.setName(Constants.LABEL_NAME);
-        label.setUser(testUser);
-        label.setColor(Label.Color.GREEN);
-        label.getTasks().add(task);
-        labelId = labelRepository.save(label).getId();
-
-        Label labelWithNotTask = new Label();
-        labelWithNotTask.setName(Constants.ANOTHER_LABEL_NAME);
-        labelWithNotTask.setUser(testUser);
-        labelWithNotTask.setColor(Label.Color.RED);
-        anotherLabelId = labelRepository.save(labelWithNotTask).getId();
+        Task task1 = taskRepository.save(EntityFactory.getTask1(project1, user1));
+        task1Id = task1.getId();
+        Label label1 = labelRepository.save(EntityFactory.getLabel1(user1, task1));
+        label1Id = label1.getId();
+        Label label2 = labelRepository.save(EntityFactory.getLabelWithNoTask(user1));
+        label2Id = label2.getId();
     }
 
     @Test
     void givenTaskAttachedToProject_whenFindAllByProjectIdNonDeleted_thenReturnTask() {
         List<Task> taskList = taskRepository.findAllByProjectIdNonDeleted(
-                testProject.getId(), Pageable.unpaged()).getContent();
+                project1.getId(), Pageable.unpaged()).getContent();
         Assertions.assertEquals(1, taskList.size());
         taskAssertions(taskList.getFirst());
     }
 
     @Test
-    void givenProjectWithNoTask_whenFindAllByProjectIdNonDeleted_thenReturnTask() {
+    void givenProjectWithNoTask_whenFindAllByProjectIdNonDeleted_thenReturnEmpty() {
         Assertions.assertTrue(taskRepository
-                .findAllByProjectIdNonDeleted(anotherTestProjectId, Pageable.unpaged()).isEmpty());
+                .findAllByProjectIdNonDeleted(project2Id, Pageable.unpaged()).isEmpty());
     }
 
     @Test
@@ -159,22 +112,22 @@ public class TaskRepositoryTest {
 
     @Test
     void givenTask_whenFindByIdNotDeleted_thenReturnTask() {
-        Task task = taskRepository.findByIdNotDeleted(taskId).orElseThrow(
-                () -> new EntityNotFoundException("Task with id " + taskId + " not found"));
+        Task task = taskRepository.findByIdNotDeleted(task1Id).orElseThrow(
+                () -> new EntityNotFoundException("Task with id " + task1Id + " not found"));
         taskAssertions(task);
     }
 
     @Test
     void givenDeletedByProjectTask_whenFindByIdNotDeleted_thenReturnOptionalEmpty() {
-        Assertions.assertTrue(taskRepository.findByIdNotDeleted(taskId).isPresent());
-        taskRepository.deleteAllByProjectId(testProject.getId());
-        Assertions.assertTrue(taskRepository.findByIdNotDeleted(taskId).isEmpty());
+        Assertions.assertTrue(taskRepository.findByIdNotDeleted(task1Id).isPresent());
+        taskRepository.deleteAllByProjectId(project1.getId());
+        Assertions.assertTrue(taskRepository.findByIdNotDeleted(task1Id).isEmpty());
     }
 
     @Test
     void givenLabelAndTask_whenFindAllByLabelIdNonDeleted_thenReturnTask() {
         List<Task> taskList = taskRepository.findAllByLabelIdNonDeleted(
-                labelId, Pageable.unpaged()).getContent();
+                label1Id, Pageable.unpaged()).getContent();
         Assertions.assertEquals(1, taskList.size());
         taskAssertions(taskList.getFirst());
     }
@@ -182,19 +135,19 @@ public class TaskRepositoryTest {
     @Test
     void givenLabelWithNoTask_whenFindAllByLabelIdNonDeleted_thenReturnEmptyList() {
         Assertions.assertTrue(taskRepository.findAllByLabelIdNonDeleted(
-                anotherLabelId, Pageable.unpaged()).isEmpty());
+                label2Id, Pageable.unpaged()).isEmpty());
     }
 
     private void taskAssertions(Task task) {
         Assertions.assertNotNull(task);
-        Assertions.assertEquals(taskId, task.getId());
+        Assertions.assertEquals(task1Id, task.getId());
         Assertions.assertEquals(Constants.TASK_NAME, task.getName());
         Assertions.assertEquals(Constants.TASK_DESCRIPTION, task.getDescription());
         Assertions.assertEquals(Task.Priority.LOW, task.getPriority());
         Assertions.assertEquals(Task.Status.NOT_STARTED, task.getStatus());
         Assertions.assertEquals(Constants.TASK_DUE_DATE, task.getDueDate());
-        Assertions.assertEquals(testProject, task.getProject());
-        Assertions.assertEquals(testUser, task.getAssignee());
+        Assertions.assertEquals(project1, task.getProject());
+        Assertions.assertEquals(user1, task.getAssignee());
         Assertions.assertFalse(task.isDeleted());
     }
 }

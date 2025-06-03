@@ -1,6 +1,7 @@
 package com.example.taskmanagementapp.repositories;
 
 import com.dropbox.core.v2.DbxClientV2;
+import com.example.taskmanagementapp.EntityFactory;
 import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.EntityNotFoundException;
@@ -24,20 +25,8 @@ class UserRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        Role role = new Role();
-        role.setName(Role.RoleName.ROLE_USER);
-        Role savedRole = roleRepository.save(role);
-
-        User testUser = new User();
-        testUser.setUsername(Constants.USERNAME);
-        testUser.setPassword(Constants.PASSWORD);
-        testUser.setEmail(Constants.EMAIL);
-        testUser.setFirstName(Constants.FIRST_NAME);
-        testUser.setLastName(Constants.LAST_NAME);
-        testUser.setRole(savedRole);
-        testUser.setEnabled(true);
-        testUser.setAccountNonLocked(true);
-        userRepository.save(testUser);
+        Role savedRole = roleRepository.save(EntityFactory.getUserRole());
+        userRepository.save(EntityFactory.getUser1(savedRole));
     }
 
     @Test

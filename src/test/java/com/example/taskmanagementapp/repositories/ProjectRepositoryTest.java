@@ -1,6 +1,7 @@
 package com.example.taskmanagementapp.repositories;
 
 import com.dropbox.core.v2.DbxClientV2;
+import com.example.taskmanagementapp.EntityFactory;
 import com.example.taskmanagementapp.entities.Project;
 import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.User;
@@ -30,38 +31,16 @@ public class ProjectRepositoryTest {
     private UserRepository userRepository;
     @Autowired
     private ProjectRepository projectRepository;
-    private User testUser;
-    private User anotherTestUser;
+    private User user1;
+    private User user2;
     private Long existingProjectId;
     private Long deletedProjectId;
 
     @BeforeAll
     public void setUpBeforeAll() {
-        Role role = new Role();
-        role.setName(Role.RoleName.ROLE_USER);
-        Role savedRole = roleRepository.save(role);
-
-        User testUser = new User();
-        testUser.setUsername(Constants.USERNAME);
-        testUser.setPassword(Constants.PASSWORD);
-        testUser.setEmail(Constants.EMAIL);
-        testUser.setFirstName(Constants.FIRST_NAME);
-        testUser.setLastName(Constants.LAST_NAME);
-        testUser.setRole(savedRole);
-        testUser.setEnabled(true);
-        testUser.setAccountNonLocked(true);
-        this.testUser = userRepository.save(testUser);
-
-        User anotherTestUser = new User();
-        anotherTestUser.setUsername(Constants.ANOTHER_USERNAME);
-        anotherTestUser.setPassword(Constants.PASSWORD);
-        anotherTestUser.setEmail(Constants.ANOTHER_EMAIL);
-        anotherTestUser.setFirstName(Constants.FIRST_NAME);
-        anotherTestUser.setLastName(Constants.LAST_NAME);
-        anotherTestUser.setRole(savedRole);
-        anotherTestUser.setEnabled(true);
-        anotherTestUser.setAccountNonLocked(true);
-        this.anotherTestUser = userRepository.save(anotherTestUser);
+        Role savedRole = roleRepository.save(EntityFactory.getUserRole());
+        user1 = userRepository.save(EntityFactory.getUser1(savedRole));
+        user2 = userRepository.save(EntityFactory.getUser2(savedRole));
     }
 
     @AfterAll
@@ -72,47 +51,29 @@ public class ProjectRepositoryTest {
 
     @BeforeEach
     public void setUp() {
-        Project project = new Project();
-        project.setName(Constants.PROJECT_NAME);
-        project.setDescription(Constants.PROJECT_DESCRIPTION);
-        project.setStartDate(Constants.PROJECT_START_DATE);
-        project.setEndDate(Constants.PROJECT_END_DATE);
-        project.setStatus(Project.Status.INITIATED);
-        project.setDeleted(false);
-        project.setOwner(testUser);
-        project.getManagers().add(testUser);
-        project.getEmployees().add(testUser);
-        existingProjectId = projectRepository.save(project).getId();
+        Project project1 = projectRepository.save(EntityFactory.getProjectWithOneEmployee(user1));
+        existingProjectId = project1.getId();
 
-        Project deletedProject = new Project();
-        deletedProject.setName(Constants.ANOTHER_PROJECT_NAME);
-        deletedProject.setDescription(Constants.ANOTHER_PROJECT_DESCRIPTION);
-        deletedProject.setStartDate(Constants.PROJECT_START_DATE);
-        deletedProject.setEndDate(Constants.PROJECT_END_DATE);
-        deletedProject.setStatus(Project.Status.INITIATED);
-        deletedProject.setDeleted(true);
-        deletedProject.setOwner(testUser);
-        deletedProject.getManagers().add(testUser);
-        deletedProject.getEmployees().add(testUser);
-        deletedProjectId = projectRepository.save(deletedProject).getId();
+        Project project2 = projectRepository.save(EntityFactory.getDeletedProject(user1));
+        deletedProjectId = project2.getId();
     }
 
     @Test
     void givenUserWithNoProjects_whenFindAllByEmployeeId_thenReturnEmptyList() {
         Assertions.assertTrue(projectRepository.findAllByEmployeeId(
-                anotherTestUser.getId(), Pageable.unpaged()).isEmpty());
+                user2.getId(), Pageable.unpaged()).isEmpty());
     }
 
     @Test
     void givenUserWithNoProjects_whenFindAllByOwnerId_thenReturnEmptyList() {
         Assertions.assertTrue(projectRepository.findAllByOwnerId(
-                anotherTestUser.getId(), Pageable.unpaged()).isEmpty());
+                user2.getId(), Pageable.unpaged()).isEmpty());
     }
 
     @Test
     void givenNotDeletedProject_whenFindAllByOwnerId_thenReturnSingleProject() {
         List<Project> projectList = projectRepository
-                .findAllByOwnerId(testUser.getId(), Pageable.unpaged()).getContent();
+                .findAllByOwnerId(user1.getId(), Pageable.unpaged()).getContent();
         Assertions.assertEquals(1, projectList.size());
         projectAssertions(projectList.getFirst(), false,
                 Constants.PROJECT_NAME, Constants.PROJECT_DESCRIPTION);
@@ -121,7 +82,7 @@ public class ProjectRepositoryTest {
     @Test
     void givenDeletedProject_whenFindAllByOwnerIdDeleted_thenReturnSingleProject() {
         List<Project> projectList = projectRepository
-                .findAllByOwnerIdDeleted(testUser.getId(), Pageable.unpaged()).getContent();
+                .findAllByOwnerIdDeleted(user1.getId(), Pageable.unpaged()).getContent();
         Assertions.assertEquals(1, projectList.size());
         projectAssertions(projectList.getFirst(), true,
                 Constants.ANOTHER_PROJECT_NAME, Constants.ANOTHER_PROJECT_DESCRIPTION);
@@ -130,7 +91,7 @@ public class ProjectRepositoryTest {
     @Test
     void givenNotDeletedProject_whenFindAllByEmployeeId_thenReturnSingleProject() {
         List<Project> projectList = projectRepository
-                .findAllByEmployeeId(testUser.getId(), Pageable.unpaged()).getContent();
+                .findAllByEmployeeId(user1.getId(), Pageable.unpaged()).getContent();
         Assertions.assertEquals(1, projectList.size());
         projectAssertions(projectList.getFirst(), false,
                 Constants.PROJECT_NAME, Constants.PROJECT_DESCRIPTION);
@@ -155,18 +116,18 @@ public class ProjectRepositoryTest {
 
     @Test
     void givenNotDeletedProject_whenIsUserSomebody_thenReturnTrue() {
-        Assertions.assertTrue(projectRepository.isUserOwner(existingProjectId, testUser.getId()));
-        Assertions.assertTrue(projectRepository.isUserManager(existingProjectId, testUser.getId()));
+        Assertions.assertTrue(projectRepository.isUserOwner(existingProjectId, user1.getId()));
+        Assertions.assertTrue(projectRepository.isUserManager(existingProjectId, user1.getId()));
         Assertions.assertTrue(projectRepository
-                .isUserEmployee(existingProjectId, testUser.getId()));
+                .isUserEmployee(existingProjectId, user1.getId()));
     }
 
     @Test
     void givenDeletedProject_whenIsUserSomebody_thenReturnFalse() {
-        Assertions.assertFalse(projectRepository.isUserOwner(deletedProjectId, testUser.getId()));
-        Assertions.assertFalse(projectRepository.isUserManager(deletedProjectId, testUser.getId()));
+        Assertions.assertFalse(projectRepository.isUserOwner(deletedProjectId, user1.getId()));
+        Assertions.assertFalse(projectRepository.isUserManager(deletedProjectId, user1.getId()));
         Assertions.assertFalse(projectRepository
-                .isUserEmployee(deletedProjectId, testUser.getId()));
+                .isUserEmployee(deletedProjectId, user1.getId()));
     }
 
     private void projectAssertions(Project project, boolean isDeleted,
@@ -182,7 +143,7 @@ public class ProjectRepositoryTest {
         } else {
             Assertions.assertFalse(project.isDeleted());
         }
-        Assertions.assertEquals(testUser.getId(), project.getOwner().getId());
+        Assertions.assertEquals(user1.getId(), project.getOwner().getId());
         Assertions.assertEquals(1, project.getManagers().size());
         Assertions.assertEquals(1, project.getEmployees().size());
     }
