@@ -1,11 +1,12 @@
 package com.example.taskmanagementapp.repositories;
 
 import com.dropbox.core.v2.DbxClientV2;
-import com.example.taskmanagementapp.EntityFactory;
 import com.example.taskmanagementapp.entities.Project;
 import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.EntityNotFoundException;
+import com.example.taskmanagementapp.testutils.Constants;
+import com.example.taskmanagementapp.testutils.EntityFactory;
 import java.util.List;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -22,7 +23,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class ProjectRepositoryTest {
+class ProjectRepositoryTest {
     @MockitoBean
     private final DbxClientV2 dbxClientV2 = null; //unused since not needed
     @Autowired
@@ -37,20 +38,20 @@ public class ProjectRepositoryTest {
     private Long deletedProjectId;
 
     @BeforeAll
-    public void setUpBeforeAll() {
+    void setUpBeforeAll() {
         Role savedRole = roleRepository.save(EntityFactory.getUserRole());
         user1 = userRepository.save(EntityFactory.getUser1(savedRole));
         user2 = userRepository.save(EntityFactory.getUser2(savedRole));
     }
 
     @AfterAll
-    public void tearDownAfterAll() {
+    void tearDownAfterAll() {
         userRepository.deleteAll();
         roleRepository.deleteAll();
     }
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         Project project1 = projectRepository.save(EntityFactory.getProjectWithOneEmployee(user1));
         existingProjectId = project1.getId();
 

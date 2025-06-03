@@ -1,13 +1,14 @@
 package com.example.taskmanagementapp.repositories;
 
 import com.dropbox.core.v2.DbxClientV2;
-import com.example.taskmanagementapp.EntityFactory;
 import com.example.taskmanagementapp.entities.Label;
 import com.example.taskmanagementapp.entities.Project;
 import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.Task;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.EntityNotFoundException;
+import com.example.taskmanagementapp.testutils.Constants;
+import com.example.taskmanagementapp.testutils.EntityFactory;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -31,7 +32,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class LabelRepositoryTest {
+class LabelRepositoryTest {
     private static final Logger logger = LogManager.getLogger(LabelRepositoryTest.class);
     @MockitoBean
     private final DbxClientV2 dbxClientV2 = null; //unused since not needed
@@ -82,7 +83,7 @@ public class LabelRepositoryTest {
     }
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         labelId1 = labelRepository.save(EntityFactory.getLabel1(user1, task1)).getId();
         labelId2 = labelRepository.save(EntityFactory.getLabel2(user1, task2)).getId();
     }

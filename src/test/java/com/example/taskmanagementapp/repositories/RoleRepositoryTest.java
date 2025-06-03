@@ -1,8 +1,8 @@
 package com.example.taskmanagementapp.repositories;
 
 import com.dropbox.core.v2.DbxClientV2;
-import com.example.taskmanagementapp.EntityFactory;
 import com.example.taskmanagementapp.entities.Role;
+import com.example.taskmanagementapp.testutils.EntityFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +13,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class RoleRepositoryTest {
+class RoleRepositoryTest {
     @MockitoBean
     private final DbxClientV2 dbxClientV2 = null; //unused since not needed
     @Autowired

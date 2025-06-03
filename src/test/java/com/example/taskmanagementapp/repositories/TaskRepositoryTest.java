@@ -1,13 +1,14 @@
 package com.example.taskmanagementapp.repositories;
 
 import com.dropbox.core.v2.DbxClientV2;
-import com.example.taskmanagementapp.EntityFactory;
 import com.example.taskmanagementapp.entities.Label;
 import com.example.taskmanagementapp.entities.Project;
 import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.Task;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.EntityNotFoundException;
+import com.example.taskmanagementapp.testutils.Constants;
+import com.example.taskmanagementapp.testutils.EntityFactory;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -30,7 +31,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class TaskRepositoryTest {
+class TaskRepositoryTest {
     private static final Logger logger = LogManager.getLogger(TaskRepositoryTest.class);
     @MockitoBean
     private final DbxClientV2 dbxClientV2 = null; //unused since not needed
@@ -52,7 +53,7 @@ public class TaskRepositoryTest {
     private Long label2Id;
 
     @BeforeAll
-    public void setUpBeforeAll() {
+    void setUpBeforeAll() {
         Role savedRole = roleRepository.save(EntityFactory.getUserRole());
         user1 = userRepository.save(EntityFactory.getUser1(savedRole));
         project1 = projectRepository.save(EntityFactory.getProjectWithOneEmployee(user1));
@@ -80,7 +81,7 @@ public class TaskRepositoryTest {
     }
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         Task task1 = taskRepository.save(EntityFactory.getTask1(project1, user1));
         task1Id = task1.getId();
         Label label1 = labelRepository.save(EntityFactory.getLabel1(user1, task1));
