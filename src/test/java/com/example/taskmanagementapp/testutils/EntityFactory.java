@@ -2,6 +2,7 @@ package com.example.taskmanagementapp.testutils;
 
 import com.example.taskmanagementapp.entities.ActionToken;
 import com.example.taskmanagementapp.entities.Attachment;
+import com.example.taskmanagementapp.entities.Comment;
 import com.example.taskmanagementapp.entities.Label;
 import com.example.taskmanagementapp.entities.ParamToken;
 import com.example.taskmanagementapp.entities.Project;
@@ -172,5 +173,23 @@ public class EntityFactory {
         attachment.setTask(task);
         attachment.setUploadDate(Constants.UPLOADED_DATE);
         return attachment;
+    }
+
+    public static Comment getComment1(User user, Task task) {
+        Comment comment = new Comment();
+        comment.setTask(task);
+        comment.setUser(user);
+        comment.setText(Constants.COMMENT_TEXT_1);
+        comment.setTimestamp(Constants.TIME_STAMP);
+        return comment;
+    }
+
+    public static Comment getComment2(User user, Task task) {
+        Comment comment = new Comment();
+        comment.setTask(task);
+        comment.setUser(user);
+        comment.setText(Constants.COMMENT_TEXT_2);
+        comment.setTimestamp(Constants.TIME_STAMP);
+        return comment;
     }
 }

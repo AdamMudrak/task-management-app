@@ -40,4 +40,8 @@ public class Constants {
     public static final String FILE_ID_2 = "fileId2";
     public static final String FILE_NAME_2 = "fileName2";
     public static final LocalDateTime UPLOADED_DATE = LocalDateTime.of(2025, 1, 6, 0, 0);
+
+    public static final LocalDateTime TIME_STAMP = LocalDateTime.of(2025, 1, 6, 8, 30);
+    public static final String COMMENT_TEXT_1 = "commentText1";
+    public static final String COMMENT_TEXT_2 = "commentText2";
 }
