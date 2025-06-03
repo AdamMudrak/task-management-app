@@ -1,13 +1,13 @@
-package com.example.taskmanagementapp;
+package com.example.taskmanagementapp.testutils;
 
 import com.example.taskmanagementapp.entities.ActionToken;
+import com.example.taskmanagementapp.entities.Attachment;
 import com.example.taskmanagementapp.entities.Label;
 import com.example.taskmanagementapp.entities.ParamToken;
 import com.example.taskmanagementapp.entities.Project;
 import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.Task;
 import com.example.taskmanagementapp.entities.User;
-import com.example.taskmanagementapp.repositories.Constants;
 
 public class EntityFactory {
     public static ActionToken getActionToken() {
@@ -154,5 +154,23 @@ public class EntityFactory {
         labelWithNotTask.setUser(user);
         labelWithNotTask.setColor(Label.Color.RED);
         return labelWithNotTask;
+    }
+
+    public static Attachment getAttachment1(Task task) {
+        Attachment attachment = new Attachment();
+        attachment.setFileId(Constants.FILE_ID_1);
+        attachment.setFileName(Constants.FILE_NAME_1);
+        attachment.setTask(task);
+        attachment.setUploadDate(Constants.UPLOADED_DATE);
+        return attachment;
+    }
+
+    public static Attachment getAttachment2(Task task) {
+        Attachment attachment = new Attachment();
+        attachment.setFileId(Constants.FILE_ID_2);
+        attachment.setFileName(Constants.FILE_NAME_2);
+        attachment.setTask(task);
+        attachment.setUploadDate(Constants.UPLOADED_DATE);
+        return attachment;
     }
 }

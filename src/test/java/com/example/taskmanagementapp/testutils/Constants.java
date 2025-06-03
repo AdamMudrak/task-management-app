@@ -1,6 +1,7 @@
-package com.example.taskmanagementapp.repositories;
+package com.example.taskmanagementapp.testutils;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class Constants {
     public static final String USERNAME = "JohnDoe";
@@ -33,4 +34,10 @@ public class Constants {
 
     public static final String LABEL_NAME = "labelName";
     public static final String ANOTHER_LABEL_NAME = "anotherLabelName";
+
+    public static final String FILE_ID_1 = "fileId1";
+    public static final String FILE_NAME_1 = "fileName1";
+    public static final String FILE_ID_2 = "fileId2";
+    public static final String FILE_NAME_2 = "fileName2";
+    public static final LocalDateTime UPLOADED_DATE = LocalDateTime.of(2025, 1, 6, 0, 0);
 }
