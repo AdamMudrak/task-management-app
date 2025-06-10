@@ -206,9 +206,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         "Either login" + " or password is invalid"));
     }
 
-    private User getIfExistsByUsername(String username) {
+    private User getIfExistsByUsername(String username) throws LoginException {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException(
+                .orElseThrow(() -> new LoginException(
                         "Either login" + " or password is invalid"));
     }
 
