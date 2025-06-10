@@ -84,7 +84,7 @@ class UserRepositoryTest {
     private void userAssertions(User user) {
         Assertions.assertNotNull(user);
         Assertions.assertEquals(Constants.USERNAME, user.getUsername());
-        Assertions.assertEquals(Constants.PASSWORD, user.getPassword());
+        Assertions.assertEquals(Constants.PASSWORD_DB, user.getPassword());
         Assertions.assertEquals(Constants.EMAIL, user.getEmail());
         Assertions.assertEquals(Constants.FIRST_NAME, user.getFirstName());
         Assertions.assertEquals(Constants.LAST_NAME, user.getLastName());
