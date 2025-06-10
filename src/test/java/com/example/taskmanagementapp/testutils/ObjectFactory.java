@@ -1,5 +1,7 @@
 package com.example.taskmanagementapp.testutils;
 
+import com.example.taskmanagementapp.dtos.authentication.request.LoginRequest;
+import com.example.taskmanagementapp.dtos.authentication.request.RegistrationRequest;
 import com.example.taskmanagementapp.entities.ActionToken;
 import com.example.taskmanagementapp.entities.Attachment;
 import com.example.taskmanagementapp.entities.Comment;
@@ -39,7 +41,7 @@ public class ObjectFactory {
     public static User getUser1(Role role) {
         User user = new User();
         user.setUsername(Constants.USERNAME);
-        user.setPassword(Constants.PASSWORD);
+        user.setPassword(Constants.PASSWORD_DB);
         user.setEmail(Constants.EMAIL);
         user.setFirstName(Constants.FIRST_NAME);
         user.setLastName(Constants.LAST_NAME);
@@ -52,13 +54,26 @@ public class ObjectFactory {
     public static User getUser2(Role role) {
         User user = new User();
         user.setUsername(Constants.ANOTHER_USERNAME);
-        user.setPassword(Constants.PASSWORD);
+        user.setPassword(Constants.PASSWORD_DB);
         user.setEmail(Constants.ANOTHER_EMAIL);
         user.setFirstName(Constants.FIRST_NAME);
         user.setLastName(Constants.LAST_NAME);
         user.setRole(role);
         user.setEnabled(true);
         user.setAccountNonLocked(true);
+        return user;
+    }
+
+    public static User getDisabledUser(Role role) {
+        User user = new User();
+        user.setUsername(Constants.ANOTHER_USERNAME);
+        user.setPassword(Constants.PASSWORD_DB);
+        user.setEmail(Constants.ANOTHER_EMAIL);
+        user.setFirstName(Constants.FIRST_NAME);
+        user.setLastName(Constants.LAST_NAME);
+        user.setRole(role);
+        user.setEnabled(true);
+        user.setAccountNonLocked(false);
         return user;
     }
 
@@ -191,5 +206,53 @@ public class ObjectFactory {
         comment.setText(Constants.COMMENT_TEXT_2);
         comment.setTimestamp(Constants.TIME_STAMP);
         return comment;
+    }
+
+    public static RegistrationRequest getRegistrationRequest1() {
+        return new RegistrationRequest(
+                "TheNewJohnDoe",
+                "Best_Password1@3$",
+                "Best_Password1@3$",
+                "newjohndoe@mail.com",
+                "John",
+                "Doe");
+    }
+
+    public static RegistrationRequest getRegistrationRequest2() {
+        return new RegistrationRequest(
+                "TheBestJohnDoe",
+                "Best_Password1@3$",
+                "Best_Password1@3$",
+                "bestjohndoe@mail.com",
+                "John",
+                "Doe");
+    }
+
+    public static RegistrationRequest getRegistrationRequestWithExistingEmail() {
+        return new RegistrationRequest(
+                "YetAnotherJohnDoe",
+                "Best_Password1@3$",
+                "Best_Password1@3$",
+                Constants.EMAIL,
+                "John",
+                "Doe");
+    }
+
+    public static RegistrationRequest getRegistrationRequestWithExistingUsername() {
+        return new RegistrationRequest(
+                Constants.USERNAME,
+                "Best_Password1@3$",
+                "Best_Password1@3$",
+                "yetanothertestjohndoe@mail.com",
+                "John",
+                "Doe");
+    }
+
+    public static LoginRequest getExistingLoginByEmailRequest() {
+        return new LoginRequest(Constants.EMAIL, Constants.PASSWORD);
+    }
+
+    public static LoginRequest getExistingLoginByUsernameRequest() {
+        return new LoginRequest(Constants.USERNAME, Constants.PASSWORD);
     }
 }
