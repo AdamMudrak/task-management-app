@@ -6,7 +6,7 @@ import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.EntityNotFoundException;
 import com.example.taskmanagementapp.testutils.Constants;
-import com.example.taskmanagementapp.testutils.EntityFactory;
+import com.example.taskmanagementapp.testutils.ObjectFactory;
 import java.util.List;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -39,9 +39,9 @@ class ProjectRepositoryTest {
 
     @BeforeAll
     void setUpBeforeAll() {
-        Role savedRole = roleRepository.save(EntityFactory.getUserRole());
-        user1 = userRepository.save(EntityFactory.getUser1(savedRole));
-        user2 = userRepository.save(EntityFactory.getUser2(savedRole));
+        Role savedRole = roleRepository.save(ObjectFactory.getUserRole());
+        user1 = userRepository.save(ObjectFactory.getUser1(savedRole));
+        user2 = userRepository.save(ObjectFactory.getUser2(savedRole));
     }
 
     @AfterAll
@@ -52,10 +52,10 @@ class ProjectRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        Project project1 = projectRepository.save(EntityFactory.getProjectWithOneEmployee(user1));
+        Project project1 = projectRepository.save(ObjectFactory.getProjectWithOneEmployee(user1));
         existingProjectId = project1.getId();
 
-        Project project2 = projectRepository.save(EntityFactory.getDeletedProject(user1));
+        Project project2 = projectRepository.save(ObjectFactory.getDeletedProject(user1));
         deletedProjectId = project2.getId();
     }
 

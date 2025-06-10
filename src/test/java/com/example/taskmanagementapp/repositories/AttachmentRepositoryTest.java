@@ -7,7 +7,7 @@ import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.Task;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.testutils.Constants;
-import com.example.taskmanagementapp.testutils.EntityFactory;
+import com.example.taskmanagementapp.testutils.ObjectFactory;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -50,12 +50,12 @@ class AttachmentRepositoryTest {
 
     @BeforeAll
     void setUpBeforeAll() {
-        Role savedRole = roleRepository.save(EntityFactory.getUserRole());
-        User user1 = userRepository.save(EntityFactory.getUser1(savedRole));
+        Role savedRole = roleRepository.save(ObjectFactory.getUserRole());
+        User user1 = userRepository.save(ObjectFactory.getUser1(savedRole));
         Project project =
-                projectRepository.save(EntityFactory.getProjectWithOneEmployee(user1));
-        task1 = taskRepository.save(EntityFactory.getTask1(project, user1));
-        task2 = taskRepository.save(EntityFactory.getTask2(project, user1));
+                projectRepository.save(ObjectFactory.getProjectWithOneEmployee(user1));
+        task1 = taskRepository.save(ObjectFactory.getTask1(project, user1));
+        task2 = taskRepository.save(ObjectFactory.getTask2(project, user1));
     }
 
     /**Task, Project, User and Role related tables have to be cleaned manually via sql
@@ -78,10 +78,10 @@ class AttachmentRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        Attachment attachment1 = attachmentRepository.save(EntityFactory.getAttachment1(task1));
+        Attachment attachment1 = attachmentRepository.save(ObjectFactory.getAttachment1(task1));
         attachment1Id = attachment1.getId();
 
-        Attachment attachment2 = attachmentRepository.save(EntityFactory.getAttachment2(task1));
+        Attachment attachment2 = attachmentRepository.save(ObjectFactory.getAttachment2(task1));
         attachment2Id = attachment2.getId();
     }
 

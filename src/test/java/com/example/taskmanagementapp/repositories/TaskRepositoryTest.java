@@ -8,7 +8,7 @@ import com.example.taskmanagementapp.entities.Task;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.EntityNotFoundException;
 import com.example.taskmanagementapp.testutils.Constants;
-import com.example.taskmanagementapp.testutils.EntityFactory;
+import com.example.taskmanagementapp.testutils.ObjectFactory;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -54,11 +54,11 @@ class TaskRepositoryTest {
 
     @BeforeAll
     void setUpBeforeAll() {
-        Role savedRole = roleRepository.save(EntityFactory.getUserRole());
-        user1 = userRepository.save(EntityFactory.getUser1(savedRole));
-        project1 = projectRepository.save(EntityFactory.getProjectWithOneEmployee(user1));
+        Role savedRole = roleRepository.save(ObjectFactory.getUserRole());
+        user1 = userRepository.save(ObjectFactory.getUser1(savedRole));
+        project1 = projectRepository.save(ObjectFactory.getProjectWithOneEmployee(user1));
         project2Id = projectRepository
-                .save(EntityFactory
+                .save(ObjectFactory
                         .getDeletedProject(user1))
                                                 .getId();
     }
@@ -82,11 +82,11 @@ class TaskRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        Task task1 = taskRepository.save(EntityFactory.getTask1(project1, user1));
+        Task task1 = taskRepository.save(ObjectFactory.getTask1(project1, user1));
         task1Id = task1.getId();
-        Label label1 = labelRepository.save(EntityFactory.getLabel1(user1, task1));
+        Label label1 = labelRepository.save(ObjectFactory.getLabel1(user1, task1));
         label1Id = label1.getId();
-        Label label2 = labelRepository.save(EntityFactory.getLabelWithNoTask(user1));
+        Label label2 = labelRepository.save(ObjectFactory.getLabelWithNoTask(user1));
         label2Id = label2.getId();
     }
 

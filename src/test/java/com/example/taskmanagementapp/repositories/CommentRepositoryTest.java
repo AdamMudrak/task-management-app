@@ -8,7 +8,7 @@ import com.example.taskmanagementapp.entities.Task;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.EntityNotFoundException;
 import com.example.taskmanagementapp.testutils.Constants;
-import com.example.taskmanagementapp.testutils.EntityFactory;
+import com.example.taskmanagementapp.testutils.ObjectFactory;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -54,13 +54,13 @@ public class CommentRepositoryTest {
 
     @BeforeAll
     void setUpBeforeAll() {
-        Role savedRole = roleRepository.save(EntityFactory.getUserRole());
-        user1 = userRepository.save(EntityFactory.getUser1(savedRole));
-        user2 = userRepository.save(EntityFactory.getUser2(savedRole));
+        Role savedRole = roleRepository.save(ObjectFactory.getUserRole());
+        user1 = userRepository.save(ObjectFactory.getUser1(savedRole));
+        user2 = userRepository.save(ObjectFactory.getUser2(savedRole));
         Project project =
-                projectRepository.save(EntityFactory.getProjectWithTwoEmployees(user1, user2));
-        task1 = taskRepository.save(EntityFactory.getTask1(project, user1));
-        task2 = taskRepository.save(EntityFactory.getTask2(project, user1));
+                projectRepository.save(ObjectFactory.getProjectWithTwoEmployees(user1, user2));
+        task1 = taskRepository.save(ObjectFactory.getTask1(project, user1));
+        task2 = taskRepository.save(ObjectFactory.getTask2(project, user1));
     }
 
     /**Task, Project, User and Role related tables have to be cleaned manually via sql
@@ -83,8 +83,8 @@ public class CommentRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        comment1 = commentRepository.save(EntityFactory.getComment1(user1, task1));
-        comment2 = commentRepository.save(EntityFactory.getComment2(user1, task1));
+        comment1 = commentRepository.save(ObjectFactory.getComment1(user1, task1));
+        comment2 = commentRepository.save(ObjectFactory.getComment2(user1, task1));
     }
 
     @Test

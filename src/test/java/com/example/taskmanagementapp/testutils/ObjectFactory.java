@@ -10,7 +10,7 @@ import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.Task;
 import com.example.taskmanagementapp.entities.User;
 
-public class EntityFactory {
+public class ObjectFactory {
     public static ActionToken getActionToken() {
         ActionToken actionToken = new ActionToken();
         actionToken.setActionToken(Constants.ACTION_TOKEN);

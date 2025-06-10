@@ -5,7 +5,7 @@ import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.EntityNotFoundException;
 import com.example.taskmanagementapp.testutils.Constants;
-import com.example.taskmanagementapp.testutils.EntityFactory;
+import com.example.taskmanagementapp.testutils.ObjectFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,8 +26,8 @@ class UserRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        Role savedRole = roleRepository.save(EntityFactory.getUserRole());
-        userRepository.save(EntityFactory.getUser1(savedRole));
+        Role savedRole = roleRepository.save(ObjectFactory.getUserRole());
+        userRepository.save(ObjectFactory.getUser1(savedRole));
     }
 
     @Test
