@@ -5,7 +5,9 @@ import java.time.LocalDateTime;
 
 public class Constants {
     public static final String USERNAME = "JohnDoe";
-    public static final String PASSWORD = "password";
+    public static final String PASSWORD = "Best_Password1@3$";
+    public static final String PASSWORD_DB =
+            "$2a$10$u4cOSEeePFyJlpvkPdtmhenMuPYhloQfrVS19DZU8/.5jtJNm7piW";
     public static final String EMAIL = "john_doe@mail.com";
     public static final String FIRST_NAME = "John";
     public static final String LAST_NAME = "Doe";
@@ -13,6 +15,7 @@ public class Constants {
 
     public static final String ANOTHER_USERNAME = "RichardRoe";
     public static final String ANOTHER_EMAIL = "richard_roe@mail.com";
+    public static final String ANOTHER_PASSWORD = "newPassword1@";
 
     public static final String PARAMETER = "parameter";
     public static final String NOT_EXISTING_PARAMETER = "blaBlaBlaParameter";
