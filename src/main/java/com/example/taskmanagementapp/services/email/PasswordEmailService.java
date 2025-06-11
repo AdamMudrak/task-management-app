@@ -1,5 +1,7 @@
 package com.example.taskmanagementapp.services.email;
 
+import static com.example.taskmanagementapp.constants.Constants.FIRST_POSITION;
+import static com.example.taskmanagementapp.constants.Constants.SECOND_POSITION;
 import static com.example.taskmanagementapp.constants.Constants.SPLITERATOR;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.INITIATE_RANDOM_PASSWORD_BODY;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.INITIATE_RANDOM_PASSWORD_SUBJECT;
@@ -8,7 +10,7 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RANDOM_PASSWORD_SUBJECT;
 
 import com.example.taskmanagementapp.services.utils.EmailLinkParameterProvider;
-import com.example.taskmanagementapp.services.utils.TestParamTokenCaptureService;
+import com.example.taskmanagementapp.services.utils.TestCaptureService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -27,11 +29,11 @@ public class PasswordEmailService extends EmailService {
         sendMessage(toEmail, INITIATE_RANDOM_PASSWORD_SUBJECT,
                 INITIATE_RANDOM_PASSWORD_BODY + System.lineSeparator()
                         + serverPath + "/auth/reset-password?"
-                        + paramTokenPair[0]
+                        + paramTokenPair[FIRST_POSITION]
                         + SPLITERATOR
-                        + paramTokenPair[1]);
+                        + paramTokenPair[SECOND_POSITION]);
 
-        TestParamTokenCaptureService.capture(paramTokenPair);
+        TestCaptureService.capture(paramTokenPair);
     }
 
     public void sendResetPassword(String toEmail, String randomPassword) {
@@ -41,5 +43,7 @@ public class PasswordEmailService extends EmailService {
                         + randomPassword
                         + System.lineSeparator()
                         + RANDOM_PASSWORD_BODY_2);
+
+        TestCaptureService.capture(new String[]{randomPassword});
     }
 }

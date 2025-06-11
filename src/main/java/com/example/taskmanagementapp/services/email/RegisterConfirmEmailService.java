@@ -1,11 +1,13 @@
 package com.example.taskmanagementapp.services.email;
 
+import static com.example.taskmanagementapp.constants.Constants.FIRST_POSITION;
+import static com.example.taskmanagementapp.constants.Constants.SECOND_POSITION;
 import static com.example.taskmanagementapp.constants.Constants.SPLITERATOR;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.CONFIRM_REGISTRATION_BODY;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.CONFIRM_REGISTRATION_SUBJECT;
 
 import com.example.taskmanagementapp.services.utils.EmailLinkParameterProvider;
-import com.example.taskmanagementapp.services.utils.TestParamTokenCaptureService;
+import com.example.taskmanagementapp.services.utils.TestCaptureService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -23,10 +25,10 @@ public class RegisterConfirmEmailService extends EmailService {
         sendMessage(toEmail, CONFIRM_REGISTRATION_SUBJECT,
                 CONFIRM_REGISTRATION_BODY + System.lineSeparator()
                         + serverPath + "/auth/register-success?"
-                        + paramTokenPair[0]
+                        + paramTokenPair[FIRST_POSITION]
                         + SPLITERATOR
-                        + paramTokenPair[1]);
+                        + paramTokenPair[SECOND_POSITION]);
 
-        TestParamTokenCaptureService.capture(paramTokenPair);
+        TestCaptureService.capture(paramTokenPair);
     }
 }

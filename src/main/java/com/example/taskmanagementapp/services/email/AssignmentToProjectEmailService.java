@@ -1,5 +1,7 @@
 package com.example.taskmanagementapp.services.email;
 
+import static com.example.taskmanagementapp.constants.Constants.FIRST_POSITION;
+import static com.example.taskmanagementapp.constants.Constants.SECOND_POSITION;
 import static com.example.taskmanagementapp.constants.Constants.SPACE;
 import static com.example.taskmanagementapp.constants.Constants.SPLITERATOR;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACCEPT_PROJECT_INVITATION_BODY_1;
@@ -8,7 +10,7 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACCEPT_PROJECT_INVITATION_SUBJECT;
 
 import com.example.taskmanagementapp.services.utils.EmailLinkParameterProvider;
-import com.example.taskmanagementapp.services.utils.TestParamTokenCaptureService;
+import com.example.taskmanagementapp.services.utils.TestCaptureService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -31,10 +33,10 @@ public class AssignmentToProjectEmailService extends EmailService {
                         + ACCEPT_PROJECT_INVITATION_BODY_2
                         + SPACE + projectName + SPACE + ACCEPT_PROJECT_INVITATION_BODY_3
                         + serverPath + "/projects/accept-invite?"
-                        + paramTokenPair[0]
-                        + SPLITERATOR + paramTokenPair[1]
+                        + paramTokenPair[FIRST_POSITION]
+                        + SPLITERATOR + paramTokenPair[SECOND_POSITION]
                         + "&actionToken" + SPLITERATOR + token);
 
-        TestParamTokenCaptureService.capture(paramTokenPair);
+        TestCaptureService.capture(paramTokenPair);
     }
 }
