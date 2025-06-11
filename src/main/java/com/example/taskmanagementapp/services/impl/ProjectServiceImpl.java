@@ -144,7 +144,7 @@ public class ProjectServiceImpl implements ProjectService {
                     + isNewEmployeeManager + getActionToken(newEmployee.getEmail()));
 
             actionTokenRepository.save(actionToken);
-            emailService.sendChangeEmail(user.getEmail(), newEmployee.getEmail(),
+            emailService.sendAssignmentEmail(user.getEmail(), newEmployee.getEmail(),
                     project.getName(), actionToken.getActionToken());
             return new EmployeeAssignmentResponse("Employee " + employeeId
                     + " has been invited to project " + projectId);
