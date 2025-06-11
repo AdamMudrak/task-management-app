@@ -32,12 +32,12 @@ import com.example.taskmanagementapp.exceptions.RegistrationException;
 import com.example.taskmanagementapp.mappers.UserMapper;
 import com.example.taskmanagementapp.repositories.RoleRepository;
 import com.example.taskmanagementapp.repositories.UserRepository;
-import com.example.taskmanagementapp.security.RequestType;
 import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
 import com.example.taskmanagementapp.security.jwtutils.strategy.JwtStrategy;
 import com.example.taskmanagementapp.security.jwtutils.strategy.JwtType;
 import com.example.taskmanagementapp.services.AuthenticationService;
 import com.example.taskmanagementapp.services.email.PasswordEmailService;
+import com.example.taskmanagementapp.services.email.RegisterConfirmEmailService;
 import com.example.taskmanagementapp.services.utils.ParamFromHttpRequestUtil;
 import com.example.taskmanagementapp.services.utils.RandomStringUtil;
 import io.jsonwebtoken.JwtException;
@@ -63,6 +63,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtStrategy jwtStrategy;
     private final PasswordEmailService passwordEmailService;
+    private final RegisterConfirmEmailService registerConfirmEmailService;
     private final ParamFromHttpRequestUtil paramFromHttpRequestUtil;
     private final RoleRepository roleRepository;
     @Value("${jwt.access.expiration}")
@@ -99,7 +100,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                                     + emailOrUsername + " found"));
         }
         isEnabled(currentUser);
-        passwordEmailService.sendActionMessage(currentUser.getEmail(), RequestType.PASSWORD_RESET);
+        passwordEmailService.sendInitiatePasswordReset(currentUser.getEmail());
         return new PasswordResetLinkResponse(SEND_LINK_TO_RESET_PASSWORD);
     }
 
@@ -158,8 +159,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setPassword(passwordEncoder.encode(requestDto.password()));
         assignBasicRole(user);
         userRepository.save(user);
-        passwordEmailService.sendActionMessage(user.getEmail(),
-                RequestType.REGISTRATION_CONFIRMATION);
+        registerConfirmEmailService.sendRegisterConfirmEmail(user.getEmail());
         return new RegistrationResponse(REGISTERED);
     }
 
@@ -217,8 +217,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new LoginException("Your account is locked. Consider contacting support team");
         }
         if (!user.isEnabled()) {
-            passwordEmailService.sendActionMessage(user.getEmail(),
-                    RequestType.REGISTRATION_CONFIRMATION);
+            registerConfirmEmailService.sendRegisterConfirmEmail(user.getEmail());
             throw new LoginException(REGISTERED_BUT_NOT_ACTIVATED);
         }
     }
