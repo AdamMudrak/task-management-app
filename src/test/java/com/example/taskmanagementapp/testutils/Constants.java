@@ -2,6 +2,7 @@ package com.example.taskmanagementapp.testutils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class Constants {
     public static final String USERNAME_1 = "JohnDoe";
@@ -70,4 +71,15 @@ public class Constants {
     public static final LocalDateTime TIME_STAMP = LocalDateTime.of(2025, 1, 6, 8, 30);
     public static final String COMMENT_TEXT_1 = "commentText1";
     public static final String COMMENT_TEXT_2 = "commentText2";
+
+    public static final List<String> EXPECTED_ERRORS_ON_REGISTER = List.of(
+            "firstName must not be blank.",
+            "lastName must not be blank.",
+            "password and repeatPassword don't match. Try again.",
+            "password  should contain 1 lowercase letter, 1 uppercase letter, 1 digit, "
+                    + "1 special character and be from 8 to 32 characters long.",
+            "repeatPassword  should contain 1 lowercase letter, 1 uppercase letter, 1 digit, "
+                    + "1 special character and be from 8 to 32 characters long.",
+            "email : invalid email. Try again.",
+            "username : invalid username. Can't be like email.");
 }
