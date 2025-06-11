@@ -8,8 +8,8 @@ public class ValidationConstants {
             + "endDate can't be earlier than startDate";
     public static final Pattern COMPILED_DATE_PATTERN = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}$");
 
-    public static final String INVALID_EMAIL = ": invalid email. Try again.";
-    public static final String INVALID_USERNAME = ": invalid username. Can't be like email.";
+    public static final String INVALID_EMAIL = ": invalid email. Try again";
+    public static final String INVALID_USERNAME = ": invalid username. Can't be like email";
     public static final Pattern COMPILED_EMAIL_PATTERN = Pattern.compile("^(?=.{1,64}@)[A-Za-z0-9_-"
             + "]+(\\.[A-Za-z0-9_-]+)*@[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$");
 
