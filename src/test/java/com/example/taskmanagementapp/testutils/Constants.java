@@ -4,21 +4,41 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class Constants {
-    public static final String USERNAME = "JohnDoe";
-    public static final String PASSWORD = "Best_Password1@3$";
-    public static final String PASSWORD_DB =
+    public static final String USERNAME_1 = "JohnDoe";
+    public static final String PASSWORD_1 = "Best_Password1@3$";
+    public static final String PASSWORD_1_DB =
             "$2a$10$u4cOSEeePFyJlpvkPdtmhenMuPYhloQfrVS19DZU8/.5jtJNm7piW";
-    public static final String EMAIL = "john_doe@mail.com";
-    public static final String FIRST_NAME = "John";
-    public static final String LAST_NAME = "Doe";
+    public static final String EMAIL_1 = "john_doe@mail.com";
+
+    public static final String USERNAME_2 = "RichardRoe";
+    public static final String PASSWORD_2 = "newPassword1@";
+    public static final String EMAIL_2 = "richard_roe@mail.com";
+
+    public static final String USERNAME_3 = "JaneDoe";
+    public static final String EMAIL_3 = "jane_doe@mail.com";
+
+    public static final String USERNAME_4 = "RickyRoe";
+    public static final String EMAIL_4 = "ricky_roe@mail.com";
+
+    public static final String USERNAME_5 = "TheBestJohnDoe";
+    public static final String EMAIL_5 = "bestjohndoe@mail.com";
+
+    public static final String USERNAME_6 = "TheNewJohnDoe";
+    public static final String EMAIL_6 = "newjohndoe@mail.com";
+
+    public static final String USERNAME_7 = "YetAnotherJohnDoe";
+    public static final String EMAIL_7 = "yetanothertestjohndoe@mail.com";
+
+    public static final String INVALID_USERNAME = "username@likemail.com";
+    public static final String INVALID_EMAIL = "invalidmail.com";
+    public static final String INVALID_PASSWORD = "password";
+    public static final String ANOTHER_INVALID_PASSWORD = "new_password";
+    public static final String EMPTY = "";
+
     public static final String ROLE_USER = "ROLE_USER";
 
-    public static final String ANOTHER_USERNAME = "RichardRoe";
-    public static final String ANOTHER_EMAIL = "richard_roe@mail.com";
-    public static final String ANOTHER_PASSWORD = "newPassword1@";
-
-    public static final String YET_ANOTHER_USERNAME = "JaneDoe";
-    public static final String YET_ANOTHER_EMAIL = "jane_doe@mail.com";
+    public static final String FIRST_NAME = "John";
+    public static final String LAST_NAME = "Doe";
 
     public static final String PARAMETER = "parameter";
     public static final String NOT_EXISTING_PARAMETER = "blaBlaBlaParameter";
@@ -32,14 +52,14 @@ public class Constants {
     public static final LocalDate PROJECT_START_DATE = LocalDate.of(2025, 1, 1);
     public static final LocalDate PROJECT_END_DATE = LocalDate.of(2025, 12, 31);
 
-    public static final String TASK_NAME = "taskName";
-    public static final String ANOTHER_TASK_NAME = "anotherTaskName";
-    public static final String TASK_DESCRIPTION = "taskDescription";
-    public static final String ANOTHER_TASK_DESCRIPTION = "anotherTaskDescription";
+    public static final String TASK_NAME_1 = "taskName";
+    public static final String TASK_NAME_2 = "anotherTaskName";
+    public static final String TASK_DESCRIPTION_1 = "taskDescription";
+    public static final String TASK_DESCRIPTION_2 = "anotherTaskDescription";
     public static final LocalDate TASK_DUE_DATE = LocalDate.of(2025, 12, 31);
 
-    public static final String LABEL_NAME = "labelName";
-    public static final String ANOTHER_LABEL_NAME = "anotherLabelName";
+    public static final String LABEL_NAME_1 = "labelName";
+    public static final String LABEL_NAME_2 = "anotherLabelName";
 
     public static final String FILE_ID_1 = "fileId1";
     public static final String FILE_NAME_1 = "fileName1";

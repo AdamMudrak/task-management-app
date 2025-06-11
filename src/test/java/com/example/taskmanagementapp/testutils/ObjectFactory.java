@@ -40,9 +40,9 @@ public class ObjectFactory {
 
     public static User getUser1(Role role) {
         User user = new User();
-        user.setUsername(Constants.USERNAME);
-        user.setPassword(Constants.PASSWORD_DB);
-        user.setEmail(Constants.EMAIL);
+        user.setUsername(Constants.USERNAME_1);
+        user.setPassword(Constants.PASSWORD_1_DB);
+        user.setEmail(Constants.EMAIL_1);
         user.setFirstName(Constants.FIRST_NAME);
         user.setLastName(Constants.LAST_NAME);
         user.setRole(role);
@@ -53,9 +53,9 @@ public class ObjectFactory {
 
     public static User getUser2(Role role) {
         User user = new User();
-        user.setUsername(Constants.ANOTHER_USERNAME);
-        user.setPassword(Constants.PASSWORD_DB);
-        user.setEmail(Constants.ANOTHER_EMAIL);
+        user.setUsername(Constants.USERNAME_2);
+        user.setPassword(Constants.PASSWORD_1_DB);
+        user.setEmail(Constants.EMAIL_2);
         user.setFirstName(Constants.FIRST_NAME);
         user.setLastName(Constants.LAST_NAME);
         user.setRole(role);
@@ -66,14 +66,27 @@ public class ObjectFactory {
 
     public static User getDisabledUser(Role role) {
         User user = new User();
-        user.setUsername(Constants.ANOTHER_USERNAME);
-        user.setPassword(Constants.PASSWORD_DB);
-        user.setEmail(Constants.ANOTHER_EMAIL);
+        user.setUsername(Constants.USERNAME_3);
+        user.setPassword(Constants.PASSWORD_1_DB);
+        user.setEmail(Constants.EMAIL_3);
         user.setFirstName(Constants.FIRST_NAME);
         user.setLastName(Constants.LAST_NAME);
         user.setRole(role);
         user.setEnabled(true);
         user.setAccountNonLocked(false);
+        return user;
+    }
+
+    public static User getNotActiveUser(Role role) {
+        User user = new User();
+        user.setUsername(Constants.USERNAME_4);
+        user.setPassword(Constants.PASSWORD_1_DB);
+        user.setEmail(Constants.EMAIL_4);
+        user.setFirstName(Constants.FIRST_NAME);
+        user.setLastName(Constants.LAST_NAME);
+        user.setRole(role);
+        user.setEnabled(false);
+        user.setAccountNonLocked(true);
         return user;
     }
 
@@ -122,8 +135,8 @@ public class ObjectFactory {
 
     public static Task getTask1(Project project, User user) {
         Task task = new Task();
-        task.setName(Constants.TASK_NAME);
-        task.setDescription(Constants.TASK_DESCRIPTION);
+        task.setName(Constants.TASK_NAME_1);
+        task.setDescription(Constants.TASK_DESCRIPTION_1);
         task.setPriority(Task.Priority.LOW);
         task.setStatus(Task.Status.NOT_STARTED);
         task.setDueDate(Constants.TASK_DUE_DATE);
@@ -135,8 +148,8 @@ public class ObjectFactory {
 
     public static Task getTask2(Project project, User user) {
         Task task = new Task();
-        task.setName(Constants.ANOTHER_TASK_NAME);
-        task.setDescription(Constants.ANOTHER_TASK_DESCRIPTION);
+        task.setName(Constants.TASK_NAME_2);
+        task.setDescription(Constants.TASK_DESCRIPTION_2);
         task.setPriority(Task.Priority.HIGH);
         task.setStatus(Task.Status.IN_PROGRESS);
         task.setDueDate(Constants.TASK_DUE_DATE);
@@ -148,7 +161,7 @@ public class ObjectFactory {
 
     public static Label getLabel1(User user, Task task) {
         Label label = new Label();
-        label.setName(Constants.LABEL_NAME);
+        label.setName(Constants.LABEL_NAME_1);
         label.setUser(user);
         label.setColor(Label.Color.GREEN);
         label.getTasks().add(task);
@@ -157,7 +170,7 @@ public class ObjectFactory {
 
     public static Label getLabel2(User user, Task task) {
         Label label = new Label();
-        label.setName(Constants.ANOTHER_LABEL_NAME);
+        label.setName(Constants.LABEL_NAME_2);
         label.setUser(user);
         label.setColor(Label.Color.RED);
         label.getTasks().add(task);
@@ -166,7 +179,7 @@ public class ObjectFactory {
 
     public static Label getLabelWithNoTask(User user) {
         Label labelWithNotTask = new Label();
-        labelWithNotTask.setName(Constants.ANOTHER_LABEL_NAME);
+        labelWithNotTask.setName(Constants.LABEL_NAME_2);
         labelWithNotTask.setUser(user);
         labelWithNotTask.setColor(Label.Color.RED);
         return labelWithNotTask;
@@ -210,49 +223,59 @@ public class ObjectFactory {
 
     public static RegistrationRequest getRegistrationRequest1() {
         return new RegistrationRequest(
-                "TheNewJohnDoe",
-                "Best_Password1@3$",
-                "Best_Password1@3$",
-                "newjohndoe@mail.com",
-                "John",
-                "Doe");
+                Constants.USERNAME_6,
+                Constants.PASSWORD_1,
+                Constants.PASSWORD_1,
+                Constants.EMAIL_6,
+                Constants.FIRST_NAME,
+                Constants.LAST_NAME);
     }
 
     public static RegistrationRequest getRegistrationRequest2() {
         return new RegistrationRequest(
-                "TheBestJohnDoe",
-                "Best_Password1@3$",
-                "Best_Password1@3$",
-                "bestjohndoe@mail.com",
-                "John",
-                "Doe");
+                Constants.USERNAME_5,
+                Constants.PASSWORD_1,
+                Constants.PASSWORD_1,
+                Constants.EMAIL_5,
+                Constants.FIRST_NAME,
+                Constants.LAST_NAME);
     }
 
     public static RegistrationRequest getRegistrationRequestWithExistingEmail() {
         return new RegistrationRequest(
-                "YetAnotherJohnDoe",
-                "Best_Password1@3$",
-                "Best_Password1@3$",
-                Constants.EMAIL,
-                "John",
-                "Doe");
+                Constants.USERNAME_7,
+                Constants.PASSWORD_1,
+                Constants.PASSWORD_1,
+                Constants.EMAIL_1,
+                Constants.FIRST_NAME,
+                Constants.LAST_NAME);
     }
 
     public static RegistrationRequest getRegistrationRequestWithExistingUsername() {
         return new RegistrationRequest(
-                Constants.USERNAME,
-                "Best_Password1@3$",
-                "Best_Password1@3$",
-                "yetanothertestjohndoe@mail.com",
-                "John",
-                "Doe");
+                Constants.USERNAME_1,
+                Constants.PASSWORD_1,
+                Constants.PASSWORD_1,
+                Constants.EMAIL_7,
+                Constants.FIRST_NAME,
+                Constants.LAST_NAME);
+    }
+
+    public static RegistrationRequest getRegistrationRequestWithAllFieldsWrong() {
+        return new RegistrationRequest(
+                Constants.INVALID_USERNAME,
+                Constants.INVALID_PASSWORD,
+                Constants.ANOTHER_INVALID_PASSWORD,
+                Constants.INVALID_EMAIL,
+                Constants.EMPTY,
+                Constants.EMPTY);
     }
 
     public static LoginRequest getExistingLoginByEmailRequest() {
-        return new LoginRequest(Constants.EMAIL, Constants.PASSWORD);
+        return new LoginRequest(Constants.EMAIL_1, Constants.PASSWORD_1);
     }
 
     public static LoginRequest getExistingLoginByUsernameRequest() {
-        return new LoginRequest(Constants.USERNAME, Constants.PASSWORD);
+        return new LoginRequest(Constants.USERNAME_1, Constants.PASSWORD_1);
     }
 }

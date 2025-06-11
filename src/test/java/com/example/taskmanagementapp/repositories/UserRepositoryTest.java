@@ -32,9 +32,9 @@ class UserRepositoryTest {
 
     @Test
     void givenUser_whenFindByUsername_thenReturnUser() {
-        User user = userRepository.findByUsername(Constants.USERNAME).orElseThrow(
+        User user = userRepository.findByUsername(Constants.USERNAME_1).orElseThrow(
                 () -> new EntityNotFoundException("No user found with username \""
-                        + Constants.USERNAME + "\""));
+                        + Constants.USERNAME_1 + "\""));
 
         userAssertions(user);
     }
@@ -42,14 +42,14 @@ class UserRepositoryTest {
     @Test
     void givenNotExistingUser_whenFindByUsername_thenReturnEmptyUser() {
         Assertions.assertTrue(userRepository.findByUsername(
-                Constants.ANOTHER_USERNAME).isEmpty());
+                Constants.USERNAME_2).isEmpty());
     }
 
     @Test
     void givenUser_whenFindByEmail_thenReturnUser() {
-        User user = userRepository.findByEmail(Constants.EMAIL).orElseThrow(
+        User user = userRepository.findByEmail(Constants.EMAIL_1).orElseThrow(
                 () -> new EntityNotFoundException("No user found with username \""
-                        + Constants.EMAIL + "\""));
+                        + Constants.EMAIL_1 + "\""));
 
         userAssertions(user);
     }
@@ -57,35 +57,35 @@ class UserRepositoryTest {
     @Test
     void givenNotExistingUser_whenFindByEmail_thenReturnEmptyUser() {
         Assertions.assertTrue(userRepository.findByEmail(
-                Constants.ANOTHER_EMAIL).isEmpty());
+                Constants.EMAIL_2).isEmpty());
     }
 
     @Test
     void givenUser_whenExistsByUsername_thenReturnTrue() {
-        Assertions.assertTrue(userRepository.existsByUsername(Constants.USERNAME));
+        Assertions.assertTrue(userRepository.existsByUsername(Constants.USERNAME_1));
     }
 
     @Test
     void givenNotExistingUser_whenExistsByUsername_thenReturnFalse() {
         Assertions.assertFalse(userRepository.existsByUsername(
-                Constants.ANOTHER_USERNAME));
+                Constants.USERNAME_2));
     }
 
     @Test
     void givenUser_whenExistsByEmail_thenReturnTrue() {
-        Assertions.assertTrue(userRepository.existsByEmail(Constants.EMAIL));
+        Assertions.assertTrue(userRepository.existsByEmail(Constants.EMAIL_1));
     }
 
     @Test
     void givenNotExistingUser_whenExistsByEmail_thenReturnFalse() {
-        Assertions.assertFalse(userRepository.existsByEmail(Constants.ANOTHER_EMAIL));
+        Assertions.assertFalse(userRepository.existsByEmail(Constants.EMAIL_2));
     }
 
     private void userAssertions(User user) {
         Assertions.assertNotNull(user);
-        Assertions.assertEquals(Constants.USERNAME, user.getUsername());
-        Assertions.assertEquals(Constants.PASSWORD_DB, user.getPassword());
-        Assertions.assertEquals(Constants.EMAIL, user.getEmail());
+        Assertions.assertEquals(Constants.USERNAME_1, user.getUsername());
+        Assertions.assertEquals(Constants.PASSWORD_1_DB, user.getPassword());
+        Assertions.assertEquals(Constants.EMAIL_1, user.getEmail());
         Assertions.assertEquals(Constants.FIRST_NAME, user.getFirstName());
         Assertions.assertEquals(Constants.LAST_NAME, user.getLastName());
         Assertions.assertEquals(Constants.ROLE_USER, user.getRole().getName().name());

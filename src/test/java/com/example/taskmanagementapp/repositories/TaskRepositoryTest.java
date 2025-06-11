@@ -142,8 +142,8 @@ class TaskRepositoryTest {
     private void taskAssertions(Task task) {
         Assertions.assertNotNull(task);
         Assertions.assertEquals(task1Id, task.getId());
-        Assertions.assertEquals(Constants.TASK_NAME, task.getName());
-        Assertions.assertEquals(Constants.TASK_DESCRIPTION, task.getDescription());
+        Assertions.assertEquals(Constants.TASK_NAME_1, task.getName());
+        Assertions.assertEquals(Constants.TASK_DESCRIPTION_1, task.getDescription());
         Assertions.assertEquals(Task.Priority.LOW, task.getPriority());
         Assertions.assertEquals(Task.Status.NOT_STARTED, task.getStatus());
         Assertions.assertEquals(Constants.TASK_DUE_DATE, task.getDueDate());

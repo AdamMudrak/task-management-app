@@ -92,12 +92,12 @@ class LabelRepositoryTest {
     void givenTwoLabels_whenFindByIdAndUserId_thenReturnBoth() {
         Label label = labelRepository.findByIdAndUserId(labelId1, user1.getId()).orElseThrow(
                 () -> new EntityNotFoundException("Label with id " + labelId1 + " not found"));
-        labelAssertions(label, labelId1, Constants.LABEL_NAME, Label.Color.GREEN, task1);
+        labelAssertions(label, labelId1, Constants.LABEL_NAME_1, Label.Color.GREEN, task1);
 
         Label anotherLabel = labelRepository.findByIdAndUserId(labelId2, user1.getId())
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Label with id " + labelId2 + " not found"));
-        labelAssertions(anotherLabel, labelId2, Constants.ANOTHER_LABEL_NAME,
+        labelAssertions(anotherLabel, labelId2, Constants.LABEL_NAME_2,
                 Label.Color.RED, task2);
     }
 
@@ -139,9 +139,9 @@ class LabelRepositoryTest {
 
         for (Label label : labels) {
             if (label.getId().equals(labelId1)) {
-                labelAssertions(label, labelId1, Constants.LABEL_NAME, Label.Color.GREEN, task1);
+                labelAssertions(label, labelId1, Constants.LABEL_NAME_1, Label.Color.GREEN, task1);
             } else if (label.getId().equals(labelId2)) {
-                labelAssertions(label, labelId2, Constants.ANOTHER_LABEL_NAME,
+                labelAssertions(label, labelId2, Constants.LABEL_NAME_2,
                         Label.Color.RED, task2);
             }
         }
@@ -157,12 +157,12 @@ class LabelRepositoryTest {
                 user1.getId(), PageRequest.of(firstPage, size)).getContent();
         Assertions.assertEquals(1, listOfFirstLabel.size());
         labelAssertions(listOfFirstLabel.getFirst(), labelId1,
-                Constants.LABEL_NAME, Label.Color.GREEN, task1);
+                Constants.LABEL_NAME_1, Label.Color.GREEN, task1);
 
         List<Label> listOfSecondLabel = labelRepository.findAllByUserId(
                 user1.getId(), PageRequest.of(secondPage, size)).getContent();
         Assertions.assertEquals(1, listOfSecondLabel.size());
-        labelAssertions(listOfSecondLabel.getFirst(), labelId2, Constants.ANOTHER_LABEL_NAME,
+        labelAssertions(listOfSecondLabel.getFirst(), labelId2, Constants.LABEL_NAME_2,
                 Label.Color.RED, task2);
     }
 
