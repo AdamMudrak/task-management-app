@@ -19,17 +19,17 @@ import org.springframework.stereotype.Component;
 public class EmailLinkParameterProvider {
     private final ParamTokenRepository paramTokenRepository;
     private final JwtStrategy jwtStrategy;
-    private String emailLinkParameter;
-    private String token;
 
-    public void formRandomParamTokenPair(String email) {
-        setEmailLinkParameter(RandomStringUtil.generateRandomString(RANDOM_LINK_STRENGTH));
-        JwtAbstractUtil abstractUtil = jwtStrategy.getStrategy(JwtType.ACTION);
-        setToken(abstractUtil.generateToken(email));
+    public String[] formRandomParamTokenPair(String email) {
+        String[] paramTokenPair = new String[2];
+        paramTokenPair[0] = RandomStringUtil.generateRandomString(RANDOM_LINK_STRENGTH);
+        JwtAbstractUtil actionJwtUtil = jwtStrategy.getStrategy(JwtType.ACTION);
+        paramTokenPair[1] = actionJwtUtil.generateToken(email);
 
         ParamToken paramToken = new ParamToken();
-        paramToken.setParameter(emailLinkParameter);
-        paramToken.setActionToken(token);
+        paramToken.setParameter(paramTokenPair[0]);
+        paramToken.setActionToken(paramTokenPair[1]);
         paramTokenRepository.save(paramToken);
+        return paramTokenPair;
     }
 }
