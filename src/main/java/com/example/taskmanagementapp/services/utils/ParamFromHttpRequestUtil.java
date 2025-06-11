@@ -4,20 +4,14 @@ import com.example.taskmanagementapp.exceptions.ActionNotFoundException;
 import com.example.taskmanagementapp.repositories.ParamTokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.springframework.stereotype.Component;
 
 @Component
-@Getter
-@Setter
 @RequiredArgsConstructor
 public class ParamFromHttpRequestUtil {
     private static final int FIRST_PARAM_POSITION = 0;
     private final ParamTokenRepository paramTokenRepository;
-    private String randomParameter;
-    private String token;
 
     public String parseRandomParameterAndToken(HttpServletRequest request) {
         Map<String, String[]> parameterMap = request.getParameterMap();
