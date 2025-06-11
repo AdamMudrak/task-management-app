@@ -17,6 +17,9 @@ public class Constants {
     public static final String ANOTHER_EMAIL = "richard_roe@mail.com";
     public static final String ANOTHER_PASSWORD = "newPassword1@";
 
+    public static final String YET_ANOTHER_USERNAME = "JaneDoe";
+    public static final String YET_ANOTHER_EMAIL = "jane_doe@mail.com";
+
     public static final String PARAMETER = "parameter";
     public static final String NOT_EXISTING_PARAMETER = "blaBlaBlaParameter";
     public static final String ACTION_TOKEN = "actionToken";
