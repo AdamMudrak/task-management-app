@@ -1,17 +1,23 @@
 package com.example.taskmanagementapp.services.email;
 
+import com.example.taskmanagementapp.services.utils.EmailLinkParameterProvider;
 import com.resend.Resend;
 import com.resend.core.exception.ResendException;
 import com.resend.services.emails.model.CreateEmailOptions;
 import com.resend.services.emails.model.CreateEmailResponse;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class EmailService {
     private static final Logger logger = LogManager.getLogger(EmailService.class);
+    @Getter
+    private final EmailLinkParameterProvider emailLinkParameterProvider;
     @Value("${resend.api.key}")
     private String resendApiKey;
     @Value("${mail}")
