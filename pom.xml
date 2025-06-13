@@ -12,7 +12,12 @@
 	<artifactId>task-management-app</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>task-management-app</name>
-	<description>Manage tasks and projects effectively through a web-based application. This system enables task creation, assignment, progress tracking, and completion.</description>
+	<description>About
+		Facio TaskManagementApp is a robust task and project management platform designed for teams.
+		With secure role-based access, seamless user authentication, and deep integration with
+		Dropbox, Facio streamlines collaboration through task assignment, commenting,
+		file attachments, labeling, and real-time notifications.
+	</description>
 	<url/>
 	<developers>
 		<developer>
@@ -159,9 +164,9 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>3.6.0</version>
+				<version>${maven-checkstyle-plugin.version}</version>
 				<configuration>
-					<configLocation>checkstyle.xml</configLocation>
+					<configLocation>${maven.checkstyle.plugin.configLocation}</configLocation>
 					<consoleOutput>true</consoleOutput>
 					<failsOnError>true</failsOnError>
 				</configuration>
