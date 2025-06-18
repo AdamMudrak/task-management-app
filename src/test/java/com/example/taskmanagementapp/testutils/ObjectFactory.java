@@ -6,7 +6,6 @@ import com.example.taskmanagementapp.entities.ActionToken;
 import com.example.taskmanagementapp.entities.Attachment;
 import com.example.taskmanagementapp.entities.Comment;
 import com.example.taskmanagementapp.entities.Label;
-import com.example.taskmanagementapp.entities.ParamToken;
 import com.example.taskmanagementapp.entities.Project;
 import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.Task;
@@ -17,13 +16,6 @@ public class ObjectFactory {
         ActionToken actionToken = new ActionToken();
         actionToken.setActionToken(Constants.ACTION_TOKEN);
         return actionToken;
-    }
-
-    public static ParamToken getParamToken() {
-        ParamToken paramToken = new ParamToken();
-        paramToken.setParameter(Constants.PARAMETER);
-        paramToken.setActionToken(Constants.ACTION_TOKEN);
-        return paramToken;
     }
 
     public static Role getUserRole() {

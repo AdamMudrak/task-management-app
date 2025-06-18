@@ -14,11 +14,11 @@ import com.example.taskmanagementapp.dtos.authentication.request.LoginRequest;
 import com.example.taskmanagementapp.dtos.authentication.request.PasswordChangeRequest;
 import com.example.taskmanagementapp.dtos.authentication.request.PasswordResetLinkRequest;
 import com.example.taskmanagementapp.dtos.authentication.request.RegistrationRequest;
-import com.example.taskmanagementapp.entities.ParamToken;
+import com.example.taskmanagementapp.entities.ActionToken;
 import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.EntityNotFoundException;
-import com.example.taskmanagementapp.repositories.ParamTokenRepository;
+import com.example.taskmanagementapp.repositories.ActionTokenRepository;
 import com.example.taskmanagementapp.repositories.RoleRepository;
 import com.example.taskmanagementapp.repositories.UserRepository;
 import com.example.taskmanagementapp.security.jwtutils.strategy.JwtStrategy;
@@ -68,7 +68,7 @@ public class AuthControllerTest {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private ParamTokenRepository paramTokenRepository;
+    private ActionTokenRepository actionTokenRepository;
     @Autowired
     private JwtStrategy jwtStrategy;
     private User user;
@@ -89,7 +89,7 @@ public class AuthControllerTest {
 
     @AfterAll
     void tearDownAfterAll() {
-        paramTokenRepository.deleteAll();
+        actionTokenRepository.deleteAll();
         userRepository.deleteAll();
         roleRepository.deleteAll();
     }
@@ -188,16 +188,14 @@ public class AuthControllerTest {
         @Test
         void givenRegistrationRequestForNotExistingUser_whenConfirmRegistration_thenNotFound()
                 throws Exception {
-            String randomParam = RandomStringUtil.generateRandomString(RANDOM_LINK_STRENGTH);
             String token = jwtStrategy.getStrategy(JwtType.ACTION).generateToken(MOCK_EMAIL);
-            ParamToken paramToken = new ParamToken();
-            paramToken.setParameter(randomParam);
-            paramToken.setActionToken(token);
-            paramTokenRepository.save(paramToken);
+            ActionToken actionToken = new ActionToken();
+            actionToken.setActionToken(token);
+            actionTokenRepository.save(actionToken);
 
             MvcResult result = mockMvc
                     .perform(MockMvcRequestBuilders.get("/auth/register-success")
-                            .param(randomParam, token))
+                            .param("token", token))
                     .andExpect(MockMvcResultMatchers.status().isNotFound())
                     .andReturn();
             JsonNode jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
@@ -219,8 +217,7 @@ public class AuthControllerTest {
                     .andReturn();
             JsonNode jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
 
-            Assertions.assertEquals("No such request was found... "
-                            + "The link might be expired or forged.",
+            Assertions.assertEquals("Wasn't able to parse link...Might be expired or forged.",
                     jsonNode.get("errors").asText());
         }
 
@@ -679,8 +676,7 @@ public class AuthControllerTest {
 
             JsonNode jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
 
-            Assertions.assertEquals("No such request was found... "
-                            + "The link might be expired or forged.",
+            Assertions.assertEquals("Wasn't able to parse link...Might be expired or forged.",
                     jsonNode.get("errors").asText());
         }
 

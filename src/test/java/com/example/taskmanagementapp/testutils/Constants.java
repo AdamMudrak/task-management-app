@@ -42,7 +42,6 @@ public class Constants {
     public static final String LAST_NAME = "Doe";
 
     public static final String PARAMETER = "parameter";
-    public static final String NOT_EXISTING_PARAMETER = "blaBlaBlaParameter";
     public static final String ACTION_TOKEN = "actionToken";
     public static final String NOT_EXISTING_ACTION_TOKEN = "blaBlaBlaActionToken";
 
