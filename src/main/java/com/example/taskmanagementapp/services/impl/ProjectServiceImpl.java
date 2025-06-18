@@ -157,7 +157,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public ProjectResponse acceptAssignmentToProject(HttpServletRequest request) {
-        String token = paramFromHttpRequestUtil.parseRandomParameterAndToken(request);
+        String token = paramFromHttpRequestUtil.getNamedParameter(request, "shortToken");
         JwtAbstractUtil jwtActionUtil = jwtStrategy.getStrategy(JwtType.ACTION);
         jwtActionUtil.isValidToken(token);
         String actionToken = paramFromHttpRequestUtil.getNamedParameter(request, "actionToken");

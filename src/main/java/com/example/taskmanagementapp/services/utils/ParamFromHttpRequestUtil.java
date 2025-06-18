@@ -1,7 +1,7 @@
 package com.example.taskmanagementapp.services.utils;
 
 import com.example.taskmanagementapp.exceptions.ActionNotFoundException;
-import com.example.taskmanagementapp.repositories.ParamTokenRepository;
+import com.example.taskmanagementapp.repositories.ActionTokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -11,27 +11,16 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ParamFromHttpRequestUtil {
     private static final int FIRST_PARAM_POSITION = 0;
-    private final ParamTokenRepository paramTokenRepository;
+    private final ActionTokenRepository actionTokenRepository;
 
     public String parseRandomParameterAndToken(HttpServletRequest request) {
-        Map<String, String[]> parameterMap = request.getParameterMap();
-        String randomParameter = null;
-        String token = null;
-        for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
-            if (entry.getKey().equals("newEmail")
-                    || entry.getKey().equals("actionToken")) {
-                continue;
-            }
-            randomParameter = entry.getKey();
-            token = entry.getValue()[FIRST_PARAM_POSITION];
-            break;
-        }
-        if (randomParameter != null && token != null) {
-            if (!paramTokenRepository.existsByParameterAndActionToken(randomParameter, token)) {
+        String token = request.getParameter("token");
+        if (token != null && !token.isBlank()) {
+            if (!actionTokenRepository.existsByActionToken(token)) {
                 throw new ActionNotFoundException(
                         "No such request was found... The link might be expired or forged");
             } else {
-                paramTokenRepository.deleteByParameterAndActionToken(randomParameter, token);
+                actionTokenRepository.deleteByActionToken(token);
                 return token;
             }
         } else {
