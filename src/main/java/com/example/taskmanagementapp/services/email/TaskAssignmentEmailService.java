@@ -5,15 +5,10 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.TASK_ASSIGNED_BODY_3;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.TASK_ASSIGNED_SUBJECT;
 
-import com.example.taskmanagementapp.services.utils.EmailLinkParameterProvider;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TaskAssignmentEmailService extends EmailService {
-
-    public TaskAssignmentEmailService(EmailLinkParameterProvider emailLinkParameterProvider) {
-        super(emailLinkParameterProvider);
-    }
 
     public void sendTaskAssignmentEmail(String assigneeEmail,
                                         String assignerEmail,

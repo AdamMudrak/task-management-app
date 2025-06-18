@@ -11,12 +11,12 @@ import static com.example.taskmanagementapp.constants.services.email.TaskDeadlin
 import com.example.taskmanagementapp.entities.Task;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.repositories.TaskRepository;
-import com.example.taskmanagementapp.services.utils.EmailLinkParameterProvider;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.scheduling.annotation.Async;
@@ -24,15 +24,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class TaskDeadlineNotifier extends EmailService {
     private static final Logger logger = LogManager.getLogger(TaskDeadlineNotifier.class);
     private final TaskRepository taskRepository;
-
-    public TaskDeadlineNotifier(EmailLinkParameterProvider emailLinkParameterProvider,
-                                TaskRepository taskRepository) {
-        super(emailLinkParameterProvider);
-        this.taskRepository = taskRepository;
-    }
 
     @Async
     @Scheduled(cron = CRONOUNITS)

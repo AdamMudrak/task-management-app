@@ -1,34 +1,28 @@
 package com.example.taskmanagementapp.services.email;
 
-import static com.example.taskmanagementapp.constants.Constants.FIRST_POSITION;
-import static com.example.taskmanagementapp.constants.Constants.SECOND_POSITION;
-import static com.example.taskmanagementapp.constants.Constants.SPLITERATOR;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.CONFIRM_REGISTRATION_BODY;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.CONFIRM_REGISTRATION_SUBJECT;
 
-import com.example.taskmanagementapp.services.utils.EmailLinkParameterProvider;
+import com.example.taskmanagementapp.services.utils.ActionTokenUtil;
 import com.example.taskmanagementapp.services.utils.TestCaptureService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class RegisterConfirmEmailService extends EmailService {
+    private final ActionTokenUtil actionTokenUtil;
     @Value("${server.path}")
     private String serverPath;
 
-    public RegisterConfirmEmailService(EmailLinkParameterProvider emailLinkParameterProvider) {
-        super(emailLinkParameterProvider);
-    }
-
     public void sendRegisterConfirmEmail(String toEmail) {
-        String[] paramTokenPair = getEmailLinkParameterProvider().formRandomParamTokenPair(toEmail);
+        String token = actionTokenUtil.generateActionToken(toEmail);
         sendMessage(toEmail, CONFIRM_REGISTRATION_SUBJECT,
                 CONFIRM_REGISTRATION_BODY + System.lineSeparator()
-                        + serverPath + "/auth/register-success?"
-                        + paramTokenPair[FIRST_POSITION]
-                        + SPLITERATOR
-                        + paramTokenPair[SECOND_POSITION]);
+                        + serverPath + "/auth/register-success?token="
+                        + actionTokenUtil.generateActionToken(toEmail));
 
-        TestCaptureService.capture(paramTokenPair);
+        TestCaptureService.capture(new String[]{"token", token});
     }
 }
