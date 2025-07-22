@@ -1,7 +1,12 @@
 package com.example.taskmanagementapp.services.impl;
 
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACCOUNT_IS_LOCKED;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.CHECK_YOUR_EMAIL;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.LINK_EXPIRED;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.LOGIN_SUCCESS;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.PASSWORD_MISMATCH;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.PASSWORD_SET_SUCCESSFULLY;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.REGISTERED;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.REGISTERED_BUT_NOT_ACTIVATED;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.SEND_LINK_TO_RESET_PASSWORD;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -10,16 +15,25 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.example.taskmanagementapp.dtos.authentication.request.LoginRequest;
+import com.example.taskmanagementapp.dtos.authentication.request.PasswordChangeRequest;
+import com.example.taskmanagementapp.dtos.authentication.request.RegistrationRequest;
 import com.example.taskmanagementapp.dtos.authentication.response.LoginResponse;
+import com.example.taskmanagementapp.dtos.authentication.response.PasswordChangeResponse;
 import com.example.taskmanagementapp.dtos.authentication.response.PasswordResetLinkResponse;
+import com.example.taskmanagementapp.dtos.authentication.response.RegistrationResponse;
+import com.example.taskmanagementapp.dtos.authentication.response.ResetLinkSentResponse;
 import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.EntityNotFoundException;
+import com.example.taskmanagementapp.exceptions.LinkExpiredException;
 import com.example.taskmanagementapp.exceptions.LoginException;
+import com.example.taskmanagementapp.exceptions.PasswordMismatchException;
+import com.example.taskmanagementapp.exceptions.RegistrationException;
 import com.example.taskmanagementapp.mappers.UserMapper;
 import com.example.taskmanagementapp.repositories.RoleRepository;
 import com.example.taskmanagementapp.repositories.UserRepository;
 import com.example.taskmanagementapp.security.jwtutils.impl.JwtAccessUtil;
+import com.example.taskmanagementapp.security.jwtutils.impl.JwtActionUtil;
 import com.example.taskmanagementapp.security.jwtutils.impl.JwtRefreshUtil;
 import com.example.taskmanagementapp.security.jwtutils.strategy.JwtStrategy;
 import com.example.taskmanagementapp.security.jwtutils.strategy.JwtType;
@@ -28,6 +42,7 @@ import com.example.taskmanagementapp.services.email.RegisterConfirmEmailService;
 import com.example.taskmanagementapp.services.utils.ParamFromHttpRequestUtil;
 import com.example.taskmanagementapp.testutils.Constants;
 import com.example.taskmanagementapp.testutils.ObjectFactory;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Optional;
@@ -84,8 +99,8 @@ public class AuthenticationServiceImplTest {
                 registerConfirmEmailService,
                 paramFromHttpRequestUtil,
                 roleRepository,
-                600000L,
-                604800000L);
+                Constants.ACCESS_EXPIRATION,
+                Constants.REFRESH_EXPIRATION);
     }
 
     @Nested
@@ -345,4 +360,158 @@ public class AuthenticationServiceImplTest {
                     + Constants.USERNAME_5 + " found", userNotFoundException.getMessage());
         }
     }
+
+    @Nested
+    class ConfirmResetPassword {
+        @Test
+        void givenGoodToken_whenConfirmResetPassword_thenSuccessfullyNewPassword() {
+            //given
+            JwtActionUtil jwtActionUtil =
+                    new JwtActionUtil(Constants.SECRET_KEY, Constants.ACTION_EXPIRATION);
+            String goodToken = jwtActionUtil.generateToken(Constants.EMAIL_1);
+            HttpServletRequest request = mock(HttpServletRequest.class);
+
+            //when
+            when(paramFromHttpRequestUtil
+                    .parseRandomParameterAndToken(request))
+                        .thenReturn(goodToken);
+            when(jwtStrategy.getStrategy(JwtType.ACTION)).thenReturn(jwtActionUtil);
+            when(userRepository.findByEmail(Constants.EMAIL_1)).thenReturn(Optional.of(user));
+
+            //then
+            assertEquals(new ResetLinkSentResponse(CHECK_YOUR_EMAIL),
+                    authenticationService.confirmResetPassword(request));
+        }
+
+        @Test
+        void givenBadToken_whenConfirmResetPassword_thenThrowLinkExpiredException() {
+            //given
+            JwtActionUtil jwtBadActionUtil =
+                    new JwtActionUtil(Constants.SECRET_KEY, Constants.ULTRA_SHORT_EXPIRATION);
+            String badToken = jwtBadActionUtil.generateToken(Constants.EMAIL_1);
+            HttpServletRequest request = mock(HttpServletRequest.class);
+
+            //when
+            when(paramFromHttpRequestUtil
+                    .parseRandomParameterAndToken(request))
+                    .thenReturn(badToken);
+            when(jwtStrategy.getStrategy(JwtType.ACTION)).thenReturn(jwtBadActionUtil);
+
+            //then
+            LinkExpiredException linkExpiredException = assertThrows(LinkExpiredException.class,
+                    () -> authenticationService.confirmResetPassword(request));
+
+            assertEquals(LINK_EXPIRED, linkExpiredException.getMessage());
+        }
+    }
+
+    @Nested
+    class ChangePassword {
+        @Test
+        void givenCorrectCurrentAndTwoSameNewPasswords_whenChangePassword_thenSuccess()
+                throws PasswordMismatchException {
+            //given
+            User newUser = ObjectFactory.getUser1(role);
+            PasswordChangeRequest passwordChangeRequest = new PasswordChangeRequest(
+                    Constants.PASSWORD_1,
+                    Constants.PASSWORD_2,
+                    Constants.PASSWORD_2);
+
+            //when
+            when(passwordEncoder.matches(
+                    Constants.PASSWORD_1, Constants.PASSWORD_1_DB)).thenReturn(true);
+
+            //then
+            assertEquals(new PasswordChangeResponse(PASSWORD_SET_SUCCESSFULLY),
+                    authenticationService.changePassword(newUser, passwordChangeRequest));
+        }
+
+        @Test
+        void givenIncorrectCurrentAndTwoSameNewPasswords_whenChangePassword_thenException() {
+            //given
+            User newUser = ObjectFactory.getUser1(role);
+            PasswordChangeRequest passwordChangeRequest = new PasswordChangeRequest(
+                    Constants.PASSWORD_3,
+                    Constants.PASSWORD_2,
+                    Constants.PASSWORD_2);
+
+            //when
+            when(passwordEncoder.matches(
+                    Constants.PASSWORD_3, Constants.PASSWORD_1_DB)).thenReturn(false);
+
+            //then
+            PasswordMismatchException passwordMismatchException =
+                    assertThrows(PasswordMismatchException.class,
+                            () -> authenticationService
+                                    .changePassword(newUser, passwordChangeRequest));
+
+            assertEquals(PASSWORD_MISMATCH, passwordMismatchException.getMessage());
+        }
+    }
+
+    @Nested
+    class Register {
+        @Test
+        void givenValidRegistrationDto_whenRegister_thenSuccess() throws RegistrationException {
+            //given
+            RegistrationRequest registrationRequest = new RegistrationRequest(
+                    Constants.USERNAME_1,
+                    Constants.PASSWORD_1,
+                    Constants.PASSWORD_1,
+                    Constants.EMAIL_1,
+                    Constants.FIRST_NAME,
+                    Constants.LAST_NAME);
+
+            //when
+            when(userMapper.toUser(registrationRequest)).thenReturn(user);
+
+            //then
+            assertEquals(new RegistrationResponse(REGISTERED),
+                    authenticationService.register(registrationRequest));
+        }
+
+        @Test
+        void givenRegDtoWithExistingEmail_whenRegister_thenThrowsRegistrationException() {
+            //given
+            RegistrationRequest registrationRequest = new RegistrationRequest(
+                    Constants.USERNAME_1,
+                    Constants.PASSWORD_1,
+                    Constants.PASSWORD_1,
+                    Constants.EMAIL_1,
+                    Constants.FIRST_NAME,
+                    Constants.LAST_NAME);
+
+            //when
+            when(userRepository.existsByEmail(Constants.EMAIL_1)).thenReturn(true);
+
+            //then
+            RegistrationException registrationException = assertThrows(RegistrationException.class,
+                    () -> authenticationService.register(registrationRequest));
+            assertEquals("User with email "
+                    + Constants.EMAIL_1 + " already exists", registrationException.getMessage());
+        }
+
+        @Test
+        void givenRegDtoWithExistingUsername_whenRegister_thenThrowRegistrationException() {
+            //given
+            RegistrationRequest registrationRequest = new RegistrationRequest(
+                    Constants.USERNAME_1,
+                    Constants.PASSWORD_1,
+                    Constants.PASSWORD_1,
+                    Constants.EMAIL_1,
+                    Constants.FIRST_NAME,
+                    Constants.LAST_NAME);
+
+            //when
+            when(userRepository.existsByUsername(Constants.USERNAME_1)).thenReturn(true);
+
+            //then
+            RegistrationException registrationException = assertThrows(RegistrationException.class,
+                    () -> authenticationService.register(registrationRequest));
+            assertEquals("User with username "
+                    + Constants.USERNAME_1 + " already exists", registrationException.getMessage());
+        }
+    }
+
+    //todo add verifies
 }
