@@ -44,7 +44,6 @@ import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -54,7 +53,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
 @Transactional
 public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserRepository userRepository;
@@ -66,10 +64,32 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final RegisterConfirmEmailService registerConfirmEmailService;
     private final ParamFromHttpRequestUtil paramFromHttpRequestUtil;
     private final RoleRepository roleRepository;
-    @Value("${jwt.access.expiration}")
-    private Long accessExpiration;
-    @Value("${jwt.refresh.expiration}")
-    private Long refreshExpiration;
+    private final Long accessExpiration;
+    private final Long refreshExpiration;
+
+    public AuthenticationServiceImpl(UserRepository userRepository,
+                                     UserMapper userMapper,
+                                     AuthenticationManager authenticationManager,
+                                     PasswordEncoder passwordEncoder,
+                                     JwtStrategy jwtStrategy,
+                                     PasswordEmailService passwordEmailService,
+                                     RegisterConfirmEmailService registerConfirmEmailService,
+                                     ParamFromHttpRequestUtil paramFromHttpRequestUtil,
+                                     RoleRepository roleRepository,
+                                     @Value("${jwt.access.expiration}") Long accessExpiration,
+                                     @Value("${jwt.refresh.expiration}") Long refreshExpiration) {
+        this.userRepository = userRepository;
+        this.userMapper = userMapper;
+        this.authenticationManager = authenticationManager;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtStrategy = jwtStrategy;
+        this.passwordEmailService = passwordEmailService;
+        this.registerConfirmEmailService = registerConfirmEmailService;
+        this.paramFromHttpRequestUtil = paramFromHttpRequestUtil;
+        this.roleRepository = roleRepository;
+        this.accessExpiration = accessExpiration;
+        this.refreshExpiration = refreshExpiration;
+    }
 
     @Override
     public LoginResponse authenticateUser(LoginRequest requestDto,
