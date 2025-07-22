@@ -1,6 +1,9 @@
 package com.example.taskmanagementapp.services;
 
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACCOUNT_IS_LOCKED;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.LOGIN_SUCCESS;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.REGISTERED_BUT_NOT_ACTIVATED;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.SEND_LINK_TO_RESET_PASSWORD;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
@@ -8,8 +11,10 @@ import static org.mockito.Mockito.when;
 
 import com.example.taskmanagementapp.dtos.authentication.request.LoginRequest;
 import com.example.taskmanagementapp.dtos.authentication.response.LoginResponse;
+import com.example.taskmanagementapp.dtos.authentication.response.PasswordResetLinkResponse;
 import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.User;
+import com.example.taskmanagementapp.exceptions.EntityNotFoundException;
 import com.example.taskmanagementapp.exceptions.LoginException;
 import com.example.taskmanagementapp.mappers.UserMapper;
 import com.example.taskmanagementapp.repositories.RoleRepository;
@@ -44,6 +49,7 @@ public class AuthenticationServiceImplTest {
     private static final Role role = ObjectFactory.getUserRole();
     private static final User user = ObjectFactory.getUser1(role);
     private static final User disabledUser = ObjectFactory.getDisabledUser(role);
+    private static final User notActiveUser = ObjectFactory.getNotActiveUser(role);
     private static final List<GrantedAuthority> grantedAuthorities = List.of(
             new SimpleGrantedAuthority(role.getName().name()));
 
@@ -114,6 +120,44 @@ public class AuthenticationServiceImplTest {
         }
 
         @Test
+        void givenNotExistingEmail_whenAuthenticateUserByEmail_thenThrowEntityNotFound() {
+            //when
+            when(userRepository.findByEmail(Constants.EMAIL_5))
+                    .thenThrow(new EntityNotFoundException(
+                            "No user with email " + Constants.EMAIL_5 + " found"));
+
+            //then
+            LoginRequest invalidLoginRequest =
+                    new LoginRequest(Constants.EMAIL_5, Constants.PASSWORD_1);
+            HttpServletResponse httpServletResponse = mock(HttpServletResponse.class);
+            EntityNotFoundException userNotFoundException =
+                    assertThrows(EntityNotFoundException.class, () ->
+                            authenticationService
+                                    .authenticateUser(invalidLoginRequest, httpServletResponse));
+            assertEquals("No user with email "
+                    + Constants.EMAIL_5 + " found", userNotFoundException.getMessage());
+        }
+
+        @Test
+        void givenNotExistingUsername_whenAuthenticateUserByUsername_thenThrowEntityNotFound() {
+            //when
+            when(userRepository.findByUsername(Constants.USERNAME_5)).thenThrow(
+                    new EntityNotFoundException("No user with username "
+                    + Constants.USERNAME_5 + " found"));
+
+            //then
+            LoginRequest invalidLoginRequest =
+                    new LoginRequest(Constants.USERNAME_5, Constants.PASSWORD_1);
+            HttpServletResponse httpServletResponse = mock(HttpServletResponse.class);
+            EntityNotFoundException userNotFoundException =
+                    assertThrows(EntityNotFoundException.class, () ->
+                            authenticationService
+                                    .authenticateUser(invalidLoginRequest, httpServletResponse));
+            assertEquals("No user with username "
+                    + Constants.USERNAME_5 + " found", userNotFoundException.getMessage());
+        }
+
+        @Test
         void givenValidLoginRequestDto_whenAuthenticateUserByUsername_thenSuccessfullyLogin()
                 throws LoginException {
             //given
@@ -148,8 +192,7 @@ public class AuthenticationServiceImplTest {
         }
 
         @Test
-        void givenLockedUser_whenAuthenticateUserByEmail_thenThrowLoginException()
-                throws LoginException {
+        void givenLockedUser_whenAuthenticateUserByEmail_thenThrowLoginException() {
             //when
             when(userRepository.findByEmail(Constants.EMAIL_3))
                     .thenReturn(Optional.of(disabledUser));
@@ -158,13 +201,32 @@ public class AuthenticationServiceImplTest {
             LoginRequest lockedUserLoginRequest =
                     new LoginRequest(Constants.EMAIL_3, Constants.PASSWORD_1);
             HttpServletResponse httpServletResponse = mock(HttpServletResponse.class);
-            assertThrows(LoginException.class, () -> authenticationService.authenticateUser(
+            LoginException loginException = assertThrows(LoginException.class,
+                    () -> authenticationService.authenticateUser(
                     lockedUserLoginRequest, httpServletResponse));
+
+            assertEquals(ACCOUNT_IS_LOCKED, loginException.getMessage());
         }
 
         @Test
-        void givenInvalidPassword_whenAuthenticateUserByEmail_thenThrowLoginException()
-                throws LoginException {
+        void givenNonActivatedUser_whenAuthenticateUserByEmail_thenThrowLoginException() {
+            //when
+            when(userRepository.findByEmail(Constants.EMAIL_4))
+                    .thenReturn(Optional.of(notActiveUser));
+
+            //then
+            LoginRequest notActiveUserRequest =
+                    new LoginRequest(Constants.EMAIL_4, Constants.PASSWORD_1);
+            HttpServletResponse httpServletResponse = mock(HttpServletResponse.class);
+            LoginException loginException = assertThrows(LoginException.class,
+                    () -> authenticationService.authenticateUser(
+                            notActiveUserRequest, httpServletResponse));
+
+            assertEquals(REGISTERED_BUT_NOT_ACTIVATED, loginException.getMessage());
+        }
+
+        @Test
+        void givenInvalidPassword_whenAuthenticateUserByEmail_thenThrowLoginException() {
             //given
             Role role = ObjectFactory.getUserRole();
             User user = ObjectFactory.getUser1(role);
@@ -186,8 +248,7 @@ public class AuthenticationServiceImplTest {
         }
 
         @Test
-        void givenInvalidPassword_whenAuthenticateUserByUsername_thenThrowLoginException()
-                throws LoginException {
+        void givenInvalidPassword_whenAuthenticateUserByUsername_thenThrowLoginException() {
             //given
             Role role = ObjectFactory.getUserRole();
             User user = ObjectFactory.getUser1(role);
@@ -206,6 +267,83 @@ public class AuthenticationServiceImplTest {
 
             assertThrows(LoginException.class, () -> authenticationService.authenticateUser(
                     invalidLoginRequest, httpServletResponse));
+        }
+    }
+
+    @Nested
+    class SendPasswordResetLink {
+        @Test
+        void givenAnEmailOfEnabledUser_whenSendPasswordResetLink_thenSuccessfullySendLink()
+                throws LoginException {
+            when(userRepository.findByEmail(Constants.EMAIL_1)).thenReturn(Optional.of(user));
+            assertEquals(new PasswordResetLinkResponse(SEND_LINK_TO_RESET_PASSWORD),
+                    authenticationService.sendPasswordResetLink(Constants.EMAIL_1));
+        }
+
+        @Test
+        void givenAUsernameOfEnabledUser_whenSendPasswordResetLink_thenSuccessfullySendLink()
+                throws LoginException {
+            when(userRepository.findByUsername(Constants.USERNAME_1)).thenReturn(Optional.of(user));
+            assertEquals(new PasswordResetLinkResponse(SEND_LINK_TO_RESET_PASSWORD),
+                    authenticationService.sendPasswordResetLink(Constants.USERNAME_1));
+        }
+
+        @Test
+        void givenAnEmailOfDisabledUser_whenSendPasswordResetLink_thenThrowLoginException() {
+            //when
+            when(userRepository.findByEmail(Constants.EMAIL_3))
+                    .thenReturn(Optional.of(disabledUser));
+
+            //then
+            LoginException loginException = assertThrows(LoginException.class,
+                    () -> authenticationService.sendPasswordResetLink(Constants.EMAIL_3));
+
+            assertEquals(ACCOUNT_IS_LOCKED, loginException.getMessage());
+        }
+
+        @Test
+        void givenAnEmailOfNonActiveUser_whenSendPasswordResetLink_thenThrowLoginException() {
+            //when
+            when(userRepository.findByEmail(Constants.EMAIL_4))
+                    .thenReturn(Optional.of(notActiveUser));
+
+            //then
+            LoginException loginException = assertThrows(LoginException.class,
+                    () -> authenticationService.sendPasswordResetLink(Constants.EMAIL_4));
+
+            assertEquals(REGISTERED_BUT_NOT_ACTIVATED, loginException.getMessage());
+        }
+
+        @Test
+        void givenAnEmailOfNonExistingUser_whenSendPasswordResetLink_thenThrowEntityNotFound() {
+            //when
+            when(userRepository.findByEmail(Constants.EMAIL_5))
+                    .thenThrow(new EntityNotFoundException(
+                            "No user with email " + Constants.EMAIL_5 + " found"));
+
+            //then
+            EntityNotFoundException userNotFoundException =
+                    assertThrows(EntityNotFoundException.class, () ->
+                            authenticationService
+                                    .sendPasswordResetLink(Constants.EMAIL_5));
+            assertEquals("No user with email "
+                    + Constants.EMAIL_5 + " found", userNotFoundException.getMessage());
+        }
+
+        @Test
+        void givenAUsernameOfNonExistingUser_whenSendPasswordResetLink_thenThrowEntityNotFound() {
+            //when
+            when(userRepository.findByUsername(Constants.USERNAME_5))
+                    .thenThrow(new EntityNotFoundException(
+                            "No user with username " + Constants.USERNAME_5 + " found"));
+
+            //then
+            EntityNotFoundException userNotFoundException =
+                    assertThrows(EntityNotFoundException.class, () ->
+                            authenticationService
+                                    .sendPasswordResetLink(Constants.USERNAME_5));
+            assertEquals("No user with username "
+                    + Constants.USERNAME_5 + " found", userNotFoundException.getMessage());
         }
     }
 }
