@@ -53,6 +53,10 @@ public class SecurityConstants {
             "An email with reset link has been sent.";
     public static final String CHECK_YOUR_EMAIL =
             "Password was reset successfully. Check your email.";
+    public static final String LINK_EXPIRED = "This link is expired. Please, submit another "
+            + " \"forgot password\" request";
+    public static final String PASSWORD_MISMATCH = "Wrong password. Try resetting "
+                    + "password and using a new random password";
 
     public static final String CONFIRM_CHANGE_EMAIL_SUBJECT =
             "Confirm email change in Facio";

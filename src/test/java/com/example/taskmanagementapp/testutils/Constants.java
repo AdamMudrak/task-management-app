@@ -16,6 +16,7 @@ public class Constants {
     public static final String EMAIL_2 = "richard_roe@mail.com";
 
     public static final String USERNAME_3 = "JaneDoe";
+    public static final String PASSWORD_3 = "newPassword2@";
     public static final String EMAIL_3 = "jane_doe@mail.com";
 
     public static final String USERNAME_4 = "RickyRoe";
@@ -80,4 +81,12 @@ public class Constants {
                     + "1 special character and be from 8 to 32 characters long.",
             "email : invalid email. Try again.",
             "username : invalid username. Can't be like email.");
+
+    public static final long ULTRA_SHORT_EXPIRATION = 1L;
+    public static final long ACTION_EXPIRATION = 60000L;
+    public static final long ACCESS_EXPIRATION = 900000L;
+    public static final long REFRESH_EXPIRATION = 604800000L;
+    public static final String SECRET_KEY =
+            "eZTQb1Um2KE0dukTWfyHZSq2R3R1SFyqfRFfiReAPn1NHMKUBiTDKc5tajfn";
+
 }

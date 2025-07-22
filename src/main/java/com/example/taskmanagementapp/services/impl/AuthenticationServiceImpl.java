@@ -3,7 +3,9 @@ package com.example.taskmanagementapp.services.impl;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACCOUNT_IS_LOCKED;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.CHECK_YOUR_EMAIL;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.DIVIDER;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.LINK_EXPIRED;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.LOGIN_SUCCESS;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.PASSWORD_MISMATCH;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.PASSWORD_SET_SUCCESSFULLY;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RANDOM_PASSWORD_REQUIRED_CHARS;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.RANDOM_PASSWORD_STRENGTH;
@@ -133,10 +135,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         try {
             jwtAbstractUtil.isValidToken(token);
         } catch (JwtException e) {
-            throw new LinkExpiredException("This link is expired. Please, submit another "
-                    + " \"forgot password\" request");
-            /*This message doesn't represent the real problem to
-            hide the usage of JWT from the client.*/
+            throw new LinkExpiredException(LINK_EXPIRED);
         }
         String email = jwtAbstractUtil.getUsername(token);
         String randomPassword = RandomStringUtil.generateRandomString(RANDOM_PASSWORD_STRENGTH)
@@ -154,8 +153,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                                                  PasswordChangeRequest userSetNewPasswordRequestDto)
             throws PasswordMismatchException {
         if (!isCurrentPasswordValid(user, userSetNewPasswordRequestDto)) {
-            throw new PasswordMismatchException("Wrong password. Try resetting "
-                    + "password and using a new random password");
+            throw new PasswordMismatchException(PASSWORD_MISMATCH);
         }
         user.setPassword(passwordEncoder
                 .encode(userSetNewPasswordRequestDto.newPassword()));
