@@ -1,5 +1,6 @@
 package com.example.taskmanagementapp.services.impl;
 
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.ACCOUNT_IS_LOCKED;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.CHECK_YOUR_EMAIL;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.DIVIDER;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.LOGIN_SUCCESS;
@@ -234,7 +235,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private void isEnabled(User user) throws LoginException {
         if (!user.isAccountNonLocked()) {
-            throw new LoginException("Your account is locked. Consider contacting support team");
+            throw new LoginException(ACCOUNT_IS_LOCKED);
         }
         if (!user.isEnabled()) {
             registerConfirmEmailService.sendRegisterConfirmEmail(user.getEmail());

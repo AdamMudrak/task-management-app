@@ -37,6 +37,8 @@ public class SecurityConstants {
 
     public static final String PASSWORD_SET_SUCCESSFULLY =
             "New password has been set successfully.";
+    public static final String ACCOUNT_IS_LOCKED =
+            "Your account is locked. Consider contacting support team";
     public static final String REGISTERED_BUT_NOT_ACTIVATED =
             "User is registered but not enabled. "
                     + "Check your email to confirm registration. "
