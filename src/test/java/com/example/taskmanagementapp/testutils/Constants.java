@@ -42,6 +42,9 @@ public class Constants {
     public static final String FIRST_NAME = "John";
     public static final String LAST_NAME = "Doe";
 
+    public static final String ANOTHER_FIRST_NAME = "Richard";
+    public static final String ANOTHER_LAST_NAME = "Roe";
+
     public static final String ACTION_TOKEN = "actionToken";
     public static final String NOT_EXISTING_ACTION_TOKEN = "blaBlaBlaActionToken";
 
@@ -89,4 +92,7 @@ public class Constants {
     public static final String SECRET_KEY =
             "eZTQb1Um2KE0dukTWfyHZSq2R3R1SFyqfRFfiReAPn1NHMKUBiTDKc5tajfn";
 
+    public static final long FIRST_USER_ID = 1L;
+    public static final long LAST_USER_ID = 2L;
+    public static final long RANDOM_USER_ID = 1000L;
 }
