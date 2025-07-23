@@ -57,6 +57,14 @@ public class SecurityConstants {
             + " \"forgot password\" request";
     public static final String PASSWORD_MISMATCH = "Wrong password. Try resetting "
                     + "password and using a new random password";
+    public static final String UPDATE_USER_ROLE_EXCEPTION =
+            "To prevent unwanted damage, self-assigning of roles is restricted. "
+            + "Your own role shall be changed only manually via MySql "
+            + "Workbench or any other MySql compatible instrument";
+    public static final String FORBIDDEN_STATUS_CHANGE =
+            "You can not change your own account status";
+    public static final String URL_WAS_CHANGED =
+            "No such request was found. You shouldn't change the url.";
 
     public static final String CONFIRM_CHANGE_EMAIL_SUBJECT =
             "Confirm email change in Facio";
