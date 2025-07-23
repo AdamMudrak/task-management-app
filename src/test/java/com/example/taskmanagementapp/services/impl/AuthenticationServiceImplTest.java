@@ -66,13 +66,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthenticationServiceImplTest {
-    private static final Role role = ObjectFactory.getUserRole();
-    private static final User user = ObjectFactory.getUser1(role);
-    private static final User disabledUser = ObjectFactory.getDisabledUser(role);
-    private static final User notActiveUser = ObjectFactory.getNotActiveUser(role);
-    private static final List<GrantedAuthority> grantedAuthorities = List.of(
-            new SimpleGrantedAuthority(role.getName().name()));
-
     private UserRepository userRepository;
     private UserMapper userMapper;
     private AuthenticationManager authenticationManager;
@@ -114,6 +107,12 @@ public class AuthenticationServiceImplTest {
         @Test
         void givenValidLoginRequestDto_whenAuthenticateUserByEmail_thenSuccessfullyLogin()
                 throws LoginException {
+            //given
+            Role role = ObjectFactory.getUserRole();
+            User user = ObjectFactory.getUser1(role);
+            List<GrantedAuthority> grantedAuthorities = List.of(
+                    new SimpleGrantedAuthority(role.getName().name()));
+
             //when
             when(userRepository.findByEmail(Constants.EMAIL_1)).thenReturn(Optional.of(user));
             when(authenticationManager.authenticate(
@@ -235,6 +234,10 @@ public class AuthenticationServiceImplTest {
 
         @Test
         void givenLockedUser_whenAuthenticateUserByEmail_thenThrowLoginException() {
+            //given
+            Role role = ObjectFactory.getUserRole();
+            User disabledUser = ObjectFactory.getDisabledUser(role);
+
             //when
             when(userRepository.findByEmail(Constants.EMAIL_3))
                     .thenReturn(Optional.of(disabledUser));
@@ -255,6 +258,10 @@ public class AuthenticationServiceImplTest {
 
         @Test
         void givenNonActivatedUser_whenAuthenticateUserByEmail_thenThrowLoginException() {
+            //given
+            Role role = ObjectFactory.getUserRole();
+            User notActiveUser = ObjectFactory.getNotActiveUser(role);
+
             //when
             when(userRepository.findByEmail(Constants.EMAIL_4))
                     .thenReturn(Optional.of(notActiveUser));
@@ -335,6 +342,10 @@ public class AuthenticationServiceImplTest {
         @Test
         void givenAnEmailOfEnabledUser_whenSendPasswordResetLink_thenSuccessfullySendLink()
                 throws LoginException {
+            //given
+            Role role = ObjectFactory.getUserRole();
+            User user = ObjectFactory.getUser1(role);
+
             //when
             when(userRepository.findByEmail(Constants.EMAIL_1)).thenReturn(Optional.of(user));
 
@@ -349,6 +360,10 @@ public class AuthenticationServiceImplTest {
         @Test
         void givenAUsernameOfEnabledUser_whenSendPasswordResetLink_thenSuccessfullySendLink()
                 throws LoginException {
+            //given
+            Role role = ObjectFactory.getUserRole();
+            User user = ObjectFactory.getUser1(role);
+
             //when
             when(userRepository.findByUsername(Constants.USERNAME_1)).thenReturn(Optional.of(user));
 
@@ -362,6 +377,10 @@ public class AuthenticationServiceImplTest {
 
         @Test
         void givenAnEmailOfDisabledUser_whenSendPasswordResetLink_thenThrowLoginException() {
+            //given
+            Role role = ObjectFactory.getUserRole();
+            User disabledUser = ObjectFactory.getDisabledUser(role);
+
             //when
             when(userRepository.findByEmail(Constants.EMAIL_3))
                     .thenReturn(Optional.of(disabledUser));
@@ -377,6 +396,10 @@ public class AuthenticationServiceImplTest {
 
         @Test
         void givenAnEmailOfNonActiveUser_whenSendPasswordResetLink_thenThrowLoginException() {
+            //given
+            Role role = ObjectFactory.getUserRole();
+            User notActiveUser = ObjectFactory.getNotActiveUser(role);
+
             //when
             when(userRepository.findByEmail(Constants.EMAIL_4))
                     .thenReturn(Optional.of(notActiveUser));
@@ -434,6 +457,8 @@ public class AuthenticationServiceImplTest {
         @Test
         void givenGoodToken_whenConfirmResetPassword_thenSuccessfullyNewPassword() {
             //given
+            Role role = ObjectFactory.getUserRole();
+            User user = ObjectFactory.getUser1(role);
             JwtAbstractUtil jwtActionUtil =
                     new JwtActionUtil(Constants.SECRET_KEY, Constants.ACTION_EXPIRATION);
             String goodToken = jwtActionUtil.generateToken(Constants.EMAIL_1);
@@ -487,6 +512,7 @@ public class AuthenticationServiceImplTest {
         void givenCorrectCurrentAndTwoSameNewPasswords_whenChangePassword_thenSuccess()
                 throws PasswordMismatchException {
             //given
+            Role role = ObjectFactory.getUserRole();
             User newUser = ObjectFactory.getUser1(role);
             PasswordChangeRequest passwordChangeRequest = new PasswordChangeRequest(
                     Constants.PASSWORD_1,
@@ -509,6 +535,7 @@ public class AuthenticationServiceImplTest {
         @Test
         void givenIncorrectCurrentAndTwoSameNewPasswords_whenChangePassword_thenException() {
             //given
+            Role role = ObjectFactory.getUserRole();
             User newUser = ObjectFactory.getUser1(role);
             PasswordChangeRequest passwordChangeRequest = new PasswordChangeRequest(
                     Constants.PASSWORD_3,
@@ -538,6 +565,8 @@ public class AuthenticationServiceImplTest {
         @Test
         void givenValidRegistrationDto_whenRegister_thenSuccess() throws RegistrationException {
             //given
+            Role role = ObjectFactory.getUserRole();
+            User user = ObjectFactory.getUser1(role);
             RegistrationRequest registrationRequest = new RegistrationRequest(
                     Constants.USERNAME_1,
                     Constants.PASSWORD_1,
@@ -611,6 +640,8 @@ public class AuthenticationServiceImplTest {
         @Test
         void givenToken_whenConfirmRegistration_thenSuccess() {
             //given
+            Role role = ObjectFactory.getUserRole();
+            User user = ObjectFactory.getUser1(role);
             JwtAbstractUtil jwtActionUtil =
                     new JwtActionUtil(Constants.SECRET_KEY, Constants.ACTION_EXPIRATION);
             HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
