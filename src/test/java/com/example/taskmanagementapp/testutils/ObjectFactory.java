@@ -62,6 +62,19 @@ public class ObjectFactory {
         return user;
     }
 
+    public static User getUser3(Role role) {
+        User user = new User();
+        user.setUsername(Constants.USERNAME_5);
+        user.setPassword(Constants.PASSWORD_1_DB);
+        user.setEmail(Constants.EMAIL_5);
+        user.setFirstName(Constants.FIRST_NAME);
+        user.setLastName(Constants.LAST_NAME);
+        user.setRole(role);
+        user.setEnabled(true);
+        user.setAccountNonLocked(true);
+        return user;
+    }
+
     public static User getDisabledUser(Role role) {
         User user = new User();
         user.setUsername(Constants.USERNAME_3);

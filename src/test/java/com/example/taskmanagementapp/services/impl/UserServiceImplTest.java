@@ -31,6 +31,8 @@ import com.example.taskmanagementapp.services.utils.ParamFromHttpRequestUtil;
 import com.example.taskmanagementapp.testutils.Constants;
 import com.example.taskmanagementapp.testutils.ObjectFactory;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -39,6 +41,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceImplTest {
@@ -474,6 +479,39 @@ public class UserServiceImplTest {
                     .getNamedParameter(httpServletRequest, "newEmail");
             verify(actionTokenRepository, times(1)).existsByActionToken(expectedToken + newEmail);
             verify(userRepository, times(1)).findByEmail(oldEmail);
+        }
+    }
+
+    @Nested
+    class GetAllUsers {
+        @Test
+        void givenThreeUsers_whenGetAllUsers_thenGetThreeUsers() {
+            //given
+            PageRequest pageRequestForAllUsers = PageRequest.of(0, 3);
+
+            Role role = ObjectFactory.getUserRole();
+            User user1 = ObjectFactory.getUser1(role);
+            User user2 = ObjectFactory.getUser2(role);
+            User user3 = ObjectFactory.getUser3(role);
+            List<User> users = Arrays.asList(user1, user2, user3);
+
+            Page<User> usersPage = new PageImpl<>(users, pageRequestForAllUsers, users.size());
+
+            UserProfileResponse userProfileResponse1 = ObjectFactory.getUserProfileResponse(user1);
+            UserProfileResponse userProfileResponse2 = ObjectFactory.getUserProfileResponse(user2);
+            UserProfileResponse userProfileResponse3 = ObjectFactory.getUserProfileResponse(user3);
+
+            //when
+            when(userMapper.toUserProfileInfoDto(user1)).thenReturn(userProfileResponse1);
+            when(userMapper.toUserProfileInfoDto(user2)).thenReturn(userProfileResponse2);
+            when(userMapper.toUserProfileInfoDto(user3)).thenReturn(userProfileResponse3);
+            when(userRepository.findAll(pageRequestForAllUsers)).thenReturn(usersPage);
+
+            //then
+            List<UserProfileResponse> expectedUserProfileResponses =
+                    List.of(userProfileResponse1, userProfileResponse2, userProfileResponse3);
+            assertEquals(expectedUserProfileResponses,
+                    userServiceImpl.getAllUsers(pageRequestForAllUsers));
         }
     }
 }
