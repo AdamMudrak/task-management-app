@@ -98,12 +98,13 @@ public class UserController {
     @Operation(summary = CHANGE_USER_ACCOUNT_STATUS)
     @ApiResponse(responseCode = CODE_200, description =
             SUCCESSFULLY_CHANGED_STATUS)
-    @PostMapping("/change-user-account-status/{userId}")
+    @PostMapping("/change-user-account-status/{changedUserId}")
     @PreAuthorize("hasRole('ADMIN')")
     public UserProfileResponse changeUserAccountStatus(@AuthenticationPrincipal User user,
                                    @RequestParam UserAccountStatusDto accountStatusDto,
-                                   @PathVariable @Positive Long userId) throws ForbiddenException {
-        return userService.changeStatus(user, userId, accountStatusDto);
+                                   @PathVariable @Positive Long changedUserId)
+            throws ForbiddenException {
+        return userService.changeStatus(user.getId(), changedUserId, accountStatusDto);
     }
 
     @Operation(hidden = true)

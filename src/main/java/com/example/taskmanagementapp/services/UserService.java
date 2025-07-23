@@ -6,7 +6,6 @@ import com.example.taskmanagementapp.dtos.user.request.UserAccountStatusDto;
 import com.example.taskmanagementapp.dtos.user.response.UpdateUserProfileResponse;
 import com.example.taskmanagementapp.dtos.user.response.UserProfileAdminResponse;
 import com.example.taskmanagementapp.dtos.user.response.UserProfileResponse;
-import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.ForbiddenException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -22,7 +21,7 @@ public interface UserService {
     UpdateUserProfileResponse updateProfileInfo(Long authenticatedUserId,
                                                 UpdateUserProfileRequest updateUserProfileDto);
 
-    UserProfileAdminResponse changeStatus(User user, Long disabledUserId,
+    UserProfileAdminResponse changeStatus(Long authenticatedUserId, Long changedUserId,
                                           UserAccountStatusDto accountStatusDto)
             throws ForbiddenException;
 
