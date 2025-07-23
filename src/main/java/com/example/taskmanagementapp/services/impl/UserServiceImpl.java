@@ -1,6 +1,7 @@
 package com.example.taskmanagementapp.services.impl;
 
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.FORBIDDEN_STATUS_CHANGE;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.STATUS_CANNOT_BE_NULL;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.UPDATE_USER_ROLE_EXCEPTION;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.URL_WAS_CHANGED;
 import static com.example.taskmanagementapp.services.utils.UpdateValueValidatorUtil.areStringsValid;
@@ -99,7 +100,7 @@ public class UserServiceImpl implements UserService {
                 () -> new EntityNotFoundException("User with id " + changedUserId + " not found"));
 
         if (accountStatusDto == null) {
-            throw new IllegalArgumentException("accountStatusDto can't be null");
+            throw new IllegalArgumentException(STATUS_CANNOT_BE_NULL);
         }
 
         if (accountStatusDto.equals(UserAccountStatusDto.LOCKED)) {

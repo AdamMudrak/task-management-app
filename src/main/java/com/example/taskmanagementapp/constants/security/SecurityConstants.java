@@ -65,6 +65,9 @@ public class SecurityConstants {
             "You can not change your own account status";
     public static final String URL_WAS_CHANGED =
             "No such request was found. You shouldn't change the url.";
+    public static final String NO_ACCESS_PERMISSION =
+            "You have no permission to access this project";
+    public static final String STATUS_CANNOT_BE_NULL = "accountStatusDto can't be null";
 
     public static final String CONFIRM_CHANGE_EMAIL_SUBJECT =
             "Confirm email change in Facio";

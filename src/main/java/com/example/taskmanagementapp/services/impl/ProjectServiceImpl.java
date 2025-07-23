@@ -3,6 +3,7 @@ package com.example.taskmanagementapp.services.impl;
 import static com.example.taskmanagementapp.constants.Constants.FIRST_POSITION;
 import static com.example.taskmanagementapp.constants.Constants.SECOND_POSITION;
 import static com.example.taskmanagementapp.constants.Constants.THIRD_POSITION;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.NO_ACCESS_PERMISSION;
 import static com.example.taskmanagementapp.services.utils.UpdateValueValidatorUtil.areDatesValid;
 import static com.example.taskmanagementapp.services.utils.UpdateValueValidatorUtil.areStringsValid;
 
@@ -89,7 +90,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (projectAuthorityUtil.hasAnyAuthority(projectId, authenticatedUserId)) {
             return projectMapper.toProjectDto(project);
         } else {
-            throw new ForbiddenException("You have no permission to access this project");
+            throw new ForbiddenException(NO_ACCESS_PERMISSION);
         }
     }
 
@@ -105,7 +106,7 @@ public class ProjectServiceImpl implements ProjectService {
             updatePresentField(authenticatedUserId, project,
                     updateProjectDto, projectStatusDto, exceptions);
         } else {
-            throw new ForbiddenException("You have no permission to access this project");
+            throw new ForbiddenException(NO_ACCESS_PERMISSION);
         }
         if (exceptions.isEmpty()) {
             return projectMapper.toProjectDto(projectRepository.save(project));

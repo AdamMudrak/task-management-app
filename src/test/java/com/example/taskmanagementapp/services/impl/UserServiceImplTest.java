@@ -1,6 +1,7 @@
 package com.example.taskmanagementapp.services.impl;
 
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.FORBIDDEN_STATUS_CHANGE;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.STATUS_CANNOT_BE_NULL;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.UPDATE_USER_ROLE_EXCEPTION;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.URL_WAS_CHANGED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -359,7 +360,7 @@ public class UserServiceImplTest {
                     assertThrows(IllegalArgumentException.class,
                             () -> userServiceImpl.changeStatus(Constants.LAST_USER_ID,
                     changedUserId, null));
-            assertEquals("accountStatusDto can't be null",
+            assertEquals(STATUS_CANNOT_BE_NULL,
                     illegalArgumentException.getMessage());
 
             //verify

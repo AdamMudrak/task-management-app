@@ -95,4 +95,6 @@ public class Constants {
     public static final long FIRST_USER_ID = 1L;
     public static final long LAST_USER_ID = 2L;
     public static final long RANDOM_USER_ID = 1000L;
+
+    public static final long FIRST_PROJECT_ID = 1L;
 }
