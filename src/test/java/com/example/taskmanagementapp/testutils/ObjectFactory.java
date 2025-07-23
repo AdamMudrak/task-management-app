@@ -4,6 +4,9 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 
 import com.example.taskmanagementapp.dtos.authentication.request.LoginRequest;
 import com.example.taskmanagementapp.dtos.authentication.request.RegistrationRequest;
+import com.example.taskmanagementapp.dtos.project.request.ProjectRequest;
+import com.example.taskmanagementapp.dtos.project.request.ProjectStatusDto;
+import com.example.taskmanagementapp.dtos.project.response.ProjectResponse;
 import com.example.taskmanagementapp.dtos.user.request.UpdateUserProfileRequest;
 import com.example.taskmanagementapp.dtos.user.response.UpdateUserProfileResponse;
 import com.example.taskmanagementapp.dtos.user.response.UserProfileAdminResponse;
@@ -16,6 +19,8 @@ import com.example.taskmanagementapp.entities.Project;
 import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.Task;
 import com.example.taskmanagementapp.entities.User;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ObjectFactory {
     public static ActionToken getActionToken() {
@@ -342,5 +347,31 @@ public class ObjectFactory {
         userProfileAdminResponse.setEnabled(true);
         userProfileAdminResponse.setRole(user.getRole().getName().name());
         return userProfileAdminResponse;
+    }
+
+    public static ProjectRequest getProjectRequest() {
+        return new ProjectRequest(
+                Constants.PROJECT_NAME,
+                Constants.PROJECT_DESCRIPTION,
+                Constants.PROJECT_START_DATE,
+                Constants.PROJECT_END_DATE);
+    }
+
+    public static ProjectResponse getProjectResponse(Project project) {
+        ProjectResponse projectResponse = new ProjectResponse();
+        projectResponse.setId(project.getId());
+        projectResponse.setName(project.getName());
+        projectResponse.setDescription(project.getDescription());
+        projectResponse.setStartDate(project.getStartDate());
+        projectResponse.setEndDate(project.getEndDate());
+        projectResponse.setStatusDto(ProjectStatusDto.valueOf(project.getStatus().name()));
+        projectResponse.setOwnerId(project.getOwner().getId());
+        Set<Long> employeeIds =
+                project.getEmployees().stream().map(User::getId).collect(Collectors.toSet());
+        projectResponse.setEmployeeIds(employeeIds);
+        Set<Long> managerIds =
+                project.getManagers().stream().map(User::getId).collect(Collectors.toSet());
+        projectResponse.setManagerIds(managerIds);
+        return projectResponse;
     }
 }
