@@ -1,5 +1,8 @@
 package com.example.taskmanagementapp.services.impl;
 
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.FORBIDDEN_STATUS_CHANGE;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.UPDATE_USER_ROLE_EXCEPTION;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.URL_WAS_CHANGED;
 import static com.example.taskmanagementapp.services.utils.UpdateValueValidatorUtil.areStringsValid;
 
 import com.example.taskmanagementapp.dtos.role.RoleNameDto;
@@ -46,10 +49,7 @@ public class UserServiceImpl implements UserService {
                                               Long employeeId,
                                               RoleNameDto roleNameDto) {
         if (authenticatedUserId.equals(employeeId)) {
-            throw new IllegalArgumentException(
-                    "To prevent unwanted damage, self-assigning of roles is restricted. "
-                            + "Your own role shall be changed only manually via MySql "
-                            + "Workbench or any other MySql compatible instrument");
+            throw new IllegalArgumentException(UPDATE_USER_ROLE_EXCEPTION);
         }
         User employee = userRepository.findById(employeeId).orElseThrow(
                 () -> new EntityNotFoundException("Employee with id " + employeeId + " not found"));
@@ -78,38 +78,38 @@ public class UserServiceImpl implements UserService {
             user.setLastName(updateUserProfileDto.lastName());
         }
         if (areStringsValid(updateUserProfileDto.email(), user.getEmail())) {
-            userRepository.findByEmail(updateUserProfileDto.email())
-                    .ifPresent(existingUser -> {
-                        throw new IllegalArgumentException("Email " + updateUserProfileDto.email()
-                                + " is already taken");
-                    });
+            if (userRepository.existsByEmail(updateUserProfileDto.email())) {
+                throw new IllegalArgumentException("Email " + updateUserProfileDto.email()
+                        + " is already taken");
+            }
             changeEmailService.sendChangeEmail(updateUserProfileDto.email(), user.getEmail());
         }
         return userMapper.toUpdateUserProfileInfoDto(userRepository.save(user));
     }
 
     @Override
-    public UserProfileAdminResponse changeStatus(User user, Long disabledUserId,
+    public UserProfileAdminResponse changeStatus(Long authenticatedUserId, Long changedUserId,
                                                  UserAccountStatusDto accountStatusDto)
             throws ForbiddenException {
-        if (user.getId().equals(disabledUserId)) {
-            throw new ForbiddenException("You can not change your own account status");
+        if (authenticatedUserId.equals(changedUserId)) {
+            throw new ForbiddenException(FORBIDDEN_STATUS_CHANGE);
         }
 
-        User thisUser = userRepository.findById(disabledUserId).orElseThrow(
-                () -> new EntityNotFoundException("User with id " + disabledUserId + " not found"));
+        User thisUser = userRepository.findById(changedUserId).orElseThrow(
+                () -> new EntityNotFoundException("User with id " + changedUserId + " not found"));
 
-        switch (accountStatusDto) {
-            case LOCKED -> {
-                thisUser.setEnabled(false);
-                thisUser.setAccountNonLocked(false);
-            }
-            case NON_LOCKED -> {
-                thisUser.setEnabled(true);
-                thisUser.setAccountNonLocked(true);
-            }
-            default -> throw new IllegalArgumentException(
-                    "Invalid account status " + accountStatusDto);
+        if (accountStatusDto == null) {
+            throw new IllegalArgumentException("accountStatusDto can't be null");
+        }
+
+        if (accountStatusDto.equals(UserAccountStatusDto.LOCKED)) {
+            thisUser.setEnabled(false);
+            thisUser.setAccountNonLocked(false);
+        } else if (accountStatusDto.equals(UserAccountStatusDto.NON_LOCKED)) {
+            thisUser.setEnabled(true);
+            thisUser.setAccountNonLocked(true);
+        } else {
+            throw new IllegalArgumentException("Invalid account status " + accountStatusDto);
         }
         return userMapper.toUserProfileAdminInfoDto(userRepository.save(thisUser));
     }
@@ -128,8 +128,7 @@ public class UserServiceImpl implements UserService {
         String newEmail = randomParamFromHttpRequestUtil.getNamedParameter(httpServletRequest,
                 "newEmail");
         if (!actionTokenRepository.existsByActionToken(token + newEmail)) {
-            throw new EntityNotFoundException(
-                    "No such request was found. You shouldn't change the url.");
+            throw new EntityNotFoundException(URL_WAS_CHANGED);
         }
         actionTokenRepository.deleteByActionToken(token + newEmail);
         String email = jwtActionUtil.getUsername(token);
