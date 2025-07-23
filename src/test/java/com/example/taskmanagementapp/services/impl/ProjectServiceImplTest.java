@@ -1,6 +1,8 @@
 package com.example.taskmanagementapp.services.impl;
 
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.NO_ACCESS_PERMISSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -9,6 +11,8 @@ import com.example.taskmanagementapp.dtos.project.request.ProjectRequest;
 import com.example.taskmanagementapp.dtos.project.response.ProjectResponse;
 import com.example.taskmanagementapp.entities.Project;
 import com.example.taskmanagementapp.entities.User;
+import com.example.taskmanagementapp.exceptions.EntityNotFoundException;
+import com.example.taskmanagementapp.exceptions.ForbiddenException;
 import com.example.taskmanagementapp.mappers.ProjectMapper;
 import com.example.taskmanagementapp.repositories.ActionTokenRepository;
 import com.example.taskmanagementapp.repositories.CommentRepository;
@@ -22,6 +26,7 @@ import com.example.taskmanagementapp.services.utils.ProjectAuthorityUtil;
 import com.example.taskmanagementapp.testutils.Constants;
 import com.example.taskmanagementapp.testutils.ObjectFactory;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -87,6 +92,7 @@ public class ProjectServiceImplTest {
             PageRequest pageRequest = PageRequest.of(0, 1);
             User user = ObjectFactory.getUser1(ObjectFactory.getUserRole());
             user.setId(Constants.FIRST_USER_ID);
+            //since user is owner, they are by default employee and manager of project
             Project project = ObjectFactory.getProjectWithOneEmployee(user);
             ProjectResponse projectResponse = ObjectFactory.getProjectResponse(project);
             Page<Project> projects = new PageImpl<>(List.of(project));
@@ -105,6 +111,173 @@ public class ProjectServiceImplTest {
             //verify
             verify(projectRepository, times(1)).findAllByEmployeeId(user.getId(), pageRequest);
             verify(projectMapper, times(1)).toProjectDtoList(projects.getContent());
+        }
+    }
+
+    @Nested
+    class GetCreatedProjects {
+        @Test
+        void givenPageable_whenGetCreatedProjects_thenSuccess() {
+            //given
+            PageRequest pageRequest = PageRequest.of(0, 1);
+            User user1 = ObjectFactory.getUser1(ObjectFactory.getUserRole());
+            user1.setId(Constants.FIRST_USER_ID);
+            User user2 = ObjectFactory.getUser2(ObjectFactory.getUserRole());
+            user2.setId(Constants.LAST_USER_ID);
+            //user1 is assigned as owner and manager of this project, whereas user2 - as employee
+            Project project = ObjectFactory.getProjectWithTwoEmployees(user1, user2);
+            ProjectResponse projectResponse = ObjectFactory.getProjectResponse(project);
+            Page<Project> projects = new PageImpl<>(List.of(project));
+            List<ProjectResponse> projectResponses = List.of(projectResponse);
+
+            Page<Project> emptyProjects = new PageImpl<>(List.of());
+            List<ProjectResponse> emptyProjectResponses = List.of();
+
+            //when
+            when(projectRepository.findAllByOwnerId(user1.getId(), pageRequest))
+                    .thenReturn(projects);
+            when(projectMapper.toProjectDtoList(projects.getContent()))
+                    .thenReturn(projectResponses);
+
+            when(projectRepository.findAllByOwnerId(user2.getId(), pageRequest))
+                    .thenReturn(emptyProjects);
+            when(projectMapper.toProjectDtoList(emptyProjects.getContent()))
+                    .thenReturn(emptyProjectResponses);
+
+            //then
+            assertEquals(projectResponses, projectServiceImpl
+                    .getCreatedProjects(user1.getId(), pageRequest));
+
+            assertEquals(emptyProjectResponses, projectServiceImpl
+                    .getCreatedProjects(user2.getId(), pageRequest));
+
+            //verify
+            verify(projectRepository, times(1)).findAllByOwnerId(user1.getId(), pageRequest);
+            verify(projectMapper, times(1)).toProjectDtoList(projects.getContent());
+            verify(projectRepository, times(1)).findAllByOwnerId(user2.getId(), pageRequest);
+            verify(projectMapper, times(1)).toProjectDtoList(emptyProjects.getContent());
+        }
+    }
+
+    @Nested
+    class GetDeletedCreatedProjects {
+        @Test
+        void givenPageable_whenGetDeletedProjects_thenSuccess() {
+            //given
+            PageRequest pageRequest = PageRequest.of(0, 1);
+            User user = ObjectFactory.getUser1(ObjectFactory.getUserRole());
+            user.setId(Constants.FIRST_USER_ID);
+            Project deletedProject = ObjectFactory.getDeletedProject(user);
+            ProjectResponse deletedProjectResponse =
+                    ObjectFactory.getProjectResponse(deletedProject);
+            Page<Project> projects = new PageImpl<>(List.of(deletedProject));
+            List<ProjectResponse> projectResponses = List.of(deletedProjectResponse);
+
+            //when
+            when(projectRepository.findAllByOwnerIdDeleted(user.getId(), pageRequest))
+                    .thenReturn(projects);
+            when(projectMapper.toProjectDtoList(projects.getContent()))
+                    .thenReturn(projectResponses);
+
+            //then
+            assertEquals(projectResponses, projectServiceImpl
+                    .getDeletedCreatedProjects(user.getId(), pageRequest));
+
+            //verify
+            verify(projectRepository, times(1)).findAllByOwnerIdDeleted(user.getId(), pageRequest);
+            verify(projectMapper, times(1)).toProjectDtoList(projects.getContent());
+        }
+    }
+
+    @Nested
+    class GetProjectById {
+        @Test
+        void givenDeletedProjectId_whenGetProjectById_thenFail() {
+            //given
+            Long authenticatedUserId = Constants.FIRST_USER_ID;
+            Long projectId = Constants.FIRST_PROJECT_ID;
+
+            User authenticatedUser = ObjectFactory.getUser1(ObjectFactory.getUserRole());
+            authenticatedUser.setId(authenticatedUserId);
+
+            Project expectedProject = ObjectFactory.getDeletedProject(authenticatedUser);
+            expectedProject.setId(projectId);
+
+            //when
+            when(projectRepository.findByIdNotDeleted(projectId)).thenReturn(Optional.empty());
+
+            //then
+            EntityNotFoundException entityNotFoundException =
+                    assertThrows(EntityNotFoundException.class,
+                        () -> projectServiceImpl.getProjectById(authenticatedUserId, projectId));
+            assertEquals("No active project with id "
+                    + projectId, entityNotFoundException.getMessage());
+
+            //verify
+            verify(projectRepository, times(1)).findByIdNotDeleted(projectId);
+        }
+
+        @Test
+        void givenProjectId_whenGetProjectById_thenSuccess() throws ForbiddenException {
+            //given
+            Long authenticatedUserId = Constants.FIRST_USER_ID;
+            Long projectId = Constants.FIRST_PROJECT_ID;
+
+            User authenticatedUser = ObjectFactory.getUser1(ObjectFactory.getUserRole());
+            authenticatedUser.setId(authenticatedUserId);
+
+            Project expectedProject = ObjectFactory.getProjectWithOneEmployee(authenticatedUser);
+            expectedProject.setId(projectId);
+
+            ProjectResponse projectResponse = ObjectFactory.getProjectResponse(expectedProject);
+
+            //when
+            when(projectRepository.findByIdNotDeleted(projectId))
+                    .thenReturn(Optional.of(expectedProject));
+            when(projectAuthorityUtil.hasAnyAuthority(projectId, authenticatedUserId))
+                    .thenReturn(true);
+            when(projectMapper.toProjectDto(expectedProject)).thenReturn(projectResponse);
+
+            //then
+            assertEquals(projectResponse,
+                    projectServiceImpl.getProjectById(authenticatedUserId, projectId));
+
+            //verify
+            verify(projectRepository, times(1)).findByIdNotDeleted(projectId);
+            verify(projectAuthorityUtil, times(1)).hasAnyAuthority(projectId, authenticatedUserId);
+            verify(projectMapper, times(1)).toProjectDto(expectedProject);
+        }
+
+        @Test
+        void givenAlienProjectId_whenGetProjectById_thenFail() {
+            //given
+            Long authenticatedUserId = Constants.FIRST_USER_ID;
+            Long projectId = Constants.FIRST_PROJECT_ID;
+
+            User authenticatedUser = ObjectFactory.getUser1(ObjectFactory.getUserRole());
+            authenticatedUser.setId(authenticatedUserId);
+
+            User anotherUser = ObjectFactory.getUser2(ObjectFactory.getUserRole());
+            authenticatedUser.setId(Constants.LAST_USER_ID);
+
+            Project expectedProject = ObjectFactory.getProjectWithOneEmployee(anotherUser);
+            expectedProject.setId(projectId);
+
+            //when
+            when(projectRepository.findByIdNotDeleted(projectId))
+                    .thenReturn(Optional.of(expectedProject));
+            when(projectAuthorityUtil.hasAnyAuthority(projectId, authenticatedUserId))
+                    .thenReturn(false);
+
+            //then
+            ForbiddenException forbiddenException = assertThrows(ForbiddenException.class,
+                    () -> projectServiceImpl.getProjectById(authenticatedUserId, projectId));
+            assertEquals(NO_ACCESS_PERMISSION,
+                    forbiddenException.getMessage());
+
+            //verify
+            verify(projectRepository, times(1)).findByIdNotDeleted(projectId);
+            verify(projectAuthorityUtil, times(1)).hasAnyAuthority(projectId, authenticatedUserId);
         }
     }
 }
