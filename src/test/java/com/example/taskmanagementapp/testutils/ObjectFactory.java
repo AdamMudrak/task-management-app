@@ -1,7 +1,13 @@
 package com.example.taskmanagementapp.testutils;
 
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.CONFIRM_NEW_EMAIL_MESSAGE;
+
 import com.example.taskmanagementapp.dtos.authentication.request.LoginRequest;
 import com.example.taskmanagementapp.dtos.authentication.request.RegistrationRequest;
+import com.example.taskmanagementapp.dtos.user.request.UpdateUserProfileRequest;
+import com.example.taskmanagementapp.dtos.user.response.UpdateUserProfileResponse;
+import com.example.taskmanagementapp.dtos.user.response.UserProfileAdminResponse;
+import com.example.taskmanagementapp.dtos.user.response.UserProfileResponse;
 import com.example.taskmanagementapp.entities.ActionToken;
 import com.example.taskmanagementapp.entities.Attachment;
 import com.example.taskmanagementapp.entities.Comment;
@@ -269,5 +275,59 @@ public class ObjectFactory {
 
     public static LoginRequest getExistingLoginByUsernameRequest() {
         return new LoginRequest(Constants.USERNAME_1, Constants.PASSWORD_1);
+    }
+
+    public static UserProfileResponse getUserProfileResponse(User user) {
+        UserProfileResponse userProfileResponse = new UserProfileResponse();
+        userProfileResponse.setId(user.getId());
+        userProfileResponse.setEmail(user.getEmail());
+        userProfileResponse.setFirstName(user.getFirstName());
+        userProfileResponse.setLastName(user.getLastName());
+        userProfileResponse.setRole(user.getRole().getName().name());
+        return userProfileResponse;
+    }
+
+    public static UpdateUserProfileResponse getUpdateUserProfileResponse() {
+        UpdateUserProfileResponse expectedUpdateUserProfileResponse =
+                new UpdateUserProfileResponse();
+        expectedUpdateUserProfileResponse.setId(Constants.LAST_USER_ID);
+        expectedUpdateUserProfileResponse.setFirstName(Constants.ANOTHER_FIRST_NAME);
+        expectedUpdateUserProfileResponse.setLastName(Constants.ANOTHER_LAST_NAME);
+        expectedUpdateUserProfileResponse.setEmail(Constants.EMAIL_1);
+        expectedUpdateUserProfileResponse.setMessage(CONFIRM_NEW_EMAIL_MESSAGE);
+        return expectedUpdateUserProfileResponse;
+    }
+
+    public static UpdateUserProfileRequest getUpdateUserProfileRequest() {
+        return new UpdateUserProfileRequest(
+                Constants.ANOTHER_FIRST_NAME,
+                Constants.ANOTHER_LAST_NAME,
+                Constants.EMAIL_1);
+    }
+
+    public static UserProfileAdminResponse getUserProfileAdminResponseLocked(User user) {
+        UserProfileAdminResponse userProfileAdminResponse = new UserProfileAdminResponse();
+        userProfileAdminResponse.setId(user.getId());
+        userProfileAdminResponse.setEmail(user.getEmail());
+        userProfileAdminResponse.setFirstName(user.getFirstName());
+        userProfileAdminResponse.setLastName(user.getLastName());
+        userProfileAdminResponse.setUsername(user.getUsername());
+        userProfileAdminResponse.setAccountNonLocked(false);
+        userProfileAdminResponse.setEnabled(false);
+        userProfileAdminResponse.setRole(user.getRole().getName().name());
+        return userProfileAdminResponse;
+    }
+
+    public static UserProfileAdminResponse getUserProfileAdminResponseNonLocked(User user) {
+        UserProfileAdminResponse userProfileAdminResponse = new UserProfileAdminResponse();
+        userProfileAdminResponse.setId(user.getId());
+        userProfileAdminResponse.setEmail(user.getEmail());
+        userProfileAdminResponse.setFirstName(user.getFirstName());
+        userProfileAdminResponse.setLastName(user.getLastName());
+        userProfileAdminResponse.setUsername(user.getUsername());
+        userProfileAdminResponse.setAccountNonLocked(true);
+        userProfileAdminResponse.setEnabled(true);
+        userProfileAdminResponse.setRole(user.getRole().getName().name());
+        return userProfileAdminResponse;
     }
 }
