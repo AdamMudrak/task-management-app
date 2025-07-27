@@ -97,4 +97,8 @@ public class Constants {
     public static final long RANDOM_USER_ID = 1000L;
 
     public static final long FIRST_PROJECT_ID = 1L;
+    public static final long ANOTHER_PROJECT_ID = 2L;
+    public static final long RANDOM_PROJECT_ID = 1000L;
+    public static final String NEW = "new";
+    public static final int TEN = 10;
 }

@@ -1,16 +1,21 @@
 package com.example.taskmanagementapp.services.impl;
 
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.NO_ACCESS_PERMISSION;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.NO_OWNER_PERMISSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.example.taskmanagementapp.dtos.project.request.ProjectRequest;
+import com.example.taskmanagementapp.dtos.project.request.ProjectStatusDto;
+import com.example.taskmanagementapp.dtos.project.request.UpdateProjectRequest;
 import com.example.taskmanagementapp.dtos.project.response.ProjectResponse;
 import com.example.taskmanagementapp.entities.Project;
 import com.example.taskmanagementapp.entities.User;
+import com.example.taskmanagementapp.exceptions.ConflictException;
 import com.example.taskmanagementapp.exceptions.EntityNotFoundException;
 import com.example.taskmanagementapp.exceptions.ForbiddenException;
 import com.example.taskmanagementapp.mappers.ProjectMapper;
@@ -36,6 +41,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 public class ProjectServiceImplTest {
@@ -249,7 +255,7 @@ public class ProjectServiceImplTest {
         }
 
         @Test
-        void givenAlienProjectId_whenGetProjectById_thenFail() {
+        void givenAnotherUserProjectId_whenGetProjectById_thenFail() {
             //given
             Long authenticatedUserId = Constants.FIRST_USER_ID;
             Long projectId = Constants.FIRST_PROJECT_ID;
@@ -278,6 +284,229 @@ public class ProjectServiceImplTest {
             //verify
             verify(projectRepository, times(1)).findByIdNotDeleted(projectId);
             verify(projectAuthorityUtil, times(1)).hasAnyAuthority(projectId, authenticatedUserId);
+        }
+    }
+
+    @Nested
+    class UpdateProjectById {
+        @Test
+        void givenProjectId_whenUpdateProjectById_thenSuccess()
+                throws ForbiddenException, ConflictException {
+            //given
+            Long authenticatedUserId = Constants.FIRST_USER_ID;
+            User authenticatedUser = ObjectFactory.getUser1(ObjectFactory.getUserRole());
+            authenticatedUser.setId(authenticatedUserId);
+
+            Long newOwnerId = Constants.LAST_USER_ID;
+            User newOwner = ObjectFactory.getUser2(ObjectFactory.getUserRole());
+            newOwner.setId(newOwnerId);
+
+            Long projectId = Constants.FIRST_PROJECT_ID;
+            Project projectFromDb = ObjectFactory.getProjectWithOneEmployee(authenticatedUser);
+            projectFromDb.setId(projectId);
+
+            UpdateProjectRequest updateProjectRequest = ObjectFactory.getUpdateProjectRequest();
+            ProjectStatusDto newProjectStatusDto = ProjectStatusDto.IN_PROGRESS;
+
+            ProjectResponse expectedProjectResponse = ObjectFactory.getUpdatedProjectResponse(
+                    projectFromDb, updateProjectRequest, newProjectStatusDto);
+
+            //when
+            when(projectRepository.findByIdNotDeleted(projectId))
+                    .thenReturn(Optional.of(projectFromDb));
+            when(projectAuthorityUtil.hasManagerialAuthority(projectId, authenticatedUserId))
+                    .thenReturn(true);
+            when(userRepository.findById(newOwnerId)).thenReturn(Optional.of(newOwner));
+            when(projectRepository.save(projectFromDb)).thenReturn(projectFromDb);
+            when(projectMapper.toProjectDto(projectFromDb))
+                    .thenReturn(expectedProjectResponse);
+
+            //then
+            assertEquals(expectedProjectResponse, projectServiceImpl.updateProjectById(
+                    authenticatedUserId, projectId, updateProjectRequest, newProjectStatusDto));
+
+            //verify
+            verify(projectRepository, times(1)).findByIdNotDeleted(projectId);
+            verify(projectAuthorityUtil, times(1))
+                    .hasManagerialAuthority(projectId, authenticatedUserId);
+            verify(userRepository, times(1)).findById(newOwnerId);
+            verify(projectRepository, times(1)).save(projectFromDb);
+            verify(projectMapper, times(1)).toProjectDto(projectFromDb);
+        }
+
+        @Test
+        void givenForbiddenProjectId_whenUpdateProjectById_thenFail() {
+            //given
+            Long authenticatedUserId = Constants.FIRST_USER_ID;
+            User authenticatedUser = ObjectFactory.getUser1(ObjectFactory.getUserRole());
+            authenticatedUser.setId(authenticatedUserId);
+
+            Long projectId = Constants.ANOTHER_PROJECT_ID;
+            Project projectFromDb = ObjectFactory.getProjectWithOneEmployee(authenticatedUser);
+            projectFromDb.setId(projectId);
+
+            UpdateProjectRequest updateProjectRequest = ObjectFactory.getUpdateProjectRequest();
+            ProjectStatusDto newProjectStatusDto = ProjectStatusDto.IN_PROGRESS;
+            //when
+            when(projectRepository.findByIdNotDeleted(projectId))
+                    .thenReturn(Optional.of(projectFromDb));
+            when(projectAuthorityUtil.hasManagerialAuthority(projectId, authenticatedUserId))
+                    .thenReturn(false);
+
+            //then
+            ForbiddenException forbiddenException = assertThrows(ForbiddenException.class,
+                    () -> projectServiceImpl.updateProjectById(authenticatedUserId, projectId,
+                            updateProjectRequest, newProjectStatusDto));
+            assertEquals(NO_ACCESS_PERMISSION,
+                    forbiddenException.getMessage());
+
+            //verify
+            verify(projectRepository, times(1)).findByIdNotDeleted(projectId);
+            verify(projectAuthorityUtil, times(1))
+                    .hasManagerialAuthority(projectId, authenticatedUserId);
+        }
+
+        @Test
+        void givenProjectIdAndBadDto_whenUpdateProjectById_thenFail() {
+            //given
+            Long authenticatedUserId = Constants.FIRST_USER_ID;
+            User authenticatedUser = ObjectFactory.getUser1(ObjectFactory.getUserRole());
+            authenticatedUser.setId(authenticatedUserId);
+
+            Long ownerId = Constants.LAST_USER_ID;
+            User owner = ObjectFactory.getUser2(ObjectFactory.getUserRole());
+            owner.setId(ownerId);
+
+            Long projectId = Constants.FIRST_PROJECT_ID;
+            Project projectFromDb = ObjectFactory
+                    .getProjectWithTwoEmployees(owner, authenticatedUser);
+            projectFromDb.setId(projectId);
+
+            UpdateProjectRequest updateProjectRequest = ObjectFactory.getBadUpdateProjectRequest();
+            ProjectStatusDto newProjectStatusDto = ProjectStatusDto.IN_PROGRESS;
+
+            //when
+            when(projectRepository.findByIdNotDeleted(projectId))
+                    .thenReturn(Optional.of(projectFromDb));
+            when(projectAuthorityUtil.hasManagerialAuthority(projectId, authenticatedUserId))
+                    .thenReturn(true);
+
+            //then
+            ConflictException conflictException = assertThrows(ConflictException.class, () ->
+                    projectServiceImpl.updateProjectById(
+                            authenticatedUserId, projectId,
+                            updateProjectRequest, newProjectStatusDto));
+            assertTrue(conflictException.getMessage().contains("startDate can't be after endDate"));
+            assertTrue(conflictException.getMessage()
+                    .contains("endDate can't be before startDate"));
+            assertTrue(conflictException.getMessage().contains("Only owner can assign new owner"));
+
+            //verify
+            verify(projectRepository, times(1)).findByIdNotDeleted(projectId);
+            verify(projectAuthorityUtil, times(1))
+                    .hasManagerialAuthority(projectId, authenticatedUserId);
+        }
+    }
+
+    @Nested
+    class DeleteProjectById {
+        @Test
+        void givenProjectId_whenDeleteProjectById_thenSuccess() throws ForbiddenException {
+            //given
+            Long authenticatedUserId = Constants.FIRST_USER_ID;
+            Long projectId = Constants.FIRST_PROJECT_ID;
+
+            //when
+            when(projectRepository.existsByIdNotDeleted(projectId)).thenReturn(true);
+            when(projectRepository.isUserOwner(projectId, authenticatedUserId)).thenReturn(true);
+            when(taskRepository.findAllByProjectIdNonDeleted(projectId, Pageable.unpaged()))
+                    .thenReturn(new PageImpl<>(List.of()));
+
+            //then
+            projectServiceImpl.deleteProjectById(authenticatedUserId, projectId);
+        }
+
+        @Test
+        void givenAlienProjectId_whenDeleteProjectById_thenFail() {
+            //given
+            Long authenticatedUserId = Constants.FIRST_USER_ID;
+            Long projectId = Constants.FIRST_PROJECT_ID;
+
+            //when
+            when(projectRepository.existsByIdNotDeleted(projectId)).thenReturn(true);
+            when(projectRepository.isUserOwner(projectId, authenticatedUserId)).thenReturn(false);
+
+            //then
+            ForbiddenException forbiddenException = assertThrows(ForbiddenException.class,
+                    () -> projectServiceImpl.deleteProjectById(authenticatedUserId, projectId));
+            assertEquals(NO_OWNER_PERMISSION, forbiddenException.getMessage());
+
+            //verify
+            verify(projectRepository, times(1)).existsByIdNotDeleted(projectId);
+            verify(projectRepository, times(1)).isUserOwner(projectId, authenticatedUserId);
+        }
+
+        @Test
+        void givenNotRealProjectId_whenDeleteProjectById_thenFail() {
+            //given
+            Long authenticatedUserId = Constants.FIRST_USER_ID;
+            Long projectId = Constants.RANDOM_PROJECT_ID;
+
+            //when
+            when(projectRepository.existsByIdNotDeleted(projectId)).thenReturn(false);
+
+            //then
+            EntityNotFoundException entityNotFoundException = assertThrows(
+                    EntityNotFoundException.class,
+                    () -> projectServiceImpl.deleteProjectById(authenticatedUserId, projectId));
+            assertEquals("No active project with id " + projectId,
+                    entityNotFoundException.getMessage());
+
+            //verify
+            verify(projectRepository, times(1)).existsByIdNotDeleted(projectId);
+        }
+    }
+
+    @Nested
+    class RemoveEmployeeFromProject {
+        @Test
+        void givenValidArguments_whenRemoveEmployeeFromProject_thenSuccess()
+                throws ForbiddenException {
+            //given
+            Long authenticatedUserId = Constants.FIRST_USER_ID;
+            User user = ObjectFactory.getUser1(ObjectFactory.getUserRole());
+            user.setId(authenticatedUserId);
+
+            Long assigneeId = Constants.LAST_USER_ID;
+            User assignee = ObjectFactory.getUser2(ObjectFactory.getUserRole());
+            assignee.setId(assigneeId);
+
+            Long projectId = Constants.FIRST_PROJECT_ID;
+            Project project = ObjectFactory.getProjectWithTwoEmployees(user, assignee);
+            project.setId(projectId);
+
+            ProjectResponse projectResponse = ObjectFactory.getProjectResponse(project);
+            projectResponse.getEmployeeIds().remove(assigneeId);
+
+            //when
+            when(projectRepository.findByIdNotDeleted(projectId)).thenReturn(Optional.of(project));
+            when(projectAuthorityUtil.hasManagerialAuthority(projectId, authenticatedUserId))
+                    .thenReturn(true);
+            when(userRepository.findById(assigneeId)).thenReturn(Optional.of(assignee));
+            when(projectRepository.save(project)).thenReturn(project);
+            when(projectMapper.toProjectDto(project)).thenReturn(projectResponse);
+
+            //then
+            assertEquals(projectResponse, projectServiceImpl
+                    .removeEmployeeFromProject(authenticatedUserId, projectId, assigneeId));
+
+            //verify
+            verify(projectRepository, times(1)).findByIdNotDeleted(projectId);
+            verify(projectAuthorityUtil, times(1))
+                    .hasManagerialAuthority(projectId, authenticatedUserId);
+            verify(userRepository, times(1)).findById(assigneeId);
+            verify(projectRepository, times(1)).save(project);
+            verify(projectMapper, times(1)).toProjectDto(project);
         }
     }
 }

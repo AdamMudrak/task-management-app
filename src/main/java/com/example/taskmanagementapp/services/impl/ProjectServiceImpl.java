@@ -4,6 +4,7 @@ import static com.example.taskmanagementapp.constants.Constants.FIRST_POSITION;
 import static com.example.taskmanagementapp.constants.Constants.SECOND_POSITION;
 import static com.example.taskmanagementapp.constants.Constants.THIRD_POSITION;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.NO_ACCESS_PERMISSION;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.NO_OWNER_PERMISSION;
 import static com.example.taskmanagementapp.services.utils.UpdateValueValidatorUtil.areDatesValid;
 import static com.example.taskmanagementapp.services.utils.UpdateValueValidatorUtil.areStringsValid;
 
@@ -127,7 +128,7 @@ public class ProjectServiceImpl implements ProjectService {
             taskRepository.deleteAllByProjectId(projectId);
             projectRepository.deleteById(projectId);
         } else {
-            throw new ForbiddenException("You must be owner to delete this project");
+            throw new ForbiddenException(NO_OWNER_PERMISSION);
         }
     }
 

@@ -6,6 +6,7 @@ import com.example.taskmanagementapp.dtos.authentication.request.LoginRequest;
 import com.example.taskmanagementapp.dtos.authentication.request.RegistrationRequest;
 import com.example.taskmanagementapp.dtos.project.request.ProjectRequest;
 import com.example.taskmanagementapp.dtos.project.request.ProjectStatusDto;
+import com.example.taskmanagementapp.dtos.project.request.UpdateProjectRequest;
 import com.example.taskmanagementapp.dtos.project.response.ProjectResponse;
 import com.example.taskmanagementapp.dtos.user.request.UpdateUserProfileRequest;
 import com.example.taskmanagementapp.dtos.user.response.UpdateUserProfileResponse;
@@ -366,6 +367,44 @@ public class ObjectFactory {
         projectResponse.setEndDate(project.getEndDate());
         projectResponse.setStatusDto(ProjectStatusDto.valueOf(project.getStatus().name()));
         projectResponse.setOwnerId(project.getOwner().getId());
+        Set<Long> employeeIds =
+                project.getEmployees().stream().map(User::getId).collect(Collectors.toSet());
+        projectResponse.setEmployeeIds(employeeIds);
+        Set<Long> managerIds =
+                project.getManagers().stream().map(User::getId).collect(Collectors.toSet());
+        projectResponse.setManagerIds(managerIds);
+        return projectResponse;
+    }
+
+    public static UpdateProjectRequest getUpdateProjectRequest() {
+        return new UpdateProjectRequest(
+                Constants.NEW + Constants.PROJECT_NAME,
+                Constants.NEW + Constants.PROJECT_DESCRIPTION,
+                Constants.PROJECT_START_DATE.plusDays(Constants.TEN),
+                Constants.PROJECT_END_DATE.plusDays(Constants.TEN),
+                Constants.LAST_USER_ID);
+    }
+
+    public static UpdateProjectRequest getBadUpdateProjectRequest() {
+        return new UpdateProjectRequest(Constants.NEW + Constants.PROJECT_NAME,
+                Constants.NEW + Constants.PROJECT_DESCRIPTION,
+                Constants.PROJECT_START_DATE.plusYears(Constants.TEN),
+                Constants.PROJECT_END_DATE.minusYears(Constants.TEN),
+                Constants.FIRST_USER_ID);
+    }
+
+    public static ProjectResponse getUpdatedProjectResponse(
+                                                    Project project,
+                                                    UpdateProjectRequest updateProjectRequest,
+                                                    ProjectStatusDto projectStatusDto) {
+        ProjectResponse projectResponse = new ProjectResponse();
+        projectResponse.setId(project.getId());
+        projectResponse.setName(updateProjectRequest.name());
+        projectResponse.setDescription(updateProjectRequest.description());
+        projectResponse.setStartDate(updateProjectRequest.startDate());
+        projectResponse.setEndDate(updateProjectRequest.endDate());
+        projectResponse.setStatusDto(projectStatusDto);
+        projectResponse.setOwnerId(updateProjectRequest.ownerId());
         Set<Long> employeeIds =
                 project.getEmployees().stream().map(User::getId).collect(Collectors.toSet());
         projectResponse.setEmployeeIds(employeeIds);
