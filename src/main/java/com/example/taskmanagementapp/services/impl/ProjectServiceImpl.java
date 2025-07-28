@@ -3,6 +3,7 @@ package com.example.taskmanagementapp.services.impl;
 import static com.example.taskmanagementapp.constants.Constants.FIRST_POSITION;
 import static com.example.taskmanagementapp.constants.Constants.SECOND_POSITION;
 import static com.example.taskmanagementapp.constants.Constants.THIRD_POSITION;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.CANNOT_DELETE_OWNER;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.NO_ACCESS_PERMISSION;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.NO_OWNER_PERMISSION;
 import static com.example.taskmanagementapp.services.utils.UpdateValueValidatorUtil.areDatesValid;
@@ -195,7 +196,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (projectAuthorityUtil.hasManagerialAuthority(projectId, userId)) {
             User removedEmployee = getUserById(employeeId);
             if (project.getOwner().getId().equals(removedEmployee.getId())) {
-                throw new ForbiddenException("Can't delete owner from the project");
+                throw new ForbiddenException(CANNOT_DELETE_OWNER);
             }
             if (project.getManagers().contains(removedEmployee)
                     && !projectRepository.isUserOwner(projectId, userId)) {
