@@ -7,12 +7,12 @@ import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.Task;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.EntityNotFoundException;
-import com.example.taskmanagementapp.testutils.Constants;
-import com.example.taskmanagementapp.testutils.ObjectFactory;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 import javax.sql.DataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,6 +33,27 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class LabelRepositoryTest {
+    private static final String USERNAME_1 = "JohnDoe";
+    private static final String USERNAME_2 = "RichardRoe";
+    private static final String PASSWORD_1_DB =
+            "$2a$10$u4cOSEeePFyJlpvkPdtmhenMuPYhloQfrVS19DZU8/.5jtJNm7piW";
+    private static final String EMAIL_1 = "john_doe@mail.com";
+    private static final String EMAIL_2 = "richard_roe@mail.com";
+    private static final String FIRST_NAME = "John";
+    private static final String LAST_NAME = "Doe";
+    private static final String ANOTHER_FIRST_NAME = "Richard";
+    private static final String ANOTHER_LAST_NAME = "Roe";
+    private static final String PROJECT_NAME = "projectName";
+    private static final String PROJECT_DESCRIPTION = "projectDescription";
+    private static final LocalDate PROJECT_START_DATE = LocalDate.of(2025, 1, 1);
+    private static final LocalDate PROJECT_END_DATE = LocalDate.of(2025, 12, 31);
+    private static final String TASK_NAME_1 = "taskName";
+    private static final String TASK_NAME_2 = "anotherTaskName";
+    private static final String TASK_DESCRIPTION_1 = "taskDescription";
+    private static final String TASK_DESCRIPTION_2 = "anotherTaskDescription";
+    private static final LocalDate TASK_DUE_DATE = LocalDate.of(2025, 12, 31);
+    private static final String LABEL_NAME_1 = "labelName";
+    private static final String LABEL_NAME_2 = "anotherLabelName";
     private static final Logger logger = LogManager.getLogger(LabelRepositoryTest.class);
     @MockitoBean
     private final DbxClientV2 dbxClientV2 = null; //unused since not needed
@@ -55,13 +76,68 @@ class LabelRepositoryTest {
 
     @BeforeAll
     void setUpBeforeAll() {
-        Role savedRole = roleRepository.save(ObjectFactory.getUserRole());
-        user1 = userRepository.save(ObjectFactory.getUser1(savedRole));
-        user2 = userRepository.save(ObjectFactory.getUser2(savedRole));
-        Project project =
-                projectRepository.save(ObjectFactory.getProjectWithTwoEmployees(user1, user2));
-        task1 = taskRepository.save(ObjectFactory.getTask1(project, user1));
-        task2 = taskRepository.save(ObjectFactory.getTask2(project, user2));
+        Role savedRole = roleRepository.save(
+                Role.builder().name(Role.RoleName.ROLE_USER).build());
+
+        user1 = userRepository.save(
+                User.builder()
+                        .username(USERNAME_1)
+                        .password(PASSWORD_1_DB)
+                        .email(EMAIL_1)
+                        .firstName(FIRST_NAME)
+                        .lastName(LAST_NAME)
+                        .role(savedRole)
+                        .isEnabled(true)
+                        .isAccountNonLocked(true)
+                        .build());
+
+        user2 = userRepository.save(
+                User.builder()
+                        .username(USERNAME_2)
+                        .password(PASSWORD_1_DB)
+                        .email(EMAIL_2)
+                        .firstName(ANOTHER_FIRST_NAME)
+                        .lastName(ANOTHER_LAST_NAME)
+                        .role(savedRole)
+                        .isEnabled(true)
+                        .isAccountNonLocked(true)
+                        .build());
+
+        Project project = projectRepository.save(
+                Project.builder()
+                        .name(PROJECT_NAME)
+                        .description(PROJECT_DESCRIPTION)
+                        .startDate(PROJECT_START_DATE)
+                        .endDate(PROJECT_END_DATE)
+                        .status(Project.Status.IN_PROGRESS)
+                        .isDeleted(false)
+                        .owner(user1)
+                        .managers(Set.of(user1))
+                        .employees(Set.of(user1))
+                        .build());
+
+        task1 = taskRepository.save(
+                Task.builder()
+                        .name(TASK_NAME_1)
+                        .description(TASK_DESCRIPTION_1)
+                        .priority(Task.Priority.LOW)
+                        .status(Task.Status.NOT_STARTED)
+                        .dueDate(TASK_DUE_DATE)
+                        .project(project)
+                        .assignee(user1)
+                        .isDeleted(false)
+                        .build());
+
+        task2 = taskRepository.save(Task.builder()
+                .name(TASK_NAME_2)
+                .description(TASK_DESCRIPTION_2)
+                .priority(Task.Priority.MEDIUM)
+                .status(Task.Status.IN_PROGRESS)
+                .dueDate(TASK_DUE_DATE)
+                .project(project)
+                .assignee(user1)
+                .isDeleted(false)
+                .build());
     }
 
     /**Project, Task, User and Role related tables have to be cleaned manually via sql
@@ -84,21 +160,35 @@ class LabelRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        labelId1 = labelRepository.save(ObjectFactory.getLabel1(user1, task1)).getId();
-        labelId2 = labelRepository.save(ObjectFactory.getLabel2(user1, task2)).getId();
+        labelId1 = labelRepository.save(
+                Label.builder()
+                        .name(LABEL_NAME_1)
+                        .color(Label.Color.RED)
+                        .user(user1)
+                        .tasks(Set.of(task1))
+                        .build())
+                .getId();
+        labelId2 = labelRepository.save(
+                Label.builder()
+                        .name(LABEL_NAME_2)
+                        .color(Label.Color.YELLOW)
+                        .user(user1)
+                        .tasks(Set.of(task2))
+                        .build())
+                .getId();
     }
 
     @Test
     void givenTwoLabels_whenFindByIdAndUserId_thenReturnBoth() {
         Label label = labelRepository.findByIdAndUserId(labelId1, user1.getId()).orElseThrow(
                 () -> new EntityNotFoundException("Label with id " + labelId1 + " not found"));
-        labelAssertions(label, labelId1, Constants.LABEL_NAME_1, Label.Color.GREEN, task1);
+        labelAssertions(label, labelId1, LABEL_NAME_1, Label.Color.RED, task1);
 
         Label anotherLabel = labelRepository.findByIdAndUserId(labelId2, user1.getId())
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Label with id " + labelId2 + " not found"));
-        labelAssertions(anotherLabel, labelId2, Constants.LABEL_NAME_2,
-                Label.Color.RED, task2);
+        labelAssertions(anotherLabel, labelId2, LABEL_NAME_2,
+                Label.Color.YELLOW, task2);
     }
 
     @Test
@@ -139,10 +229,10 @@ class LabelRepositoryTest {
 
         for (Label label : labels) {
             if (label.getId().equals(labelId1)) {
-                labelAssertions(label, labelId1, Constants.LABEL_NAME_1, Label.Color.GREEN, task1);
+                labelAssertions(label, labelId1, LABEL_NAME_1, Label.Color.RED, task1);
             } else if (label.getId().equals(labelId2)) {
-                labelAssertions(label, labelId2, Constants.LABEL_NAME_2,
-                        Label.Color.RED, task2);
+                labelAssertions(label, labelId2, LABEL_NAME_2,
+                        Label.Color.YELLOW, task2);
             }
         }
     }
@@ -157,13 +247,13 @@ class LabelRepositoryTest {
                 user1.getId(), PageRequest.of(firstPage, size)).getContent();
         Assertions.assertEquals(1, listOfFirstLabel.size());
         labelAssertions(listOfFirstLabel.getFirst(), labelId1,
-                Constants.LABEL_NAME_1, Label.Color.GREEN, task1);
+                LABEL_NAME_1, Label.Color.RED, task1);
 
         List<Label> listOfSecondLabel = labelRepository.findAllByUserId(
                 user1.getId(), PageRequest.of(secondPage, size)).getContent();
         Assertions.assertEquals(1, listOfSecondLabel.size());
-        labelAssertions(listOfSecondLabel.getFirst(), labelId2, Constants.LABEL_NAME_2,
-                Label.Color.RED, task2);
+        labelAssertions(listOfSecondLabel.getFirst(), labelId2, LABEL_NAME_2,
+                Label.Color.YELLOW, task2);
     }
 
     private void labelAssertions(Label label,Long id, String name, Label.Color color, Task task) {
