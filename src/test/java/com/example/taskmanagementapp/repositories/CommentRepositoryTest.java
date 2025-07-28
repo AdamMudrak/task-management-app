@@ -7,12 +7,13 @@ import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.Task;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.EntityNotFoundException;
-import com.example.taskmanagementapp.testutils.Constants;
-import com.example.taskmanagementapp.testutils.ObjectFactory;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import javax.sql.DataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,6 +33,28 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class CommentRepositoryTest {
+    private static final String USERNAME_1 = "JohnDoe";
+    private static final String USERNAME_2 = "RichardRoe";
+    private static final String PASSWORD_1_DB =
+            "$2a$10$u4cOSEeePFyJlpvkPdtmhenMuPYhloQfrVS19DZU8/.5jtJNm7piW";
+    private static final String EMAIL_1 = "john_doe@mail.com";
+    private static final String EMAIL_2 = "richard_roe@mail.com";
+    private static final String FIRST_NAME = "John";
+    private static final String LAST_NAME = "Doe";
+    private static final String ANOTHER_FIRST_NAME = "Richard";
+    private static final String ANOTHER_LAST_NAME = "Roe";
+    private static final String PROJECT_NAME = "projectName";
+    private static final String PROJECT_DESCRIPTION = "projectDescription";
+    private static final LocalDate PROJECT_START_DATE = LocalDate.of(2025, 1, 1);
+    private static final LocalDate PROJECT_END_DATE = LocalDate.of(2025, 12, 31);
+    private static final String TASK_NAME_1 = "taskName";
+    private static final String TASK_NAME_2 = "anotherTaskName";
+    private static final String TASK_DESCRIPTION_1 = "taskDescription";
+    private static final String TASK_DESCRIPTION_2 = "anotherTaskDescription";
+    private static final LocalDate TASK_DUE_DATE = LocalDate.of(2025, 12, 31);
+    private static final LocalDateTime TIME_STAMP = LocalDateTime.of(2025, 1, 6, 8, 30);
+    private static final String COMMENT_TEXT_1 = "commentText1";
+    private static final String COMMENT_TEXT_2 = "commentText2";
     private static final Logger logger = LogManager.getLogger(CommentRepositoryTest.class);
     @MockitoBean
     private final DbxClientV2 dbxClientV2 = null; //unused since not needed
@@ -54,13 +77,68 @@ public class CommentRepositoryTest {
 
     @BeforeAll
     void setUpBeforeAll() {
-        Role savedRole = roleRepository.save(ObjectFactory.getUserRole());
-        user1 = userRepository.save(ObjectFactory.getUser1(savedRole));
-        user2 = userRepository.save(ObjectFactory.getUser2(savedRole));
-        Project project =
-                projectRepository.save(ObjectFactory.getProjectWithTwoEmployees(user1, user2));
-        task1 = taskRepository.save(ObjectFactory.getTask1(project, user1));
-        task2 = taskRepository.save(ObjectFactory.getTask2(project, user1));
+        Role savedRole = roleRepository.save(
+                Role.builder().name(Role.RoleName.ROLE_USER).build());
+
+        user1 = userRepository.save(
+                User.builder()
+                        .username(USERNAME_1)
+                        .password(PASSWORD_1_DB)
+                        .email(EMAIL_1)
+                        .firstName(FIRST_NAME)
+                        .lastName(LAST_NAME)
+                        .role(savedRole)
+                        .isEnabled(true)
+                        .isAccountNonLocked(true)
+                        .build());
+
+        user2 = userRepository.save(
+                User.builder()
+                        .username(USERNAME_2)
+                        .password(PASSWORD_1_DB)
+                        .email(EMAIL_2)
+                        .firstName(ANOTHER_FIRST_NAME)
+                        .lastName(ANOTHER_LAST_NAME)
+                        .role(savedRole)
+                        .isEnabled(true)
+                        .isAccountNonLocked(true)
+                        .build());
+
+        Project project = projectRepository.save(
+                Project.builder()
+                        .name(PROJECT_NAME)
+                        .description(PROJECT_DESCRIPTION)
+                        .startDate(PROJECT_START_DATE)
+                        .endDate(PROJECT_END_DATE)
+                        .status(Project.Status.IN_PROGRESS)
+                        .isDeleted(false)
+                        .owner(user1)
+                        .managers(Set.of(user1))
+                        .employees(Set.of(user1))
+                        .build());
+
+        task1 = taskRepository.save(
+                Task.builder()
+                        .name(TASK_NAME_1)
+                        .description(TASK_DESCRIPTION_1)
+                        .priority(Task.Priority.LOW)
+                        .status(Task.Status.NOT_STARTED)
+                        .dueDate(TASK_DUE_DATE)
+                        .project(project)
+                        .assignee(user1)
+                        .isDeleted(false)
+                        .build());
+
+        task2 = taskRepository.save(Task.builder()
+                .name(TASK_NAME_2)
+                .description(TASK_DESCRIPTION_2)
+                .priority(Task.Priority.MEDIUM)
+                .status(Task.Status.IN_PROGRESS)
+                .dueDate(TASK_DUE_DATE)
+                .project(project)
+                .assignee(user1)
+                .isDeleted(false)
+                .build());
     }
 
     /**Task, Project, User and Role related tables have to be cleaned manually via sql
@@ -83,8 +161,21 @@ public class CommentRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        comment1 = commentRepository.save(ObjectFactory.getComment1(user1, task1));
-        comment2 = commentRepository.save(ObjectFactory.getComment2(user1, task1));
+        comment1 = commentRepository.save(
+                Comment.builder()
+                        .task(task1)
+                        .user(user1)
+                        .text(COMMENT_TEXT_1)
+                        .timestamp(TIME_STAMP)
+                        .build());
+
+        comment2 = commentRepository.save(
+                Comment.builder()
+                        .task(task1)
+                        .user(user1)
+                        .text(COMMENT_TEXT_2)
+                        .timestamp(TIME_STAMP)
+                        .build());
     }
 
     @Test
@@ -95,10 +186,10 @@ public class CommentRepositoryTest {
         for (Comment comment : commentList) {
             if (comment.getId().equals(comment1.getId())) {
                 commentAssertions(comment, task1, user1,
-                        Constants.COMMENT_TEXT_1);
+                        COMMENT_TEXT_1);
             } else if (comment.getId().equals(comment2.getId())) {
                 commentAssertions(comment, task1, user1,
-                        Constants.COMMENT_TEXT_2);
+                        COMMENT_TEXT_2);
             }
         }
     }
@@ -124,12 +215,12 @@ public class CommentRepositoryTest {
         Comment firstComment = commentRepository.findByIdAndUserId(comment1.getId(), user1.getId())
                 .orElseThrow(() -> new EntityNotFoundException("No comment with id "
                         + comment1.getId() + " for user with id " + user1.getId()));
-        commentAssertions(firstComment, task1, user1, Constants.COMMENT_TEXT_1);
+        commentAssertions(firstComment, task1, user1, COMMENT_TEXT_1);
 
         Comment secondComment = commentRepository.findByIdAndUserId(comment2.getId(), user1.getId())
                 .orElseThrow(() -> new EntityNotFoundException("No comment with id "
                         + comment2.getId() + " for user with id " + user1.getId()));
-        commentAssertions(secondComment, task1, user1, Constants.COMMENT_TEXT_2);
+        commentAssertions(secondComment, task1, user1, COMMENT_TEXT_2);
     }
 
     @Test
@@ -145,6 +236,6 @@ public class CommentRepositoryTest {
         Assertions.assertEquals(task, comment.getTask());
         Assertions.assertEquals(user, comment.getUser());
         Assertions.assertEquals(commentText, comment.getText());
-        Assertions.assertEquals(Constants.TIME_STAMP, comment.getTimestamp());
+        Assertions.assertEquals(TIME_STAMP, comment.getTimestamp());
     }
 }
