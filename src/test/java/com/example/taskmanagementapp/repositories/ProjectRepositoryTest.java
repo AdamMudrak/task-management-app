@@ -5,9 +5,9 @@ import com.example.taskmanagementapp.entities.Project;
 import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.EntityNotFoundException;
-import com.example.taskmanagementapp.testutils.Constants;
-import com.example.taskmanagementapp.testutils.ObjectFactory;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -24,6 +24,22 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ProjectRepositoryTest {
+    private static final String USERNAME_1 = "JohnDoe";
+    private static final String USERNAME_2 = "RichardRoe";
+    private static final String PASSWORD_1_DB =
+            "$2a$10$u4cOSEeePFyJlpvkPdtmhenMuPYhloQfrVS19DZU8/.5jtJNm7piW";
+    private static final String EMAIL_1 = "john_doe@mail.com";
+    private static final String EMAIL_2 = "richard_roe@mail.com";
+    private static final String FIRST_NAME = "John";
+    private static final String LAST_NAME = "Doe";
+    private static final String ANOTHER_FIRST_NAME = "Richard";
+    private static final String ANOTHER_LAST_NAME = "Roe";
+    private static final String PROJECT_NAME = "projectName";
+    private static final String PROJECT_DESCRIPTION = "projectDescription";
+    private static final String ANOTHER_PROJECT_NAME = "anotherProjectName";
+    private static final String ANOTHER_PROJECT_DESCRIPTION = "anotherProjectDescription";
+    private static final LocalDate PROJECT_START_DATE = LocalDate.of(2025, 1, 1);
+    private static final LocalDate PROJECT_END_DATE = LocalDate.of(2025, 12, 31);
     @MockitoBean
     private final DbxClientV2 dbxClientV2 = null; //unused since not needed
     @Autowired
@@ -39,9 +55,32 @@ class ProjectRepositoryTest {
 
     @BeforeAll
     void setUpBeforeAll() {
-        Role savedRole = roleRepository.save(ObjectFactory.getUserRole());
-        user1 = userRepository.save(ObjectFactory.getUser1(savedRole));
-        user2 = userRepository.save(ObjectFactory.getUser2(savedRole));
+        Role savedRole = roleRepository.save(
+                Role.builder().name(Role.RoleName.ROLE_USER).build());
+
+        user1 = userRepository.save(
+                User.builder()
+                        .username(USERNAME_1)
+                        .password(PASSWORD_1_DB)
+                        .email(EMAIL_1)
+                        .firstName(FIRST_NAME)
+                        .lastName(LAST_NAME)
+                        .role(savedRole)
+                        .isEnabled(true)
+                        .isAccountNonLocked(true)
+                        .build());
+
+        user2 = userRepository.save(
+                User.builder()
+                        .username(USERNAME_2)
+                        .password(PASSWORD_1_DB)
+                        .email(EMAIL_2)
+                        .firstName(ANOTHER_FIRST_NAME)
+                        .lastName(ANOTHER_LAST_NAME)
+                        .role(savedRole)
+                        .isEnabled(true)
+                        .isAccountNonLocked(true)
+                        .build());
     }
 
     @AfterAll
@@ -52,11 +91,33 @@ class ProjectRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        Project project1 = projectRepository.save(ObjectFactory.getProjectWithOneEmployee(user1));
-        existingProjectId = project1.getId();
-
-        Project project2 = projectRepository.save(ObjectFactory.getDeletedProject(user1));
-        deletedProjectId = project2.getId();
+        existingProjectId = projectRepository.save(
+                Project.builder()
+                        .name(PROJECT_NAME)
+                        .description(PROJECT_DESCRIPTION)
+                        .startDate(PROJECT_START_DATE)
+                        .endDate(PROJECT_END_DATE)
+                        .status(Project.Status.IN_PROGRESS)
+                        .isDeleted(false)
+                        .owner(user1)
+                        .managers(Set.of(user1))
+                        .employees(Set.of(user1))
+                        .build())
+                .getId();
+        
+        deletedProjectId = projectRepository.save(
+                Project.builder()
+                        .name(ANOTHER_PROJECT_NAME)
+                        .description(ANOTHER_PROJECT_DESCRIPTION)
+                        .startDate(PROJECT_START_DATE)
+                        .endDate(PROJECT_END_DATE)
+                        .status(Project.Status.IN_PROGRESS)
+                        .isDeleted(true)
+                        .owner(user1)
+                        .managers(Set.of(user1))
+                        .employees(Set.of(user1))
+                        .build())
+                .getId();
     }
 
     @Test
@@ -77,7 +138,7 @@ class ProjectRepositoryTest {
                 .findAllByOwnerId(user1.getId(), Pageable.unpaged()).getContent();
         Assertions.assertEquals(1, projectList.size());
         projectAssertions(projectList.getFirst(), false,
-                Constants.PROJECT_NAME, Constants.PROJECT_DESCRIPTION);
+                PROJECT_NAME, PROJECT_DESCRIPTION);
     }
 
     @Test
@@ -86,7 +147,7 @@ class ProjectRepositoryTest {
                 .findAllByOwnerIdDeleted(user1.getId(), Pageable.unpaged()).getContent();
         Assertions.assertEquals(1, projectList.size());
         projectAssertions(projectList.getFirst(), true,
-                Constants.ANOTHER_PROJECT_NAME, Constants.ANOTHER_PROJECT_DESCRIPTION);
+                ANOTHER_PROJECT_NAME, ANOTHER_PROJECT_DESCRIPTION);
     }
 
     @Test
@@ -95,14 +156,14 @@ class ProjectRepositoryTest {
                 .findAllByEmployeeId(user1.getId(), Pageable.unpaged()).getContent();
         Assertions.assertEquals(1, projectList.size());
         projectAssertions(projectList.getFirst(), false,
-                Constants.PROJECT_NAME, Constants.PROJECT_DESCRIPTION);
+                PROJECT_NAME, PROJECT_DESCRIPTION);
     }
 
     @Test
     void givenExistingProjectId_whenFindByIdNotDeleted_thenReturnSingleProject() {
         Project project = projectRepository.findByIdNotDeleted(existingProjectId).orElseThrow(
                 () -> new EntityNotFoundException("No project with id " + existingProjectId));
-        projectAssertions(project, false, Constants.PROJECT_NAME, Constants.PROJECT_DESCRIPTION);
+        projectAssertions(project, false, PROJECT_NAME, PROJECT_DESCRIPTION);
     }
 
     @Test
@@ -136,9 +197,9 @@ class ProjectRepositoryTest {
         Assertions.assertNotNull(project);
         Assertions.assertEquals(projectName, project.getName());
         Assertions.assertEquals(projectDescription, project.getDescription());
-        Assertions.assertEquals(Constants.PROJECT_START_DATE, project.getStartDate());
-        Assertions.assertEquals(Constants.PROJECT_END_DATE, project.getEndDate());
-        Assertions.assertEquals(Project.Status.INITIATED, project.getStatus());
+        Assertions.assertEquals(PROJECT_START_DATE, project.getStartDate());
+        Assertions.assertEquals(PROJECT_END_DATE, project.getEndDate());
+        Assertions.assertEquals(Project.Status.IN_PROGRESS, project.getStatus());
         if (isDeleted) {
             Assertions.assertTrue(project.isDeleted());
         } else {
