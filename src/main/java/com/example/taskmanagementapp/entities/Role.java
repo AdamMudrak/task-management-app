@@ -8,12 +8,20 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 
 @Getter
 @Setter
+@EqualsAndHashCode
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "roles")
 public class Role implements GrantedAuthority {
@@ -23,6 +31,10 @@ public class Role implements GrantedAuthority {
     @Column(nullable = false, unique = true)
     @Enumerated(EnumType.STRING)
     private RoleName name;
+
+    public Role(RoleName name) {
+        this.name = name;
+    }
 
     @Override
     public String getAuthority() {
