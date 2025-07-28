@@ -22,7 +22,7 @@ import org.hibernate.annotations.SQLDelete;
 
 @Getter
 @Setter
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = {"project", "assignee", })
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

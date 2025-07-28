@@ -24,7 +24,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = {"tasks", "user"})
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
