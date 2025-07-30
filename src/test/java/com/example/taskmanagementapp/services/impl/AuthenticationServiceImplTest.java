@@ -46,7 +46,6 @@ import com.example.taskmanagementapp.services.email.PasswordEmailService;
 import com.example.taskmanagementapp.services.email.RegisterConfirmEmailService;
 import com.example.taskmanagementapp.services.utils.ParamFromHttpRequestUtil;
 import com.example.taskmanagementapp.testutils.Constants;
-import com.example.taskmanagementapp.testutils.ObjectFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -66,6 +65,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthenticationServiceImplTest {
+    private static final String USERNAME_1 = "JohnDoe";
+    private static final String PASSWORD_1_DB =
+            "$2a$10$u4cOSEeePFyJlpvkPdtmhenMuPYhloQfrVS19DZU8/.5jtJNm7piW";
+    private static final String EMAIL_1 = "john_doe@mail.com";
+    private static final String FIRST_NAME = "John";
+    private static final String LAST_NAME = "Doe";
+    private static final long FIRST_USER_ID = 1L;
     private UserRepository userRepository;
     private UserMapper userMapper;
     private AuthenticationManager authenticationManager;
@@ -108,8 +114,18 @@ public class AuthenticationServiceImplTest {
         void givenValidLoginRequestDto_whenAuthenticateUserByEmail_thenSuccessfullyLogin()
                 throws LoginException {
             //given
-            Role role = ObjectFactory.getUserRole();
-            User user = ObjectFactory.getUser1(role);
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User user = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
             List<GrantedAuthority> grantedAuthorities = List.of(
                     new SimpleGrantedAuthority(role.getName().name()));
 
@@ -194,8 +210,18 @@ public class AuthenticationServiceImplTest {
         void givenValidLoginRequestDto_whenAuthenticateUserByUsername_thenSuccessfullyLogin()
                 throws LoginException {
             //given
-            Role role = ObjectFactory.getUserRole();
-            User user = ObjectFactory.getUser1(role);
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User user = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
             List<GrantedAuthority> grantedAuthorities = List.of(
                     new SimpleGrantedAuthority(role.getName().name()));
 
@@ -235,12 +261,22 @@ public class AuthenticationServiceImplTest {
         @Test
         void givenLockedUser_whenAuthenticateUserByEmail_thenThrowLoginException() {
             //given
-            Role role = ObjectFactory.getUserRole();
-            User disabledUser = ObjectFactory.getDisabledUser(role);
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User lockedUser = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(false)
+                    .isAccountNonLocked(false)
+                    .build();
 
             //when
             when(userRepository.findByEmail(Constants.EMAIL_3))
-                    .thenReturn(Optional.of(disabledUser));
+                    .thenReturn(Optional.of(lockedUser));
 
             //then
             LoginRequest lockedUserLoginRequest =
@@ -259,20 +295,30 @@ public class AuthenticationServiceImplTest {
         @Test
         void givenNonActivatedUser_whenAuthenticateUserByEmail_thenThrowLoginException() {
             //given
-            Role role = ObjectFactory.getUserRole();
-            User notActiveUser = ObjectFactory.getNotActiveUser(role);
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User disabledUser = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(false)
+                    .isAccountNonLocked(true)
+                    .build();
 
             //when
             when(userRepository.findByEmail(Constants.EMAIL_4))
-                    .thenReturn(Optional.of(notActiveUser));
+                    .thenReturn(Optional.of(disabledUser));
 
             //then
-            LoginRequest notActiveUserRequest =
+            LoginRequest disabledUserRequest =
                     new LoginRequest(Constants.EMAIL_4, Constants.PASSWORD_1);
             HttpServletResponse httpServletResponse = mock(HttpServletResponse.class);
             LoginException loginException = assertThrows(LoginException.class,
                     () -> authenticationService.authenticateUser(
-                            notActiveUserRequest, httpServletResponse));
+                            disabledUserRequest, httpServletResponse));
 
             assertEquals(REGISTERED_BUT_NOT_ACTIVATED, loginException.getMessage());
 
@@ -283,8 +329,18 @@ public class AuthenticationServiceImplTest {
         @Test
         void givenInvalidPassword_whenAuthenticateUserByEmail_thenThrowLoginException() {
             //given
-            Role role = ObjectFactory.getUserRole();
-            User user = ObjectFactory.getUser1(role);
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User user = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
 
             //when
             when(userRepository.findByEmail(Constants.EMAIL_1)).thenReturn(Optional.of(user));
@@ -311,8 +367,18 @@ public class AuthenticationServiceImplTest {
         @Test
         void givenInvalidPassword_whenAuthenticateUserByUsername_thenThrowLoginException() {
             //given
-            Role role = ObjectFactory.getUserRole();
-            User user = ObjectFactory.getUser1(role);
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User user = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
 
             //when
             when(userRepository.findByUsername(Constants.USERNAME_1)).thenReturn(Optional.of(user));
@@ -343,8 +409,18 @@ public class AuthenticationServiceImplTest {
         void givenAnEmailOfEnabledUser_whenSendPasswordResetLink_thenSuccessfullySendLink()
                 throws LoginException {
             //given
-            Role role = ObjectFactory.getUserRole();
-            User user = ObjectFactory.getUser1(role);
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User user = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
 
             //when
             when(userRepository.findByEmail(Constants.EMAIL_1)).thenReturn(Optional.of(user));
@@ -361,8 +437,18 @@ public class AuthenticationServiceImplTest {
         void givenAUsernameOfEnabledUser_whenSendPasswordResetLink_thenSuccessfullySendLink()
                 throws LoginException {
             //given
-            Role role = ObjectFactory.getUserRole();
-            User user = ObjectFactory.getUser1(role);
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User user = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
 
             //when
             when(userRepository.findByUsername(Constants.USERNAME_1)).thenReturn(Optional.of(user));
@@ -376,14 +462,24 @@ public class AuthenticationServiceImplTest {
         }
 
         @Test
-        void givenAnEmailOfDisabledUser_whenSendPasswordResetLink_thenThrowLoginException() {
+        void givenAnEmailOfLockedUser_whenSendPasswordResetLink_thenThrowLoginException() {
             //given
-            Role role = ObjectFactory.getUserRole();
-            User disabledUser = ObjectFactory.getDisabledUser(role);
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User lockedUser = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(false)
+                    .isAccountNonLocked(false)
+                    .build();
 
             //when
             when(userRepository.findByEmail(Constants.EMAIL_3))
-                    .thenReturn(Optional.of(disabledUser));
+                    .thenReturn(Optional.of(lockedUser));
 
             //then
             LoginException loginException = assertThrows(LoginException.class,
@@ -397,12 +493,22 @@ public class AuthenticationServiceImplTest {
         @Test
         void givenAnEmailOfNonActiveUser_whenSendPasswordResetLink_thenThrowLoginException() {
             //given
-            Role role = ObjectFactory.getUserRole();
-            User notActiveUser = ObjectFactory.getNotActiveUser(role);
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User disabledUser = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(false)
+                    .isAccountNonLocked(true)
+                    .build();
 
             //when
             when(userRepository.findByEmail(Constants.EMAIL_4))
-                    .thenReturn(Optional.of(notActiveUser));
+                    .thenReturn(Optional.of(disabledUser));
 
             //then
             LoginException loginException = assertThrows(LoginException.class,
@@ -457,8 +563,18 @@ public class AuthenticationServiceImplTest {
         @Test
         void givenGoodToken_whenConfirmResetPassword_thenSuccessfullyNewPassword() {
             //given
-            Role role = ObjectFactory.getUserRole();
-            User user = ObjectFactory.getUser1(role);
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User user = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
             JwtAbstractUtil jwtActionUtil =
                     new JwtActionUtil(Constants.SECRET_KEY, Constants.ACTION_EXPIRATION);
             String goodToken = jwtActionUtil.generateToken(Constants.EMAIL_1);
@@ -512,8 +628,18 @@ public class AuthenticationServiceImplTest {
         void givenCorrectCurrentAndTwoSameNewPasswords_whenChangePassword_thenSuccess()
                 throws PasswordMismatchException {
             //given
-            Role role = ObjectFactory.getUserRole();
-            User newUser = ObjectFactory.getUser1(role);
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User user = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
             PasswordChangeRequest passwordChangeRequest = new PasswordChangeRequest(
                     Constants.PASSWORD_1,
                     Constants.PASSWORD_2,
@@ -525,7 +651,7 @@ public class AuthenticationServiceImplTest {
 
             //then
             assertEquals(new PasswordChangeResponse(PASSWORD_SET_SUCCESSFULLY),
-                    authenticationService.changePassword(newUser, passwordChangeRequest));
+                    authenticationService.changePassword(user, passwordChangeRequest));
 
             //verify
             verify(passwordEncoder, times(1))
@@ -535,8 +661,18 @@ public class AuthenticationServiceImplTest {
         @Test
         void givenIncorrectCurrentAndTwoSameNewPasswords_whenChangePassword_thenException() {
             //given
-            Role role = ObjectFactory.getUserRole();
-            User newUser = ObjectFactory.getUser1(role);
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User user = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
             PasswordChangeRequest passwordChangeRequest = new PasswordChangeRequest(
                     Constants.PASSWORD_3,
                     Constants.PASSWORD_2,
@@ -550,7 +686,7 @@ public class AuthenticationServiceImplTest {
             PasswordMismatchException passwordMismatchException =
                     assertThrows(PasswordMismatchException.class,
                             () -> authenticationService
-                                    .changePassword(newUser, passwordChangeRequest));
+                                    .changePassword(user, passwordChangeRequest));
 
             assertEquals(PASSWORD_MISMATCH, passwordMismatchException.getMessage());
 
@@ -565,8 +701,18 @@ public class AuthenticationServiceImplTest {
         @Test
         void givenValidRegistrationDto_whenRegister_thenSuccess() throws RegistrationException {
             //given
-            Role role = ObjectFactory.getUserRole();
-            User user = ObjectFactory.getUser1(role);
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User user = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
             RegistrationRequest registrationRequest = new RegistrationRequest(
                     Constants.USERNAME_1,
                     Constants.PASSWORD_1,
@@ -640,8 +786,18 @@ public class AuthenticationServiceImplTest {
         @Test
         void givenToken_whenConfirmRegistration_thenSuccess() {
             //given
-            Role role = ObjectFactory.getUserRole();
-            User user = ObjectFactory.getUser1(role);
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User user = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
             JwtAbstractUtil jwtActionUtil =
                     new JwtActionUtil(Constants.SECRET_KEY, Constants.ACTION_EXPIRATION);
             HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
