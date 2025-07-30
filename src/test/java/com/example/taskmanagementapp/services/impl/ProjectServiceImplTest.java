@@ -14,6 +14,7 @@ import com.example.taskmanagementapp.dtos.project.request.ProjectStatusDto;
 import com.example.taskmanagementapp.dtos.project.request.UpdateProjectRequest;
 import com.example.taskmanagementapp.dtos.project.response.ProjectResponse;
 import com.example.taskmanagementapp.entities.Project;
+import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.User;
 import com.example.taskmanagementapp.exceptions.ConflictException;
 import com.example.taskmanagementapp.exceptions.EntityNotFoundException;
@@ -29,9 +30,11 @@ import com.example.taskmanagementapp.services.email.AssignmentToProjectEmailServ
 import com.example.taskmanagementapp.services.utils.ParamFromHttpRequestUtil;
 import com.example.taskmanagementapp.services.utils.ProjectAuthorityUtil;
 import com.example.taskmanagementapp.testutils.Constants;
-import com.example.taskmanagementapp.testutils.ObjectFactory;
+import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,6 +48,27 @@ import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 public class ProjectServiceImplTest {
+    private static final String USERNAME_1 = "JohnDoe";
+    private static final String PASSWORD_1_DB =
+            "$2a$10$u4cOSEeePFyJlpvkPdtmhenMuPYhloQfrVS19DZU8/.5jtJNm7piW";
+    private static final String EMAIL_1 = "john_doe@mail.com";
+    private static final String USERNAME_2 = "RichardRoe";
+    private static final String EMAIL_2 = "richard_roe@mail.com";
+    private static final String FIRST_NAME = "John";
+    private static final String LAST_NAME = "Doe";
+    private static final String ANOTHER_FIRST_NAME = "Richard";
+    private static final String ANOTHER_LAST_NAME = "Roe";
+    private static final String PROJECT_NAME = "projectName";
+    private static final String PROJECT_DESCRIPTION = "projectDescription";
+    private static final String ANOTHER_PROJECT_NAME = "anotherProjectName";
+    private static final String ANOTHER_PROJECT_DESCRIPTION = "anotherProjectDescription";
+    private static final LocalDate PROJECT_START_DATE = LocalDate.of(2025, 1, 1);
+    private static final LocalDate PROJECT_END_DATE = LocalDate.of(2025, 12, 31);
+    private static final long FIRST_USER_ID = 1L;
+    private static final long LAST_USER_ID = 2L;
+    private static final long FIRST_PROJECT_ID = 1L;
+    private static final long ANOTHER_PROJECT_ID = 2L;
+    private static final int TEN = 10;
     @Mock
     private ProjectMapper projectMapper;
     @Mock
@@ -74,11 +98,49 @@ public class ProjectServiceImplTest {
         @Test
         void givenValidUserAndDto_whenCreateProject_thenSuccess() {
             //given
-            ProjectRequest projectRequest = ObjectFactory.getProjectRequest();
-            User user = ObjectFactory.getUser1(ObjectFactory.getUserRole());
-            user.setId(Constants.FIRST_USER_ID);
-            Project project = ObjectFactory.getProjectWithOneEmployee(user);
-            ProjectResponse projectResponse = ObjectFactory.getProjectResponse(project);
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+
+            User user = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
+
+            ProjectRequest projectRequest = new ProjectRequest(
+                    PROJECT_NAME,
+                    PROJECT_DESCRIPTION,
+                    PROJECT_START_DATE,
+                    PROJECT_END_DATE);
+
+            Project project = Project.builder()
+                    .id(FIRST_PROJECT_ID)
+                    .name(PROJECT_NAME)
+                    .description(PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .status(Project.Status.INITIATED)
+                    .owner(user)
+                    .managers(Set.of(user))
+                    .employees(Set.of(user))
+                    .build();
+
+            ProjectResponse projectResponse = ProjectResponse.builder()
+                    .id(FIRST_PROJECT_ID)
+                    .name(PROJECT_NAME)
+                    .description(PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .statusDto(ProjectStatusDto.INITIATED)
+                    .ownerId(user.getId())
+                    .managerIds(Set.of(user.getId()))
+                    .employeeIds(Set.of(user.getId()))
+                    .build();
 
             //when
             when(projectMapper.toCreateProject(projectRequest, user)).thenReturn(project);
@@ -95,13 +157,49 @@ public class ProjectServiceImplTest {
         @Test
         void givenPageable_whenGetAssignedProjects_thenSuccess() {
             //given
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+
+            User user = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
+
             PageRequest pageRequest = PageRequest.of(0, 1);
-            User user = ObjectFactory.getUser1(ObjectFactory.getUserRole());
-            user.setId(Constants.FIRST_USER_ID);
+
             //since user is owner, they are by default employee and manager of project
-            Project project = ObjectFactory.getProjectWithOneEmployee(user);
-            ProjectResponse projectResponse = ObjectFactory.getProjectResponse(project);
+            Project project = Project.builder()
+                    .id(FIRST_PROJECT_ID)
+                    .name(PROJECT_NAME)
+                    .description(PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .status(Project.Status.INITIATED)
+                    .owner(user)
+                    .managers(Set.of(user))
+                    .employees(Set.of(user))
+                    .build();
+
+            ProjectResponse projectResponse = ProjectResponse.builder()
+                    .id(FIRST_PROJECT_ID)
+                    .name(PROJECT_NAME)
+                    .description(PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .statusDto(ProjectStatusDto.INITIATED)
+                    .ownerId(user.getId())
+                    .managerIds(Set.of(user.getId()))
+                    .employeeIds(Set.of(user.getId()))
+                    .build();
+
             Page<Project> projects = new PageImpl<>(List.of(project));
+
             List<ProjectResponse> projectResponses = List.of(projectResponse);
 
             //when
@@ -126,13 +224,57 @@ public class ProjectServiceImplTest {
         void givenPageable_whenGetCreatedProjects_thenSuccess() {
             //given
             PageRequest pageRequest = PageRequest.of(0, 1);
-            User user1 = ObjectFactory.getUser1(ObjectFactory.getUserRole());
-            user1.setId(Constants.FIRST_USER_ID);
-            User user2 = ObjectFactory.getUser2(ObjectFactory.getUserRole());
-            user2.setId(Constants.LAST_USER_ID);
+
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User user1 = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
+
+            User user2 = User.builder()
+                    .id(LAST_USER_ID)
+                    .username(USERNAME_2)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_2)
+                    .firstName(ANOTHER_FIRST_NAME)
+                    .lastName(ANOTHER_LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
+
             //user1 is assigned as owner and manager of this project, whereas user2 - as employee
-            Project project = ObjectFactory.getProjectWithTwoEmployees(user1, user2);
-            ProjectResponse projectResponse = ObjectFactory.getProjectResponse(project);
+            Project project = Project.builder()
+                    .id(FIRST_PROJECT_ID)
+                    .name(PROJECT_NAME)
+                    .description(PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .status(Project.Status.INITIATED)
+                    .owner(user1)
+                    .managers(Set.of(user1, user2))
+                    .employees(Set.of(user1, user2))
+                    .build();
+
+            ProjectResponse projectResponse = ProjectResponse.builder()
+                    .id(FIRST_PROJECT_ID)
+                    .name(PROJECT_NAME)
+                    .description(PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .statusDto(ProjectStatusDto.INITIATED)
+                    .ownerId(user1.getId())
+                    .managerIds(Set.of(user1.getId(), user2.getId()))
+                    .employeeIds(Set.of(user1.getId(), user2.getId()))
+                    .build();
+
             Page<Project> projects = new PageImpl<>(List.of(project));
             List<ProjectResponse> projectResponses = List.of(projectResponse);
 
@@ -170,12 +312,46 @@ public class ProjectServiceImplTest {
         @Test
         void givenPageable_whenGetDeletedProjects_thenSuccess() {
             //given
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User user = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
+
             PageRequest pageRequest = PageRequest.of(0, 1);
-            User user = ObjectFactory.getUser1(ObjectFactory.getUserRole());
-            user.setId(Constants.FIRST_USER_ID);
-            Project deletedProject = ObjectFactory.getDeletedProject(user);
-            ProjectResponse deletedProjectResponse =
-                    ObjectFactory.getProjectResponse(deletedProject);
+
+            Project deletedProject = Project.builder()
+                    .id(FIRST_PROJECT_ID)
+                    .name(PROJECT_NAME)
+                    .description(PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .status(Project.Status.COMPLETED)
+                    .isDeleted(true)
+                    .owner(user)
+                    .managers(Set.of(user))
+                    .employees(Set.of(user))
+                    .build();
+
+            ProjectResponse deletedProjectResponse = ProjectResponse.builder()
+                    .id(FIRST_PROJECT_ID)
+                    .name(PROJECT_NAME)
+                    .description(PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .statusDto(ProjectStatusDto.COMPLETED)
+                    .ownerId(user.getId())
+                    .managerIds(Set.of(user.getId()))
+                    .employeeIds(Set.of(user.getId()))
+                    .build();
+
             Page<Project> projects = new PageImpl<>(List.of(deletedProject));
             List<ProjectResponse> projectResponses = List.of(deletedProjectResponse);
 
@@ -200,90 +376,163 @@ public class ProjectServiceImplTest {
         @Test
         void givenDeletedProjectId_whenGetProjectById_thenFail() {
             //given
-            Long authenticatedUserId = Constants.FIRST_USER_ID;
-            Long projectId = Constants.FIRST_PROJECT_ID;
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User user = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
 
-            User authenticatedUser = ObjectFactory.getUser1(ObjectFactory.getUserRole());
-            authenticatedUser.setId(authenticatedUserId);
-
-            Project expectedProject = ObjectFactory.getDeletedProject(authenticatedUser);
-            expectedProject.setId(projectId);
+            Project expectedProject = Project.builder()
+                    .id(FIRST_PROJECT_ID)
+                    .name(PROJECT_NAME)
+                    .description(PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .status(Project.Status.INITIATED)
+                    .isDeleted(true)
+                    .owner(user)
+                    .managers(Set.of(user))
+                    .employees(Set.of(user))
+                    .build();
 
             //when
-            when(projectRepository.findByIdNotDeleted(projectId)).thenReturn(Optional.empty());
+            when(projectRepository.findByIdNotDeleted(FIRST_PROJECT_ID))
+                    .thenReturn(Optional.empty());
 
             //then
             EntityNotFoundException entityNotFoundException =
                     assertThrows(EntityNotFoundException.class,
-                        () -> projectServiceImpl.getProjectById(authenticatedUserId, projectId));
+                        () -> projectServiceImpl.getProjectById(user.getId(),
+                                expectedProject.getId()));
             assertEquals("No active project with id "
-                    + projectId, entityNotFoundException.getMessage());
+                    + expectedProject.getId(), entityNotFoundException.getMessage());
 
             //verify
-            verify(projectRepository, times(1)).findByIdNotDeleted(projectId);
+            verify(projectRepository, times(1)).findByIdNotDeleted(expectedProject.getId());
         }
 
         @Test
         void givenProjectId_whenGetProjectById_thenSuccess() throws ForbiddenException {
             //given
-            Long authenticatedUserId = Constants.FIRST_USER_ID;
-            Long projectId = Constants.FIRST_PROJECT_ID;
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User user = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
 
-            User authenticatedUser = ObjectFactory.getUser1(ObjectFactory.getUserRole());
-            authenticatedUser.setId(authenticatedUserId);
+            Project expectedProject = Project.builder()
+                    .id(FIRST_PROJECT_ID)
+                    .name(PROJECT_NAME)
+                    .description(PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .status(Project.Status.INITIATED)
+                    .owner(user)
+                    .managers(Set.of(user))
+                    .employees(Set.of(user))
+                    .build();
 
-            Project expectedProject = ObjectFactory.getProjectWithOneEmployee(authenticatedUser);
-            expectedProject.setId(projectId);
-
-            ProjectResponse projectResponse = ObjectFactory.getProjectResponse(expectedProject);
+            ProjectResponse projectResponse = ProjectResponse.builder()
+                    .id(FIRST_PROJECT_ID)
+                    .name(PROJECT_NAME)
+                    .description(PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .statusDto(ProjectStatusDto.INITIATED)
+                    .ownerId(user.getId())
+                    .managerIds(Set.of(user.getId()))
+                    .employeeIds(Set.of(user.getId()))
+                    .build();
 
             //when
-            when(projectRepository.findByIdNotDeleted(projectId))
+            when(projectRepository.findByIdNotDeleted(expectedProject.getId()))
                     .thenReturn(Optional.of(expectedProject));
-            when(projectAuthorityUtil.hasAnyAuthority(projectId, authenticatedUserId))
+            when(projectAuthorityUtil.hasAnyAuthority(expectedProject.getId(), user.getId()))
                     .thenReturn(true);
             when(projectMapper.toProjectDto(expectedProject)).thenReturn(projectResponse);
 
             //then
             assertEquals(projectResponse,
-                    projectServiceImpl.getProjectById(authenticatedUserId, projectId));
+                    projectServiceImpl.getProjectById(user.getId(), expectedProject.getId()));
 
             //verify
-            verify(projectRepository, times(1)).findByIdNotDeleted(projectId);
-            verify(projectAuthorityUtil, times(1)).hasAnyAuthority(projectId, authenticatedUserId);
+            verify(projectRepository, times(1)).findByIdNotDeleted(expectedProject.getId());
+            verify(projectAuthorityUtil, times(1)).hasAnyAuthority(
+                    expectedProject.getId(), user.getId());
             verify(projectMapper, times(1)).toProjectDto(expectedProject);
         }
 
         @Test
         void givenAnotherUserProjectId_whenGetProjectById_thenFail() {
             //given
-            Long authenticatedUserId = Constants.FIRST_USER_ID;
-            Long projectId = Constants.FIRST_PROJECT_ID;
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User user1 = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
 
-            User authenticatedUser = ObjectFactory.getUser1(ObjectFactory.getUserRole());
-            authenticatedUser.setId(authenticatedUserId);
+            User user2 = User.builder()
+                    .id(LAST_USER_ID)
+                    .username(USERNAME_2)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_2)
+                    .firstName(ANOTHER_FIRST_NAME)
+                    .lastName(ANOTHER_LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
 
-            User anotherUser = ObjectFactory.getUser2(ObjectFactory.getUserRole());
-            authenticatedUser.setId(Constants.LAST_USER_ID);
-
-            Project expectedProject = ObjectFactory.getProjectWithOneEmployee(anotherUser);
-            expectedProject.setId(projectId);
+            Project expectedProject = Project.builder()
+                    .id(FIRST_PROJECT_ID)
+                    .name(PROJECT_NAME)
+                    .description(PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .status(Project.Status.INITIATED)
+                    .owner(user1)
+                    .managers(Set.of(user1))
+                    .employees(Set.of(user1))
+                    .build();
 
             //when
-            when(projectRepository.findByIdNotDeleted(projectId))
+            when(projectRepository.findByIdNotDeleted(expectedProject.getId()))
                     .thenReturn(Optional.of(expectedProject));
-            when(projectAuthorityUtil.hasAnyAuthority(projectId, authenticatedUserId))
+            when(projectAuthorityUtil.hasAnyAuthority(expectedProject.getId(), user2.getId()))
                     .thenReturn(false);
 
             //then
             ForbiddenException forbiddenException = assertThrows(ForbiddenException.class,
-                    () -> projectServiceImpl.getProjectById(authenticatedUserId, projectId));
+                    () -> projectServiceImpl.getProjectById(
+                            user2.getId(), expectedProject.getId()));
             assertEquals(NO_ACCESS_PERMISSION,
                     forbiddenException.getMessage());
 
             //verify
-            verify(projectRepository, times(1)).findByIdNotDeleted(projectId);
-            verify(projectAuthorityUtil, times(1)).hasAnyAuthority(projectId, authenticatedUserId);
+            verify(projectRepository, times(1)).findByIdNotDeleted(expectedProject.getId());
+            verify(projectAuthorityUtil, times(1)).hasAnyAuthority(
+                    expectedProject.getId(), user2.getId());
         }
     }
 
@@ -293,108 +542,217 @@ public class ProjectServiceImplTest {
         void givenProjectId_whenUpdateProjectById_thenSuccess()
                 throws ForbiddenException, ConflictException {
             //given
-            Long authenticatedUserId = Constants.FIRST_USER_ID;
-            User authenticatedUser = ObjectFactory.getUser1(ObjectFactory.getUserRole());
-            authenticatedUser.setId(authenticatedUserId);
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User authenticatedUser = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
 
-            Long newOwnerId = Constants.LAST_USER_ID;
-            User newOwner = ObjectFactory.getUser2(ObjectFactory.getUserRole());
-            newOwner.setId(newOwnerId);
+            User newOwner = User.builder()
+                    .id(LAST_USER_ID)
+                    .username(USERNAME_2)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_2)
+                    .firstName(ANOTHER_FIRST_NAME)
+                    .lastName(ANOTHER_LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
 
-            Long projectId = Constants.FIRST_PROJECT_ID;
-            Project projectFromDb = ObjectFactory.getProjectWithOneEmployee(authenticatedUser);
-            projectFromDb.setId(projectId);
+            Project expectedProject = Project.builder()
+                    .id(FIRST_PROJECT_ID)
+                    .name(PROJECT_NAME)
+                    .description(PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .status(Project.Status.INITIATED)
+                    .owner(authenticatedUser)
+                    .managers(new HashSet<>())
+                    .employees(new HashSet<>())
+                    .build();
+            expectedProject.getManagers().add(authenticatedUser);
+            expectedProject.getEmployees().add(authenticatedUser);
+            expectedProject.getEmployees().add(newOwner);
 
-            UpdateProjectRequest updateProjectRequest = ObjectFactory.getUpdateProjectRequest();
+            UpdateProjectRequest updateProjectRequest = new UpdateProjectRequest(
+                    ANOTHER_PROJECT_NAME,
+                    ANOTHER_PROJECT_DESCRIPTION,
+                    PROJECT_START_DATE.plusDays(TEN),
+                    PROJECT_END_DATE.plusDays(TEN),
+                    newOwner.getId());
+
             ProjectStatusDto newProjectStatusDto = ProjectStatusDto.IN_PROGRESS;
 
-            ProjectResponse expectedProjectResponse = ObjectFactory.getUpdatedProjectResponse(
-                    projectFromDb, updateProjectRequest, newProjectStatusDto);
+            ProjectResponse expectedProjectResponse = ProjectResponse.builder()
+                    .id(expectedProject.getId())
+                    .name(updateProjectRequest.name())
+                    .description(updateProjectRequest.description())
+                    .startDate(updateProjectRequest.startDate())
+                    .endDate(updateProjectRequest.endDate())
+                    .statusDto(newProjectStatusDto)
+                    .ownerId(newOwner.getId())
+                    .employeeIds(Set.of(authenticatedUser.getId(), newOwner.getId()))
+                    .managerIds(Set.of(authenticatedUser.getId(), newOwner.getId()))
+                    .build();
 
             //when
-            when(projectRepository.findByIdNotDeleted(projectId))
-                    .thenReturn(Optional.of(projectFromDb));
-            when(projectAuthorityUtil.hasManagerialAuthority(projectId, authenticatedUserId))
-                    .thenReturn(true);
-            when(userRepository.findById(newOwnerId)).thenReturn(Optional.of(newOwner));
-            when(projectRepository.save(projectFromDb)).thenReturn(projectFromDb);
-            when(projectMapper.toProjectDto(projectFromDb))
+            when(projectRepository.findByIdNotDeleted(expectedProject.getId()))
+                    .thenReturn(Optional.of(expectedProject));
+            when(projectAuthorityUtil.hasManagerialAuthority(expectedProject.getId(),
+                    authenticatedUser.getId())).thenReturn(true);
+            when(userRepository.findById(newOwner.getId())).thenReturn(Optional.of(newOwner));
+            when(projectRepository.save(expectedProject)).thenReturn(expectedProject);
+            when(projectMapper.toProjectDto(expectedProject))
                     .thenReturn(expectedProjectResponse);
 
             //then
             assertEquals(expectedProjectResponse, projectServiceImpl.updateProjectById(
-                    authenticatedUserId, projectId, updateProjectRequest, newProjectStatusDto));
+                    authenticatedUser.getId(), expectedProject.getId(),
+                    updateProjectRequest, newProjectStatusDto));
 
             //verify
-            verify(projectRepository, times(1)).findByIdNotDeleted(projectId);
+            verify(projectRepository, times(1))
+                    .findByIdNotDeleted(expectedProject.getId());
             verify(projectAuthorityUtil, times(1))
-                    .hasManagerialAuthority(projectId, authenticatedUserId);
-            verify(userRepository, times(1)).findById(newOwnerId);
-            verify(projectRepository, times(1)).save(projectFromDb);
-            verify(projectMapper, times(1)).toProjectDto(projectFromDb);
+                    .hasManagerialAuthority(expectedProject.getId(), authenticatedUser.getId());
+            verify(userRepository, times(1)).findById(newOwner.getId());
+            verify(projectRepository, times(1)).save(expectedProject);
+            verify(projectMapper, times(1)).toProjectDto(expectedProject);
         }
 
         @Test
         void givenForbiddenProjectId_whenUpdateProjectById_thenFail() {
             //given
-            Long authenticatedUserId = Constants.FIRST_USER_ID;
-            User authenticatedUser = ObjectFactory.getUser1(ObjectFactory.getUserRole());
-            authenticatedUser.setId(authenticatedUserId);
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User authenticatedUser = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
 
-            Long projectId = Constants.ANOTHER_PROJECT_ID;
-            Project projectFromDb = ObjectFactory.getProjectWithOneEmployee(authenticatedUser);
-            projectFromDb.setId(projectId);
+            User owner = User.builder()
+                    .id(LAST_USER_ID)
+                    .username(USERNAME_2)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_2)
+                    .firstName(ANOTHER_FIRST_NAME)
+                    .lastName(ANOTHER_LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
 
-            UpdateProjectRequest updateProjectRequest = ObjectFactory.getUpdateProjectRequest();
+            Project expectedProject = Project.builder()
+                    .id(ANOTHER_PROJECT_ID)
+                    .name(ANOTHER_PROJECT_NAME)
+                    .description(ANOTHER_PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .status(Project.Status.INITIATED)
+                    .owner(owner)
+                    .managers(Set.of(owner))
+                    .employees(Set.of(owner))
+                    .build();
+
+            UpdateProjectRequest updateProjectRequest = new UpdateProjectRequest(
+                    ANOTHER_PROJECT_NAME,
+                    ANOTHER_PROJECT_DESCRIPTION,
+                    PROJECT_START_DATE.plusDays(TEN),
+                    PROJECT_END_DATE.plusDays(TEN),
+                    LAST_USER_ID);
             ProjectStatusDto newProjectStatusDto = ProjectStatusDto.IN_PROGRESS;
             //when
-            when(projectRepository.findByIdNotDeleted(projectId))
-                    .thenReturn(Optional.of(projectFromDb));
-            when(projectAuthorityUtil.hasManagerialAuthority(projectId, authenticatedUserId))
-                    .thenReturn(false);
+            when(projectRepository.findByIdNotDeleted(expectedProject.getId()))
+                    .thenReturn(Optional.of(expectedProject));
+            when(projectAuthorityUtil.hasManagerialAuthority(
+                    expectedProject.getId(), authenticatedUser.getId())).thenReturn(false);
 
             //then
             ForbiddenException forbiddenException = assertThrows(ForbiddenException.class,
-                    () -> projectServiceImpl.updateProjectById(authenticatedUserId, projectId,
+                    () -> projectServiceImpl.updateProjectById(
+                            authenticatedUser.getId(), expectedProject.getId(),
                             updateProjectRequest, newProjectStatusDto));
             assertEquals(NO_ACCESS_PERMISSION,
                     forbiddenException.getMessage());
 
             //verify
-            verify(projectRepository, times(1)).findByIdNotDeleted(projectId);
+            verify(projectRepository, times(1)).findByIdNotDeleted(expectedProject.getId());
             verify(projectAuthorityUtil, times(1))
-                    .hasManagerialAuthority(projectId, authenticatedUserId);
+                    .hasManagerialAuthority(expectedProject.getId(), authenticatedUser.getId());
         }
 
         @Test
         void givenProjectIdAndBadDto_whenUpdateProjectById_thenFail() {
             //given
-            Long authenticatedUserId = Constants.FIRST_USER_ID;
-            User authenticatedUser = ObjectFactory.getUser1(ObjectFactory.getUserRole());
-            authenticatedUser.setId(authenticatedUserId);
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User authenticatedUser = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
 
-            Long ownerId = Constants.LAST_USER_ID;
-            User owner = ObjectFactory.getUser2(ObjectFactory.getUserRole());
-            owner.setId(ownerId);
+            User owner = User.builder()
+                    .id(LAST_USER_ID)
+                    .username(USERNAME_2)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_2)
+                    .firstName(ANOTHER_FIRST_NAME)
+                    .lastName(ANOTHER_LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
 
-            Long projectId = Constants.FIRST_PROJECT_ID;
-            Project projectFromDb = ObjectFactory
-                    .getProjectWithTwoEmployees(owner, authenticatedUser);
-            projectFromDb.setId(projectId);
+            Project expectedProject = Project.builder()
+                    .id(ANOTHER_PROJECT_ID)
+                    .name(ANOTHER_PROJECT_NAME)
+                    .description(ANOTHER_PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .status(Project.Status.INITIATED)
+                    .owner(owner)
+                    .managers(Set.of(owner, authenticatedUser))
+                    .employees(Set.of(owner, authenticatedUser))
+                    .build();
 
-            UpdateProjectRequest updateProjectRequest = ObjectFactory.getBadUpdateProjectRequest();
+            UpdateProjectRequest updateProjectRequest = new UpdateProjectRequest(
+                    ANOTHER_PROJECT_NAME,
+                    ANOTHER_PROJECT_DESCRIPTION,
+                    PROJECT_START_DATE.plusYears(TEN),
+                    PROJECT_END_DATE.minusYears(TEN),
+                    FIRST_USER_ID);
             ProjectStatusDto newProjectStatusDto = ProjectStatusDto.IN_PROGRESS;
 
             //when
-            when(projectRepository.findByIdNotDeleted(projectId))
-                    .thenReturn(Optional.of(projectFromDb));
-            when(projectAuthorityUtil.hasManagerialAuthority(projectId, authenticatedUserId))
-                    .thenReturn(true);
+            when(projectRepository.findByIdNotDeleted(expectedProject.getId()))
+                    .thenReturn(Optional.of(expectedProject));
+            when(projectAuthorityUtil.hasManagerialAuthority(
+                    expectedProject.getId(), authenticatedUser.getId())).thenReturn(true);
 
             //then
             ConflictException conflictException = assertThrows(ConflictException.class, () ->
                     projectServiceImpl.updateProjectById(
-                            authenticatedUserId, projectId,
+                            authenticatedUser.getId(), expectedProject.getId(),
                             updateProjectRequest, newProjectStatusDto));
             assertTrue(conflictException.getMessage().contains("startDate can't be after endDate"));
             assertTrue(conflictException.getMessage()
@@ -402,9 +760,9 @@ public class ProjectServiceImplTest {
             assertTrue(conflictException.getMessage().contains("Only owner can assign new owner"));
 
             //verify
-            verify(projectRepository, times(1)).findByIdNotDeleted(projectId);
+            verify(projectRepository, times(1)).findByIdNotDeleted(expectedProject.getId());
             verify(projectAuthorityUtil, times(1))
-                    .hasManagerialAuthority(projectId, authenticatedUserId);
+                    .hasManagerialAuthority(expectedProject.getId(), authenticatedUser.getId());
         }
     }
 
@@ -473,40 +831,87 @@ public class ProjectServiceImplTest {
         void givenValidArguments_whenRemoveEmployeeFromProject_thenSuccess()
                 throws ForbiddenException {
             //given
-            Long authenticatedUserId = Constants.FIRST_USER_ID;
-            User user = ObjectFactory.getUser1(ObjectFactory.getUserRole());
-            user.setId(authenticatedUserId);
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User authenticatedUser = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
 
-            Long assigneeId = Constants.LAST_USER_ID;
-            User assignee = ObjectFactory.getUser2(ObjectFactory.getUserRole());
-            assignee.setId(assigneeId);
+            User assignee = User.builder()
+                    .id(LAST_USER_ID)
+                    .username(USERNAME_2)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_2)
+                    .firstName(ANOTHER_FIRST_NAME)
+                    .lastName(ANOTHER_LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
 
-            Long projectId = Constants.FIRST_PROJECT_ID;
-            Project project = ObjectFactory.getProjectWithTwoEmployees(user, assignee);
-            project.setId(projectId);
-
-            ProjectResponse projectResponse = ObjectFactory.getProjectResponse(project);
-            projectResponse.getEmployeeIds().remove(assigneeId);
+            Project expectedProject = Project.builder()
+                    .id(ANOTHER_PROJECT_ID)
+                    .name(ANOTHER_PROJECT_NAME)
+                    .description(ANOTHER_PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .status(Project.Status.INITIATED)
+                    .owner(authenticatedUser)
+                    .managers(new HashSet<>())
+                    .employees(new HashSet<>())
+                    .build();
+            expectedProject.getEmployees().add(authenticatedUser);
+            expectedProject.getEmployees().add(assignee);
+            expectedProject.getManagers().add(authenticatedUser);
+            expectedProject.getManagers().add(assignee);
+            
+            ProjectResponse projectResponse = ProjectResponse.builder()
+                    .id(ANOTHER_PROJECT_ID)
+                    .name(ANOTHER_PROJECT_NAME)
+                    .description(ANOTHER_PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .statusDto(ProjectStatusDto.INITIATED)
+                    .ownerId(authenticatedUser.getId())
+                    .managerIds(Set.of(authenticatedUser.getId()))
+                    .employeeIds(Set.of(authenticatedUser.getId()))
+                    .build();
 
             //when
-            when(projectRepository.findByIdNotDeleted(projectId)).thenReturn(Optional.of(project));
-            when(projectAuthorityUtil.hasManagerialAuthority(projectId, authenticatedUserId))
+            when(projectRepository.findByIdNotDeleted(expectedProject.getId()))
+                    .thenReturn(Optional.of(expectedProject));
+            when(projectAuthorityUtil.hasManagerialAuthority(expectedProject.getId(),
+                    authenticatedUser.getId()))
                     .thenReturn(true);
-            when(userRepository.findById(assigneeId)).thenReturn(Optional.of(assignee));
-            when(projectRepository.save(project)).thenReturn(project);
-            when(projectMapper.toProjectDto(project)).thenReturn(projectResponse);
+            when(projectRepository.isUserOwner(expectedProject.getId(), authenticatedUser.getId()))
+                    .thenReturn(true);
+            when(userRepository.findById(assignee.getId())).thenReturn(Optional.of(assignee));
+            when(projectRepository.save(expectedProject)).thenReturn(expectedProject);
+            when(projectMapper.toProjectDto(expectedProject)).thenReturn(projectResponse);
 
             //then
             assertEquals(projectResponse, projectServiceImpl
-                    .removeEmployeeFromProject(authenticatedUserId, projectId, assigneeId));
+                    .removeEmployeeFromProject(
+                            authenticatedUser.getId(),
+                            expectedProject.getId(),
+                            assignee.getId()));
 
             //verify
-            verify(projectRepository, times(1)).findByIdNotDeleted(projectId);
+            verify(projectRepository, times(1)).findByIdNotDeleted(expectedProject.getId());
             verify(projectAuthorityUtil, times(1))
-                    .hasManagerialAuthority(projectId, authenticatedUserId);
-            verify(userRepository, times(1)).findById(assigneeId);
-            verify(projectRepository, times(1)).save(project);
-            verify(projectMapper, times(1)).toProjectDto(project);
+                    .hasManagerialAuthority(expectedProject.getId(), authenticatedUser.getId());
+            verify(userRepository, times(1)).findById(assignee.getId());
+            verify(projectRepository, times(2))
+                    .isUserOwner(expectedProject.getId(), authenticatedUser.getId());
+            verify(projectRepository, times(1)).save(expectedProject);
+            verify(projectMapper, times(1)).toProjectDto(expectedProject);
         }
     }
 }
