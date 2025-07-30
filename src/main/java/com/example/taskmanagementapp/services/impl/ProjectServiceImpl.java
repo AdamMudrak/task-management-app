@@ -242,8 +242,16 @@ public class ProjectServiceImpl implements ProjectService {
         }
         if (updateProjectDto.ownerId() != null
                 && !updateProjectDto.ownerId().equals(project.getOwner().getId())) {
+            if (project.getEmployees().stream().map(User::getId)
+                    .noneMatch(updateProjectDto.ownerId()::equals)) {
+                exceptions.add(new ConflictException(
+                        "Can't assign this user as owner since "
+                                + "they are not employees of this project"));
+            }
             if (project.getOwner().getId().equals(currentUserId)) {
-                project.setOwner(getUserById(updateProjectDto.ownerId()));
+                User newOwner = getUserById(updateProjectDto.ownerId());
+                project.setOwner(newOwner);
+                project.getManagers().add(newOwner);
             } else {
                 exceptions.add(new ConflictException("Only owner can assign new owner"));
             }
