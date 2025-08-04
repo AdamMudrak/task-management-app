@@ -1,6 +1,10 @@
 package com.example.taskmanagementapp.services.impl;
 
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.CANNOT_ACCESS_PROJECT;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.CANNOT_DELETE_MANAGER;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.CANNOT_DELETE_OWNER;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.NO_ACCESS_PERMISSION;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.NO_OWNER_OR_MANAGER_PERMISSION;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.NO_OWNER_PERMISSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -25,7 +29,10 @@ import com.example.taskmanagementapp.repositories.CommentRepository;
 import com.example.taskmanagementapp.repositories.ProjectRepository;
 import com.example.taskmanagementapp.repositories.TaskRepository;
 import com.example.taskmanagementapp.repositories.UserRepository;
+import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
+import com.example.taskmanagementapp.security.jwtutils.impl.JwtActionUtil;
 import com.example.taskmanagementapp.security.jwtutils.strategy.JwtStrategy;
+import com.example.taskmanagementapp.security.jwtutils.strategy.JwtType;
 import com.example.taskmanagementapp.services.email.AssignmentToProjectEmailService;
 import com.example.taskmanagementapp.services.utils.ParamFromHttpRequestUtil;
 import com.example.taskmanagementapp.services.utils.ProjectAuthorityUtil;
@@ -54,6 +61,8 @@ public class ProjectServiceImplTest {
     private static final String EMAIL_1 = "john_doe@mail.com";
     private static final String USERNAME_2 = "RichardRoe";
     private static final String EMAIL_2 = "richard_roe@mail.com";
+    private static final String USERNAME_3 = "JaneDoe";
+    private static final String EMAIL_3 = "jane_doe@mail.com";
     private static final String FIRST_NAME = "John";
     private static final String LAST_NAME = "Doe";
     private static final String ANOTHER_FIRST_NAME = "Richard";
@@ -65,10 +74,15 @@ public class ProjectServiceImplTest {
     private static final LocalDate PROJECT_START_DATE = LocalDate.of(2025, 1, 1);
     private static final LocalDate PROJECT_END_DATE = LocalDate.of(2025, 12, 31);
     private static final long FIRST_USER_ID = 1L;
-    private static final long LAST_USER_ID = 2L;
+    private static final long SECOND_USER_ID = 2L;
+    private static final long THIRD_USER_ID = 3L;
     private static final long FIRST_PROJECT_ID = 1L;
     private static final long ANOTHER_PROJECT_ID = 2L;
     private static final int TEN = 10;
+    private static final String ACTION_TOKEN = "actionToken";
+    private static final long ACTION_EXPIRATION = 60000L;
+    private static final String SECRET_KEY =
+            "eZTQb1Um2KE0dukTWfyHZSq2R3R1SFyqfRFfiReAPn1NHMKUBiTDKc5tajfn";
     @Mock
     private ProjectMapper projectMapper;
     @Mock
@@ -239,7 +253,7 @@ public class ProjectServiceImplTest {
                     .build();
 
             User user2 = User.builder()
-                    .id(LAST_USER_ID)
+                    .id(SECOND_USER_ID)
                     .username(USERNAME_2)
                     .password(PASSWORD_1_DB)
                     .email(EMAIL_2)
@@ -493,7 +507,7 @@ public class ProjectServiceImplTest {
                     .build();
 
             User user2 = User.builder()
-                    .id(LAST_USER_ID)
+                    .id(SECOND_USER_ID)
                     .username(USERNAME_2)
                     .password(PASSWORD_1_DB)
                     .email(EMAIL_2)
@@ -556,7 +570,7 @@ public class ProjectServiceImplTest {
                     .build();
 
             User newOwner = User.builder()
-                    .id(LAST_USER_ID)
+                    .id(SECOND_USER_ID)
                     .username(USERNAME_2)
                     .password(PASSWORD_1_DB)
                     .email(EMAIL_2)
@@ -645,7 +659,7 @@ public class ProjectServiceImplTest {
                     .build();
 
             User owner = User.builder()
-                    .id(LAST_USER_ID)
+                    .id(SECOND_USER_ID)
                     .username(USERNAME_2)
                     .password(PASSWORD_1_DB)
                     .email(EMAIL_2)
@@ -673,7 +687,7 @@ public class ProjectServiceImplTest {
                     ANOTHER_PROJECT_DESCRIPTION,
                     PROJECT_START_DATE.plusDays(TEN),
                     PROJECT_END_DATE.plusDays(TEN),
-                    LAST_USER_ID);
+                    SECOND_USER_ID);
             ProjectStatusDto newProjectStatusDto = ProjectStatusDto.IN_PROGRESS;
             //when
             when(projectRepository.findByIdNotDeleted(expectedProject.getId()))
@@ -712,7 +726,7 @@ public class ProjectServiceImplTest {
                     .build();
 
             User owner = User.builder()
-                    .id(LAST_USER_ID)
+                    .id(SECOND_USER_ID)
                     .username(USERNAME_2)
                     .password(PASSWORD_1_DB)
                     .email(EMAIL_2)
@@ -845,7 +859,7 @@ public class ProjectServiceImplTest {
                     .build();
 
             User assignee = User.builder()
-                    .id(LAST_USER_ID)
+                    .id(SECOND_USER_ID)
                     .username(USERNAME_2)
                     .password(PASSWORD_1_DB)
                     .email(EMAIL_2)
@@ -913,5 +927,341 @@ public class ProjectServiceImplTest {
             verify(projectRepository, times(1)).save(expectedProject);
             verify(projectMapper, times(1)).toProjectDto(expectedProject);
         }
+
+        @Test
+        void givenOwnerToBeDeleted_whenRemoveEmployeeFromProject_thenFail() {
+            //given
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User authenticatedUser = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
+
+            User assignee = User.builder()
+                    .id(SECOND_USER_ID)
+                    .username(USERNAME_2)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_2)
+                    .firstName(ANOTHER_FIRST_NAME)
+                    .lastName(ANOTHER_LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
+
+            Project expectedProject = Project.builder()
+                    .id(ANOTHER_PROJECT_ID)
+                    .name(ANOTHER_PROJECT_NAME)
+                    .description(ANOTHER_PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .status(Project.Status.INITIATED)
+                    .owner(assignee)
+                    .managers(new HashSet<>())
+                    .employees(new HashSet<>())
+                    .build();
+            expectedProject.getEmployees().add(authenticatedUser);
+            expectedProject.getEmployees().add(assignee);
+            expectedProject.getManagers().add(authenticatedUser);
+            expectedProject.getManagers().add(assignee);
+
+            //when
+            when(projectRepository.findByIdNotDeleted(expectedProject.getId()))
+                    .thenReturn(Optional.of(expectedProject));
+            when(userRepository.findById(assignee.getId())).thenReturn(Optional.of(assignee));
+            when(projectAuthorityUtil.hasManagerialAuthority(expectedProject.getId(),
+                    authenticatedUser.getId()))
+                    .thenReturn(true);
+
+            //then
+            ForbiddenException forbiddenException = assertThrows(ForbiddenException.class, () ->
+                    projectServiceImpl.removeEmployeeFromProject(
+                            authenticatedUser.getId(), expectedProject.getId(), assignee.getId()));
+            assertEquals(CANNOT_DELETE_OWNER, forbiddenException.getMessage());
+
+            //verify
+            verify(projectRepository, times(1)).findByIdNotDeleted(expectedProject.getId());
+            verify(userRepository, times(1)).findById(assignee.getId());
+            verify(projectAuthorityUtil, times(1))
+                    .hasManagerialAuthority(expectedProject.getId(), authenticatedUser.getId());
+        }
+
+        @Test
+        void givenManagerToBeDeleted_whenRemoveEmployeeFromProject_thenFail() {
+            //given
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User authenticatedUser = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
+
+            User owner = User.builder()
+                    .id(SECOND_USER_ID)
+                    .username(USERNAME_2)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_2)
+                    .firstName(ANOTHER_FIRST_NAME)
+                    .lastName(ANOTHER_LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
+
+            User managerToBeDeleted = User.builder()
+                    .id(THIRD_USER_ID)
+                    .username(USERNAME_3)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_3)
+                    .firstName(ANOTHER_FIRST_NAME)
+                    .lastName(ANOTHER_FIRST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
+
+            Project expectedProject = Project.builder()
+                    .id(ANOTHER_PROJECT_ID)
+                    .name(ANOTHER_PROJECT_NAME)
+                    .description(ANOTHER_PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .status(Project.Status.INITIATED)
+                    .owner(owner)
+                    .managers(new HashSet<>())
+                    .employees(new HashSet<>())
+                    .build();
+            expectedProject.getEmployees().add(authenticatedUser);
+            expectedProject.getEmployees().add(owner);
+            expectedProject.getEmployees().add(managerToBeDeleted);
+
+            expectedProject.getManagers().add(authenticatedUser);
+            expectedProject.getManagers().add(owner);
+            expectedProject.getManagers().add(managerToBeDeleted);
+
+            //when
+            when(projectRepository.findByIdNotDeleted(expectedProject.getId()))
+                    .thenReturn(Optional.of(expectedProject));
+            when(userRepository.findById(managerToBeDeleted.getId()))
+                    .thenReturn(Optional.of(managerToBeDeleted));
+            when(projectAuthorityUtil.hasManagerialAuthority(expectedProject.getId(),
+                    authenticatedUser.getId()))
+                    .thenReturn(true);
+
+            //then
+            ForbiddenException forbiddenException = assertThrows(ForbiddenException.class, () ->
+                    projectServiceImpl.removeEmployeeFromProject(authenticatedUser.getId(),
+                            expectedProject.getId(), managerToBeDeleted.getId()));
+            assertEquals(CANNOT_DELETE_MANAGER, forbiddenException.getMessage());
+
+            //verify
+            verify(projectRepository, times(1)).findByIdNotDeleted(expectedProject.getId());
+            verify(userRepository, times(1)).findById(managerToBeDeleted.getId());
+            verify(projectAuthorityUtil, times(1))
+                    .hasManagerialAuthority(expectedProject.getId(), authenticatedUser.getId());
+        }
+
+        @Test
+        void givenAlienProject_whenRemoveEmployeeFromProject_thenFail() {
+            //given
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User authenticatedUser = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
+
+            User owner = User.builder()
+                    .id(SECOND_USER_ID)
+                    .username(USERNAME_2)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_2)
+                    .firstName(ANOTHER_FIRST_NAME)
+                    .lastName(ANOTHER_LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
+
+            Project expectedProject = Project.builder()
+                    .id(ANOTHER_PROJECT_ID)
+                    .name(ANOTHER_PROJECT_NAME)
+                    .description(ANOTHER_PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .status(Project.Status.INITIATED)
+                    .owner(owner)
+                    .managers(new HashSet<>())
+                    .employees(new HashSet<>())
+                    .build();
+            expectedProject.getEmployees().add(owner);
+            expectedProject.getManagers().add(owner);
+
+            //when
+            when(projectRepository.findByIdNotDeleted(expectedProject.getId()))
+                    .thenReturn(Optional.of(expectedProject));
+            when(projectAuthorityUtil.hasManagerialAuthority(expectedProject.getId(),
+                    authenticatedUser.getId()))
+                    .thenReturn(false);
+
+            //then
+            ForbiddenException forbiddenException = assertThrows(ForbiddenException.class, () ->
+                    projectServiceImpl.removeEmployeeFromProject(authenticatedUser.getId(),
+                            expectedProject.getId(), owner.getId()));
+            assertEquals(CANNOT_ACCESS_PROJECT, forbiddenException.getMessage());
+
+            //verify
+            verify(projectRepository, times(1)).findByIdNotDeleted(expectedProject.getId());
+            verify(projectAuthorityUtil, times(1))
+                    .hasManagerialAuthority(expectedProject.getId(), authenticatedUser.getId());
+        }
+    }
+
+    @Nested
+    class AssignEmployeeToProject {
+        @Test
+        void givenValidRequest_whenAssignEmployeeToProject_thenSuccess() throws ForbiddenException {
+            //given
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User authenticatedUser = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
+
+            User assignee = User.builder()
+                    .id(SECOND_USER_ID)
+                    .username(USERNAME_2)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_2)
+                    .firstName(ANOTHER_FIRST_NAME)
+                    .lastName(ANOTHER_LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
+
+            Project expectedProject = Project.builder()
+                    .id(ANOTHER_PROJECT_ID)
+                    .name(ANOTHER_PROJECT_NAME)
+                    .description(ANOTHER_PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .status(Project.Status.INITIATED)
+                    .owner(authenticatedUser)
+                    .managers(new HashSet<>())
+                    .employees(new HashSet<>())
+                    .build();
+            expectedProject.getEmployees().add(authenticatedUser);
+            expectedProject.getManagers().add(authenticatedUser);
+
+            JwtAbstractUtil jwtActionUtil = new JwtActionUtil(SECRET_KEY,ACTION_EXPIRATION);
+
+            //when
+            when(projectRepository.findByIdNotDeleted(expectedProject.getId()))
+                    .thenReturn(Optional.of(expectedProject));
+            when(projectAuthorityUtil.hasManagerialAuthority(
+                    expectedProject.getId(), authenticatedUser.getId())).thenReturn(true);
+            when(userRepository.findById(assignee.getId())).thenReturn(Optional.of(assignee));
+            when(jwtStrategy.getStrategy(JwtType.ACTION)).thenReturn(jwtActionUtil);
+
+            //then
+            assertEquals("Employee " + assignee.getId()
+                    + " has been invited to project " + expectedProject.getId(),
+                    projectServiceImpl.assignEmployeeToProject(authenticatedUser,
+                            expectedProject.getId(),
+                            assignee.getId(),
+                            true).response());
+
+            //verify
+            verify(projectRepository, times(1)).findByIdNotDeleted(expectedProject.getId());
+            verify(projectAuthorityUtil, times(1))
+                    .hasManagerialAuthority(expectedProject.getId(), authenticatedUser.getId());
+            verify(userRepository, times(1)).findById(assignee.getId());
+            verify(jwtStrategy, times(1)).getStrategy(JwtType.ACTION);
+        }
+
+        @Test
+        void givenInvalidRequestWithNoRights_whenAssignEmployeeToProject_thenFail()
+                throws ForbiddenException {
+            //given
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User authenticatedUser = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
+
+            Project expectedProject = Project.builder()
+                    .id(ANOTHER_PROJECT_ID)
+                    .name(ANOTHER_PROJECT_NAME)
+                    .description(ANOTHER_PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .status(Project.Status.INITIATED)
+                    .owner(authenticatedUser)
+                    .managers(new HashSet<>())
+                    .employees(new HashSet<>())
+                    .build();
+            expectedProject.getEmployees().add(authenticatedUser);
+            expectedProject.getManagers().add(authenticatedUser);
+
+            Long assigneeId = SECOND_USER_ID;
+
+            //when
+            when(projectRepository.findByIdNotDeleted(expectedProject.getId()))
+                    .thenReturn(Optional.of(expectedProject));
+            when(projectAuthorityUtil.hasManagerialAuthority(
+                    expectedProject.getId(), authenticatedUser.getId())).thenReturn(false);
+
+            //then
+            ForbiddenException forbiddenException = assertThrows(ForbiddenException.class,
+                    () -> projectServiceImpl.assignEmployeeToProject(
+                            authenticatedUser,
+                            expectedProject.getId(),
+                            assigneeId,
+                    true));
+            assertEquals(NO_OWNER_OR_MANAGER_PERMISSION, forbiddenException.getMessage());
+
+            //verify
+            verify(projectRepository, times(1)).findByIdNotDeleted(expectedProject.getId());
+            verify(projectAuthorityUtil, times(1))
+                    .hasManagerialAuthority(expectedProject.getId(), authenticatedUser.getId());
+        }
+    }
+
+    @Nested
+    class AcceptAssignmentToProject {
     }
 }
