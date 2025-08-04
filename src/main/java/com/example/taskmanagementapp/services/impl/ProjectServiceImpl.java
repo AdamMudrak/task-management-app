@@ -3,8 +3,10 @@ package com.example.taskmanagementapp.services.impl;
 import static com.example.taskmanagementapp.constants.Constants.FIRST_POSITION;
 import static com.example.taskmanagementapp.constants.Constants.SECOND_POSITION;
 import static com.example.taskmanagementapp.constants.Constants.THIRD_POSITION;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.CANNOT_DELETE_MANAGER;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.CANNOT_DELETE_OWNER;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.NO_ACCESS_PERMISSION;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.NO_OWNER_OR_MANAGER_PERMISSION;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.NO_OWNER_PERMISSION;
 import static com.example.taskmanagementapp.services.utils.UpdateValueValidatorUtil.areDatesValid;
 import static com.example.taskmanagementapp.services.utils.UpdateValueValidatorUtil.areStringsValid;
@@ -152,9 +154,7 @@ public class ProjectServiceImpl implements ProjectService {
             return new EmployeeAssignmentResponse("Employee " + employeeId
                     + " has been invited to project " + projectId);
         } else {
-            throw new ForbiddenException(
-                    "You should be owner or manager of this project "
-                            + "to assign new employees and managers");
+            throw new ForbiddenException(NO_OWNER_OR_MANAGER_PERMISSION);
         }
     }
 
@@ -200,7 +200,7 @@ public class ProjectServiceImpl implements ProjectService {
             }
             if (project.getManagers().contains(removedEmployee)
                     && !projectRepository.isUserOwner(projectId, userId)) {
-                throw new ForbiddenException("Only project owner can delete managers");
+                throw new ForbiddenException(CANNOT_DELETE_MANAGER);
             } else if (project.getManagers().contains(removedEmployee)
                     && projectRepository.isUserOwner(projectId, userId)) {
                 project.getManagers().remove(removedEmployee);

@@ -69,8 +69,13 @@ public class SecurityConstants {
             "You have no permission to access this project";
     public static final String NO_OWNER_PERMISSION =
             "You must be owner to delete this project";
+    public static final String NO_OWNER_OR_MANAGER_PERMISSION =
+            "You should be owner or manager of this project to assign new employees and managers";
     public static final String STATUS_CANNOT_BE_NULL = "accountStatusDto can't be null";
     public static final String CANNOT_DELETE_OWNER = "Can't delete owner from the project";
+    public static final String CANNOT_DELETE_MANAGER = "Only project owner can delete managers";
+    public static final String CANNOT_ACCESS_PROJECT =
+            "You should be owner or manager of this project to assign new employees and managers";
 
     public static final String CONFIRM_CHANGE_EMAIL_SUBJECT =
             "Confirm email change in Facio";
