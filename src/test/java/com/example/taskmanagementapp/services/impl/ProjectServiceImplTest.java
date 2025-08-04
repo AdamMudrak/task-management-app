@@ -4,6 +4,7 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.CANNOT_DELETE_MANAGER;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.CANNOT_DELETE_OWNER;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.NO_ACCESS_PERMISSION;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.NO_ACTION_TOKEN_FOUND;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.NO_OWNER_OR_MANAGER_PERMISSION;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.NO_OWNER_PERMISSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,6 +21,7 @@ import com.example.taskmanagementapp.dtos.project.response.ProjectResponse;
 import com.example.taskmanagementapp.entities.Project;
 import com.example.taskmanagementapp.entities.Role;
 import com.example.taskmanagementapp.entities.User;
+import com.example.taskmanagementapp.exceptions.ActionNotFoundException;
 import com.example.taskmanagementapp.exceptions.ConflictException;
 import com.example.taskmanagementapp.exceptions.EntityNotFoundException;
 import com.example.taskmanagementapp.exceptions.ForbiddenException;
@@ -37,6 +39,8 @@ import com.example.taskmanagementapp.services.email.AssignmentToProjectEmailServ
 import com.example.taskmanagementapp.services.utils.ParamFromHttpRequestUtil;
 import com.example.taskmanagementapp.services.utils.ProjectAuthorityUtil;
 import com.example.taskmanagementapp.testutils.Constants;
+import io.jsonwebtoken.JwtException;
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
@@ -47,6 +51,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -79,8 +84,8 @@ public class ProjectServiceImplTest {
     private static final long FIRST_PROJECT_ID = 1L;
     private static final long ANOTHER_PROJECT_ID = 2L;
     private static final int TEN = 10;
-    private static final String ACTION_TOKEN = "actionToken";
     private static final long ACTION_EXPIRATION = 60000L;
+    private static final long ULTRA_SHORT_EXPIRATION = 1L;
     private static final String SECRET_KEY =
             "eZTQb1Um2KE0dukTWfyHZSq2R3R1SFyqfRFfiReAPn1NHMKUBiTDKc5tajfn";
     @Mock
@@ -581,7 +586,7 @@ public class ProjectServiceImplTest {
                     .isAccountNonLocked(true)
                     .build();
 
-            Project expectedProject = Project.builder()
+            Project foundProject = Project.builder()
                     .id(FIRST_PROJECT_ID)
                     .name(PROJECT_NAME)
                     .description(PROJECT_DESCRIPTION)
@@ -592,9 +597,9 @@ public class ProjectServiceImplTest {
                     .managers(new HashSet<>())
                     .employees(new HashSet<>())
                     .build();
-            expectedProject.getManagers().add(authenticatedUser);
-            expectedProject.getEmployees().add(authenticatedUser);
-            expectedProject.getEmployees().add(newOwner);
+            foundProject.getManagers().add(authenticatedUser);
+            foundProject.getEmployees().add(authenticatedUser);
+            foundProject.getEmployees().add(newOwner);
 
             UpdateProjectRequest updateProjectRequest = new UpdateProjectRequest(
                     ANOTHER_PROJECT_NAME,
@@ -603,10 +608,26 @@ public class ProjectServiceImplTest {
                     PROJECT_END_DATE.plusDays(TEN),
                     newOwner.getId());
 
+            Project updatedProject = Project.builder()
+                    .id(FIRST_PROJECT_ID)
+                    .name(ANOTHER_PROJECT_NAME)
+                    .description(ANOTHER_PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE.plusDays(TEN))
+                    .endDate(PROJECT_END_DATE.plusDays(TEN))
+                    .status(Project.Status.INITIATED)
+                    .owner(newOwner)
+                    .managers(new HashSet<>())
+                    .employees(new HashSet<>())
+                    .build();
+            updatedProject.getManagers().add(authenticatedUser);
+            updatedProject.getManagers().add(newOwner);
+            updatedProject.getEmployees().add(authenticatedUser);
+            updatedProject.getEmployees().add(newOwner);
+
             ProjectStatusDto newProjectStatusDto = ProjectStatusDto.IN_PROGRESS;
 
             ProjectResponse expectedProjectResponse = ProjectResponse.builder()
-                    .id(expectedProject.getId())
+                    .id(foundProject.getId())
                     .name(updateProjectRequest.name())
                     .description(updateProjectRequest.description())
                     .startDate(updateProjectRequest.startDate())
@@ -618,28 +639,28 @@ public class ProjectServiceImplTest {
                     .build();
 
             //when
-            when(projectRepository.findByIdNotDeleted(expectedProject.getId()))
-                    .thenReturn(Optional.of(expectedProject));
-            when(projectAuthorityUtil.hasManagerialAuthority(expectedProject.getId(),
+            when(projectRepository.findByIdNotDeleted(foundProject.getId()))
+                    .thenReturn(Optional.of(foundProject));
+            when(projectAuthorityUtil.hasManagerialAuthority(foundProject.getId(),
                     authenticatedUser.getId())).thenReturn(true);
             when(userRepository.findById(newOwner.getId())).thenReturn(Optional.of(newOwner));
-            when(projectRepository.save(expectedProject)).thenReturn(expectedProject);
-            when(projectMapper.toProjectDto(expectedProject))
+            when(projectRepository.save(foundProject)).thenReturn(updatedProject);
+            when(projectMapper.toProjectDto(updatedProject))
                     .thenReturn(expectedProjectResponse);
 
             //then
             assertEquals(expectedProjectResponse, projectServiceImpl.updateProjectById(
-                    authenticatedUser.getId(), expectedProject.getId(),
+                    authenticatedUser.getId(), foundProject.getId(),
                     updateProjectRequest, newProjectStatusDto));
 
             //verify
             verify(projectRepository, times(1))
-                    .findByIdNotDeleted(expectedProject.getId());
+                    .findByIdNotDeleted(foundProject.getId());
             verify(projectAuthorityUtil, times(1))
-                    .hasManagerialAuthority(expectedProject.getId(), authenticatedUser.getId());
+                    .hasManagerialAuthority(foundProject.getId(), authenticatedUser.getId());
             verify(userRepository, times(1)).findById(newOwner.getId());
-            verify(projectRepository, times(1)).save(expectedProject);
-            verify(projectMapper, times(1)).toProjectDto(expectedProject);
+            verify(projectRepository, times(1)).save(foundProject);
+            verify(projectMapper, times(1)).toProjectDto(updatedProject);
         }
 
         @Test
@@ -898,6 +919,20 @@ public class ProjectServiceImplTest {
                     .employeeIds(Set.of(authenticatedUser.getId()))
                     .build();
 
+            Project updatedProject = Project.builder()
+                    .id(FIRST_PROJECT_ID)
+                    .name(ANOTHER_PROJECT_NAME)
+                    .description(ANOTHER_PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE.plusDays(TEN))
+                    .endDate(PROJECT_END_DATE.plusDays(TEN))
+                    .status(Project.Status.INITIATED)
+                    .owner(authenticatedUser)
+                    .managers(new HashSet<>())
+                    .employees(new HashSet<>())
+                    .build();
+            updatedProject.getManagers().add(authenticatedUser);
+            updatedProject.getEmployees().add(authenticatedUser);
+
             //when
             when(projectRepository.findByIdNotDeleted(expectedProject.getId()))
                     .thenReturn(Optional.of(expectedProject));
@@ -907,8 +942,8 @@ public class ProjectServiceImplTest {
             when(projectRepository.isUserOwner(expectedProject.getId(), authenticatedUser.getId()))
                     .thenReturn(true);
             when(userRepository.findById(assignee.getId())).thenReturn(Optional.of(assignee));
-            when(projectRepository.save(expectedProject)).thenReturn(expectedProject);
-            when(projectMapper.toProjectDto(expectedProject)).thenReturn(projectResponse);
+            when(projectRepository.save(expectedProject)).thenReturn(updatedProject);
+            when(projectMapper.toProjectDto(updatedProject)).thenReturn(projectResponse);
 
             //then
             assertEquals(projectResponse, projectServiceImpl
@@ -925,7 +960,7 @@ public class ProjectServiceImplTest {
             verify(projectRepository, times(2))
                     .isUserOwner(expectedProject.getId(), authenticatedUser.getId());
             verify(projectRepository, times(1)).save(expectedProject);
-            verify(projectMapper, times(1)).toProjectDto(expectedProject);
+            verify(projectMapper, times(1)).toProjectDto(updatedProject);
         }
 
         @Test
@@ -1207,8 +1242,7 @@ public class ProjectServiceImplTest {
         }
 
         @Test
-        void givenInvalidRequestWithNoRights_whenAssignEmployeeToProject_thenFail()
-                throws ForbiddenException {
+        void givenInvalidRequestWithNoRights_whenAssignEmployeeToProject_thenFail() {
             //given
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
             User authenticatedUser = User.builder()
@@ -1263,5 +1297,171 @@ public class ProjectServiceImplTest {
 
     @Nested
     class AcceptAssignmentToProject {
+        @Test
+        void givenValidTokens_whenAcceptAssignmentToProject_thenSuccess() {
+            //given
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+            User assignee = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
+
+            User owner = User.builder()
+                    .id(SECOND_USER_ID)
+                    .username(USERNAME_2)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_2)
+                    .firstName(ANOTHER_FIRST_NAME)
+                    .lastName(ANOTHER_LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
+
+            Project foundProject = Project.builder()
+                    .id(ANOTHER_PROJECT_ID)
+                    .name(ANOTHER_PROJECT_NAME)
+                    .description(ANOTHER_PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .status(Project.Status.INITIATED)
+                    .owner(owner)
+                    .managers(new HashSet<>())
+                    .employees(new HashSet<>())
+                    .build();
+            foundProject.getEmployees().add(owner);
+            foundProject.getManagers().add(owner);
+
+            Project modifiedProject = Project.builder()
+                    .id(ANOTHER_PROJECT_ID)
+                    .name(ANOTHER_PROJECT_NAME)
+                    .description(ANOTHER_PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .status(Project.Status.INITIATED)
+                    .owner(owner)
+                    .managers(new HashSet<>())
+                    .employees(new HashSet<>())
+                    .build();
+            modifiedProject.getEmployees().add(owner);
+            modifiedProject.getEmployees().add(assignee);
+            modifiedProject.getManagers().add(owner);
+            modifiedProject.getManagers().add(assignee);
+
+            JwtAbstractUtil jwtActionUtil = new JwtActionUtil(SECRET_KEY,ACTION_EXPIRATION);
+            String shortToken = jwtActionUtil.generateToken(assignee.getUsername());
+            String partOfToken = jwtActionUtil.generateToken(assignee.getUsername());
+            Long projectId = foundProject.getId();
+            Long assigneeId = assignee.getId();
+            boolean isNewEmployeeManager = true;
+            String actionToken = "" + projectId + assigneeId + isNewEmployeeManager + partOfToken;
+            HttpServletRequest httpServletRequest = Mockito.mock(HttpServletRequest.class);
+
+            ProjectResponse projectResponse = ProjectResponse.builder()
+                    .id(ANOTHER_PROJECT_ID)
+                    .name(ANOTHER_PROJECT_NAME)
+                    .description(ANOTHER_PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .statusDto(ProjectStatusDto.INITIATED)
+                    .ownerId(owner.getId())
+                    .managerIds(Set.of(owner.getId(), assigneeId))
+                    .employeeIds(Set.of(owner.getId(), assigneeId))
+                    .build();
+
+            //when
+            when(paramFromHttpRequestUtil.getNamedParameter(httpServletRequest, "shortToken"))
+                    .thenReturn(shortToken);
+            when(jwtStrategy.getStrategy(JwtType.ACTION)).thenReturn(jwtActionUtil);
+            when(paramFromHttpRequestUtil.getNamedParameter(httpServletRequest, "actionToken"))
+                    .thenReturn(actionToken);
+            when(actionTokenRepository.existsByActionToken(actionToken)).thenReturn(true);
+            when(projectRepository.findByIdNotDeleted(projectId))
+                    .thenReturn(Optional.of(foundProject));
+            when(userRepository.findById(assigneeId)).thenReturn(Optional.of(assignee));
+            when(projectRepository.save(modifiedProject)).thenReturn(modifiedProject);
+            when(projectMapper.toProjectDto(modifiedProject)).thenReturn(projectResponse);
+
+            //then
+            assertEquals(projectResponse,
+                    projectServiceImpl.acceptAssignmentToProject(httpServletRequest));
+
+            //verify
+            verify(paramFromHttpRequestUtil, times(1))
+                    .getNamedParameter(httpServletRequest, "shortToken");
+            verify(jwtStrategy, times(1)).getStrategy(JwtType.ACTION);
+            verify(paramFromHttpRequestUtil, times(1))
+                    .getNamedParameter(httpServletRequest, "actionToken");
+            verify(actionTokenRepository, times(1)).existsByActionToken(actionToken);
+            verify(projectRepository, times(1)).findByIdNotDeleted(projectId);
+            verify(userRepository, times(1)).findById(assigneeId);
+            verify(projectRepository, times(1)).save(modifiedProject);
+            verify(projectMapper, times(1)).toProjectDto(modifiedProject);
+        }
+
+        @Test
+        void givenInvalidShortLivedToken_whenAcceptAssignmentToProject_thenException() {
+            //given
+            JwtAbstractUtil jwtActionUtil = new JwtActionUtil(SECRET_KEY, ULTRA_SHORT_EXPIRATION);
+            String shortToken = jwtActionUtil.generateToken(EMAIL_1);
+            try {
+                Thread.sleep(ULTRA_SHORT_EXPIRATION * TEN);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            HttpServletRequest httpServletRequest = Mockito.mock(HttpServletRequest.class);
+
+            //when
+            when(paramFromHttpRequestUtil.getNamedParameter(httpServletRequest, "shortToken"))
+                    .thenReturn(shortToken);
+            when(jwtStrategy.getStrategy(JwtType.ACTION)).thenReturn(jwtActionUtil);
+
+            //then
+            JwtException jwtException = assertThrows(JwtException.class,
+                    () -> projectServiceImpl.acceptAssignmentToProject(httpServletRequest));
+            assertEquals("Expired or invalid JWT token", jwtException.getMessage());
+        }
+
+        @Test
+        void givenNotExistingActionToken_whenAcceptAssignmentToProject_thenException() {
+            //given
+            JwtAbstractUtil jwtActionUtil = new JwtActionUtil(SECRET_KEY,ACTION_EXPIRATION);
+            String shortToken = jwtActionUtil.generateToken(EMAIL_1);
+            String partOfToken = jwtActionUtil.generateToken(EMAIL_1);
+            boolean isNewEmployeeManager = true;
+            String actionToken = "" + FIRST_PROJECT_ID + FIRST_USER_ID
+                    + isNewEmployeeManager + partOfToken;
+            HttpServletRequest httpServletRequest = Mockito.mock(HttpServletRequest.class);
+
+            //when
+            when(paramFromHttpRequestUtil.getNamedParameter(httpServletRequest, "shortToken"))
+                    .thenReturn(shortToken);
+            when(jwtStrategy.getStrategy(JwtType.ACTION)).thenReturn(jwtActionUtil);
+            when(paramFromHttpRequestUtil.getNamedParameter(httpServletRequest, "actionToken"))
+                    .thenReturn(actionToken);
+            when(actionTokenRepository.existsByActionToken(actionToken)).thenReturn(false);
+
+            //then
+            ActionNotFoundException actionNotFoundException =
+                    assertThrows(ActionNotFoundException.class,
+                            () -> projectServiceImpl.acceptAssignmentToProject(httpServletRequest));
+            assertEquals(NO_ACTION_TOKEN_FOUND,
+                    actionNotFoundException.getMessage());
+
+            //verify
+            verify(paramFromHttpRequestUtil, times(1))
+                    .getNamedParameter(httpServletRequest, "shortToken");
+            verify(jwtStrategy, times(1)).getStrategy(JwtType.ACTION);
+            verify(paramFromHttpRequestUtil, times(1))
+                    .getNamedParameter(httpServletRequest, "actionToken");
+            verify(actionTokenRepository, times(1)).existsByActionToken(actionToken);
+        }
     }
 }
