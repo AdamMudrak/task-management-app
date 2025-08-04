@@ -6,6 +6,7 @@ import static com.example.taskmanagementapp.constants.Constants.THIRD_POSITION;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.CANNOT_DELETE_MANAGER;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.CANNOT_DELETE_OWNER;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.NO_ACCESS_PERMISSION;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.NO_ACTION_TOKEN_FOUND;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.NO_OWNER_OR_MANAGER_PERMISSION;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.NO_OWNER_PERMISSION;
 import static com.example.taskmanagementapp.services.utils.UpdateValueValidatorUtil.areDatesValid;
@@ -166,8 +167,7 @@ public class ProjectServiceImpl implements ProjectService {
         String actionToken = paramFromHttpRequestUtil.getNamedParameter(request, "actionToken");
 
         if (!actionTokenRepository.existsByActionToken(actionToken)) {
-            throw new ActionNotFoundException(
-                    "No active token found for such request... Might be forged...");
+            throw new ActionNotFoundException(NO_ACTION_TOKEN_FOUND);
         } else {
             actionTokenRepository.deleteByActionToken(actionToken);
         }

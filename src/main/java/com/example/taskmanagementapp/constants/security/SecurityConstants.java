@@ -76,6 +76,8 @@ public class SecurityConstants {
     public static final String CANNOT_DELETE_MANAGER = "Only project owner can delete managers";
     public static final String CANNOT_ACCESS_PROJECT =
             "You should be owner or manager of this project to assign new employees and managers";
+    public static final String NO_ACTION_TOKEN_FOUND =
+            "No active token found for such request... Might be forged...";
 
     public static final String CONFIRM_CHANGE_EMAIL_SUBJECT =
             "Confirm email change in Facio";
