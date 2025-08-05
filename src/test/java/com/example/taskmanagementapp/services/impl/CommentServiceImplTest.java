@@ -32,110 +32,51 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 public class CommentServiceImplTest {
-    public static final String USERNAME_1 = "JohnDoe";
-    public static final String PASSWORD_1 = "Best_Password1@3$";
-    public static final String PASSWORD_1_DB =
+    private static final String USERNAME_1 = "JohnDoe";
+    private static final String PASSWORD_1_DB =
             "$2a$10$u4cOSEeePFyJlpvkPdtmhenMuPYhloQfrVS19DZU8/.5jtJNm7piW";
-    public static final String EMAIL_1 = "john_doe@mail.com";
+    private static final String EMAIL_1 = "john_doe@mail.com";
 
-    public static final String USERNAME_2 = "RichardRoe";
-    public static final String PASSWORD_2 = "newPassword1@";
-    public static final String EMAIL_2 = "richard_roe@mail.com";
+    private static final String USERNAME_2 = "RichardRoe";
+    private static final String EMAIL_2 = "richard_roe@mail.com";
 
-    public static final String USERNAME_3 = "JaneDoe";
-    public static final String PASSWORD_3 = "newPassword2@";
-    public static final String EMAIL_3 = "jane_doe@mail.com";
+    private static final String FIRST_NAME = "John";
+    private static final String LAST_NAME = "Doe";
 
-    public static final String USERNAME_4 = "RickyRoe";
-    public static final String EMAIL_4 = "ricky_roe@mail.com";
+    private static final String ANOTHER_FIRST_NAME = "Richard";
+    private static final String ANOTHER_LAST_NAME = "Roe";
 
-    public static final String USERNAME_5 = "TheBestJohnDoe";
-    public static final String EMAIL_5 = "bestjohndoe@mail.com";
+    private static final String PROJECT_NAME = "projectName";
+    private static final String PROJECT_DESCRIPTION = "projectDescription";
+    private static final LocalDate PROJECT_START_DATE = LocalDate.of(2025, 1, 1);
+    private static final LocalDate PROJECT_END_DATE = LocalDate.of(2025, 12, 31);
 
-    public static final String USERNAME_6 = "TheNewJohnDoe";
-    public static final String EMAIL_6 = "newjohndoe@mail.com";
+    private static final Long FIRST_TASK_ID = 1L;
+    private static final Long SECOND_TASK_ID = 2L;
+    private static final String TASK_NAME_1 = "taskName";
+    private static final String TASK_DESCRIPTION_1 = "taskDescription";
+    private static final LocalDate TASK_DUE_DATE = LocalDate.of(2025, 12, 31);
 
-    public static final String USERNAME_7 = "YetAnotherJohnDoe";
-    public static final String EMAIL_7 = "yetanothertestjohndoe@mail.com";
+    private static final long FIRST_USER_ID = 1L;
+    private static final long LAST_USER_ID = 2L;
+    private static final long RANDOM_USER_ID = 1000L;
 
-    public static final String INVALID_USERNAME = "username@likemail.com";
-    public static final String INVALID_EMAIL = "invalidmail.com";
-    public static final String INVALID_PASSWORD = "password";
-    public static final String ANOTHER_INVALID_PASSWORD = "new_password";
-    public static final String EMPTY = "";
-
-    public static final String ROLE_USER = "ROLE_USER";
-
-    public static final String FIRST_NAME = "John";
-    public static final String LAST_NAME = "Doe";
-
-    public static final String ANOTHER_FIRST_NAME = "Richard";
-    public static final String ANOTHER_LAST_NAME = "Roe";
-
-    public static final String ACTION_TOKEN = "actionToken";
-    public static final String NOT_EXISTING_ACTION_TOKEN = "blaBlaBlaActionToken";
-
-    public static final String PROJECT_NAME = "projectName";
-    public static final String PROJECT_DESCRIPTION = "projectDescription";
-    public static final String ANOTHER_PROJECT_NAME = "anotherProjectName";
-    public static final String ANOTHER_PROJECT_DESCRIPTION = "anotherProjectDescription";
-    public static final LocalDate PROJECT_START_DATE = LocalDate.of(2025, 1, 1);
-    public static final LocalDate PROJECT_END_DATE = LocalDate.of(2025, 12, 31);
-
-    public static final Long FIRST_TASK_ID = 1L;
-    public static final Long SECOND_TASK_ID = 2L;
-    public static final String TASK_NAME_1 = "taskName";
-    public static final String TASK_NAME_2 = "anotherTaskName";
-    public static final String TASK_DESCRIPTION_1 = "taskDescription";
-    public static final String TASK_DESCRIPTION_2 = "anotherTaskDescription";
-    public static final LocalDate TASK_DUE_DATE = LocalDate.of(2025, 12, 31);
-
-    public static final String LABEL_NAME_1 = "labelName";
-    public static final String LABEL_NAME_2 = "anotherLabelName";
-
-    public static final String FILE_ID_1 = "fileId1";
-    public static final String FILE_NAME_1 = "fileName1";
-    public static final String FILE_ID_2 = "fileId2";
-    public static final String FILE_NAME_2 = "fileName2";
-    public static final LocalDateTime UPLOADED_DATE = LocalDateTime.of(2025, 1, 6, 0, 0);
-
-    public static final LocalDateTime TIME_STAMP = LocalDateTime.of(2025, 1, 6, 8, 30);
-
-    public static final List<String> EXPECTED_ERRORS_ON_REGISTER = List.of(
-            "firstName must not be blank.",
-            "lastName must not be blank.",
-            "password and repeatPassword don't match. Try again.",
-            "password  should contain 1 lowercase letter, 1 uppercase letter, 1 digit, "
-                    + "1 special character and be from 8 to 32 characters long.",
-            "repeatPassword  should contain 1 lowercase letter, 1 uppercase letter, 1 digit, "
-                    + "1 special character and be from 8 to 32 characters long.",
-            "email : invalid email. Try again.",
-            "username : invalid username. Can't be like email.");
-
-    public static final long ULTRA_SHORT_EXPIRATION = 1L;
-    public static final long ACTION_EXPIRATION = 60000L;
-    public static final long ACCESS_EXPIRATION = 900000L;
-    public static final long REFRESH_EXPIRATION = 604800000L;
-    public static final String SECRET_KEY =
-            "eZTQb1Um2KE0dukTWfyHZSq2R3R1SFyqfRFfiReAPn1NHMKUBiTDKc5tajfn";
-
-    public static final long FIRST_USER_ID = 1L;
-    public static final long LAST_USER_ID = 2L;
-    public static final long RANDOM_USER_ID = 1000L;
-
-    public static final long FIRST_PROJECT_ID = 1L;
-    public static final long ANOTHER_PROJECT_ID = 2L;
-    public static final long RANDOM_PROJECT_ID = 1000L;
-    public static final String NEW = "new";
-    public static final int TEN = 10;
-    public static final long FIRST_COMMENT_ID = 1L;
-    public static final long RANDOM_COMMENT_ID = 1000L;
-    public static final String COMMENT_TEXT = "I just thought that...";
-    public static final String UPDATED_COMMENT_TEXT =
+    private static final long FIRST_PROJECT_ID = 1L;
+    private static final long FIRST_COMMENT_ID = 1L;
+    private static final long SECOND_COMMENT_ID = 2L;
+    private static final long RANDOM_COMMENT_ID = 1000L;
+    private static final String COMMENT_TEXT = "I just thought that...";
+    private static final String UPDATED_COMMENT_TEXT =
             "I just thought that you might be interested in...";
+    private static final int FIRST_PAGE = 0;
+    private static final int PAGE_SIZE = 3;
 
     @Mock
     private CommentRepository commentRepository;
@@ -148,18 +89,6 @@ public class CommentServiceImplTest {
 
     @InjectMocks
     private CommentServiceImpl commentServiceImpl;
-
-    private final Task task2 = Task.builder()
-            .id(SECOND_TASK_ID)
-            .name(TASK_NAME_2)
-            .description(TASK_DESCRIPTION_2)
-            .priority(Task.Priority.HIGH)
-            .status(Task.Status.COMPLETED)
-            .dueDate(TASK_DUE_DATE)
-            .project(new Project())
-            .assignee(new User())
-            .isDeleted(true)
-            .build();
 
     @Nested
     class AddComment {
@@ -540,6 +469,487 @@ public class CommentServiceImplTest {
             verify(taskRepository, times(1)).findByIdNotDeleted(FIRST_TASK_ID);
             verify(projectAuthorityUtil, times(1))
                     .hasAnyAuthority(task1.getProject().getId(), user.getId());
+        }
+    }
+
+    @Nested
+    class GetAllComments {
+        @Test
+        void givenAllowedProject_whenGetAllComments_thenSuccess() throws ForbiddenException {
+            //given
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+
+            User owner = User.builder()
+                    .id(LAST_USER_ID)
+                    .username(USERNAME_2)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_2)
+                    .firstName(ANOTHER_FIRST_NAME)
+                    .lastName(ANOTHER_LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
+
+            Project project = Project.builder()
+                    .id(FIRST_PROJECT_ID)
+                    .name(PROJECT_NAME)
+                    .description(PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .status(Project.Status.INITIATED)
+                    .owner(owner)
+                    .managers(Set.of(owner))
+                    .employees(Set.of(owner))
+                    .build();
+
+            Task task1 = Task.builder()
+                    .id(FIRST_TASK_ID)
+                    .name(TASK_NAME_1)
+                    .description(TASK_DESCRIPTION_1)
+                    .priority(Task.Priority.LOW)
+                    .status(Task.Status.NOT_STARTED)
+                    .dueDate(TASK_DUE_DATE)
+                    .project(project)
+                    .assignee(owner)
+                    .isDeleted(false)
+                    .build();
+
+            Comment comment1 = Comment.builder()
+                    .id(FIRST_COMMENT_ID)
+                    .task(task1)
+                    .user(owner)
+                    .text(COMMENT_TEXT)
+                    .timestamp(LocalDateTime.now())
+                    .build();
+
+            Comment comment2 = Comment.builder()
+                    .id(SECOND_COMMENT_ID)
+                    .task(task1)
+                    .user(owner)
+                    .text(UPDATED_COMMENT_TEXT)
+                    .timestamp(LocalDateTime.now())
+                    .build();
+
+            Page<Comment> commentPage = new PageImpl<>(List.of(comment1, comment2));
+
+            List<CommentResponse> commentResponses = List.of(
+                    new CommentResponse(
+                            comment1.getId(),
+                            comment1.getTask().getId(),
+                            comment1.getUser().getId(),
+                            comment1.getText(),
+                            comment1.getTimestamp()),
+                    new CommentResponse(
+                            comment2.getId(),
+                            comment2.getTask().getId(),
+                            comment2.getUser().getId(),
+                            comment2.getText(),
+                            comment2.getTimestamp()));
+
+            Pageable pageable = PageRequest.of(FIRST_PAGE, PAGE_SIZE);
+            //when
+            when(taskRepository.findByIdNotDeleted(FIRST_TASK_ID)).thenReturn(Optional.of(task1));
+            when(projectAuthorityUtil.hasAnyAuthority(project.getId(), owner.getId()))
+                    .thenReturn(true);
+            when(commentRepository.findAllByTaskId(FIRST_TASK_ID, pageable))
+                    .thenReturn(commentPage);
+            when(commentMapper.toCommentDtoList(commentPage.getContent()))
+                    .thenReturn(commentResponses);
+
+            //then
+            assertEquals(commentResponses, commentServiceImpl
+                    .getAllComments(owner.getId(), task1.getId(), pageable));
+
+            //verify
+            verify(taskRepository, times(1)).findByIdNotDeleted(FIRST_TASK_ID);
+            verify(projectAuthorityUtil, times(1)).hasAnyAuthority(task1.getId(), owner.getId());
+            verify(commentRepository, times(1)).findAllByTaskId(FIRST_TASK_ID, pageable);
+            verify(commentMapper, times(1)).toCommentDtoList(commentPage.getContent());
+        }
+
+        @Test
+        void givenForbiddenProject_whenGetAllComments_thenException() {
+            //given
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+
+            User owner = User.builder()
+                    .id(LAST_USER_ID)
+                    .username(USERNAME_2)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_2)
+                    .firstName(ANOTHER_FIRST_NAME)
+                    .lastName(ANOTHER_LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
+
+            Project project = Project.builder()
+                    .id(FIRST_PROJECT_ID)
+                    .name(PROJECT_NAME)
+                    .description(PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .status(Project.Status.INITIATED)
+                    .owner(owner)
+                    .managers(Set.of(owner))
+                    .employees(Set.of(owner))
+                    .build();
+
+            Task task1 = Task.builder()
+                    .id(FIRST_TASK_ID)
+                    .name(TASK_NAME_1)
+                    .description(TASK_DESCRIPTION_1)
+                    .priority(Task.Priority.LOW)
+                    .status(Task.Status.NOT_STARTED)
+                    .dueDate(TASK_DUE_DATE)
+                    .project(project)
+                    .assignee(owner)
+                    .isDeleted(false)
+                    .build();
+            //when
+            when(taskRepository.findByIdNotDeleted(FIRST_TASK_ID)).thenReturn(Optional.of(task1));
+            when(projectAuthorityUtil.hasAnyAuthority(project.getId(), RANDOM_USER_ID))
+                    .thenReturn(false);
+
+            //then
+            ForbiddenException forbiddenException = assertThrows(ForbiddenException.class,
+                    () -> commentServiceImpl.getAllComments(
+                            RANDOM_USER_ID, FIRST_TASK_ID, Pageable.unpaged()));
+            assertEquals("You can't get comments for task " + task1.getId()
+                            + " since you are not participant in project " + project.getId(),
+                    forbiddenException.getMessage());
+
+            //verify
+            verify(taskRepository, times(1)).findByIdNotDeleted(FIRST_TASK_ID);
+            verify(projectAuthorityUtil, times(1)).hasAnyAuthority(project.getId(), RANDOM_USER_ID);
+        }
+    }
+
+    @Nested
+    class DeleteComment {
+        @Test
+        void givenSomeoneElseComment_whenDeleteComment_ThenFail() {
+            //given
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+
+            User authenticatedUser = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
+
+            User commentOwner = User.builder()
+                    .id(LAST_USER_ID)
+                    .username(USERNAME_2)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_2)
+                    .firstName(ANOTHER_FIRST_NAME)
+                    .lastName(ANOTHER_LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
+
+            Project project = Project.builder()
+                    .id(FIRST_PROJECT_ID)
+                    .name(PROJECT_NAME)
+                    .description(PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .status(Project.Status.INITIATED)
+                    .owner(commentOwner)
+                    .managers(Set.of(commentOwner, authenticatedUser))
+                    .employees(Set.of(commentOwner, authenticatedUser))
+                    .build();
+
+            Task task1 = Task.builder()
+                    .id(FIRST_TASK_ID)
+                    .name(TASK_NAME_1)
+                    .description(TASK_DESCRIPTION_1)
+                    .priority(Task.Priority.LOW)
+                    .status(Task.Status.NOT_STARTED)
+                    .dueDate(TASK_DUE_DATE)
+                    .project(project)
+                    .assignee(commentOwner)
+                    .isDeleted(false)
+                    .build();
+
+            Comment comment = Comment.builder()
+                    .id(FIRST_COMMENT_ID)
+                    .task(task1)
+                    .user(commentOwner)
+                    .text(COMMENT_TEXT)
+                    .timestamp(LocalDateTime.now())
+                    .build();
+
+            //when
+            when(commentRepository.findByIdAndUserId(comment.getId(), authenticatedUser.getId()))
+                    .thenReturn(Optional.empty());
+
+            //then
+            EntityNotFoundException entityNotFoundException =
+                    assertThrows(EntityNotFoundException.class,
+                        () -> commentServiceImpl.deleteComment(
+                                authenticatedUser.getId(), comment.getId()));
+            assertEquals("No comment with id " + comment.getId()
+                    + " found for user " + authenticatedUser.getId(),
+                    entityNotFoundException.getMessage());
+
+            //verify
+            verify(commentRepository, times(1))
+                    .findByIdAndUserId(comment.getId(), authenticatedUser.getId());
+        }
+
+        @Test
+        void givenDisabledTask_whenDeleteComment_ThenFail() {
+            //given
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+
+            User authenticatedUser = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
+
+            User commentOwner = User.builder()
+                    .id(LAST_USER_ID)
+                    .username(USERNAME_2)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_2)
+                    .firstName(ANOTHER_FIRST_NAME)
+                    .lastName(ANOTHER_LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
+
+            Project project = Project.builder()
+                    .id(FIRST_PROJECT_ID)
+                    .name(PROJECT_NAME)
+                    .description(PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .status(Project.Status.INITIATED)
+                    .owner(commentOwner)
+                    .managers(Set.of(commentOwner, authenticatedUser))
+                    .employees(Set.of(commentOwner, authenticatedUser))
+                    .build();
+
+            Task task1 = Task.builder()
+                    .id(FIRST_TASK_ID)
+                    .name(TASK_NAME_1)
+                    .description(TASK_DESCRIPTION_1)
+                    .priority(Task.Priority.LOW)
+                    .status(Task.Status.NOT_STARTED)
+                    .dueDate(TASK_DUE_DATE)
+                    .project(project)
+                    .assignee(commentOwner)
+                    .isDeleted(false)
+                    .build();
+
+            Comment comment = Comment.builder()
+                    .id(FIRST_COMMENT_ID)
+                    .task(task1)
+                    .user(authenticatedUser)
+                    .text(COMMENT_TEXT)
+                    .timestamp(LocalDateTime.now())
+                    .build();
+
+            //when
+            when(commentRepository.findByIdAndUserId(comment.getId(), authenticatedUser.getId()))
+                    .thenReturn(Optional.of(comment));
+            when(taskRepository.findByIdNotDeleted(task1.getId())).thenReturn(Optional.empty());
+
+            //then
+            EntityNotFoundException entityNotFoundException =
+                    assertThrows(EntityNotFoundException.class,
+                            () -> commentServiceImpl.deleteComment(
+                                    authenticatedUser.getId(), comment.getId()));
+            assertEquals("No active task with id " + task1.getId(),
+                    entityNotFoundException.getMessage());
+
+            //verify
+            verify(commentRepository, times(1))
+                    .findByIdAndUserId(comment.getId(), authenticatedUser.getId());
+            verify(taskRepository, times(1)).findByIdNotDeleted(task1.getId());
+        }
+
+        @Test
+        void givenForbiddenProject_whenDeleteComment_ThenFail() {
+            //given
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+
+            User authenticatedUser = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
+
+            User commentOwner = User.builder()
+                    .id(LAST_USER_ID)
+                    .username(USERNAME_2)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_2)
+                    .firstName(ANOTHER_FIRST_NAME)
+                    .lastName(ANOTHER_LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
+
+            Project project = Project.builder()
+                    .id(FIRST_PROJECT_ID)
+                    .name(PROJECT_NAME)
+                    .description(PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .status(Project.Status.INITIATED)
+                    .owner(commentOwner)
+                    .managers(Set.of(commentOwner))
+                    .employees(Set.of(commentOwner))
+                    .build();
+
+            Task task1 = Task.builder()
+                    .id(FIRST_TASK_ID)
+                    .name(TASK_NAME_1)
+                    .description(TASK_DESCRIPTION_1)
+                    .priority(Task.Priority.LOW)
+                    .status(Task.Status.NOT_STARTED)
+                    .dueDate(TASK_DUE_DATE)
+                    .project(project)
+                    .assignee(commentOwner)
+                    .isDeleted(false)
+                    .build();
+
+            Comment comment = Comment.builder()
+                    .id(FIRST_COMMENT_ID)
+                    .task(task1)
+                    .user(authenticatedUser)
+                    .text(COMMENT_TEXT)
+                    .timestamp(LocalDateTime.now())
+                    .build();
+
+            //when
+            when(commentRepository.findByIdAndUserId(comment.getId(), authenticatedUser.getId()))
+                    .thenReturn(Optional.of(comment));
+            when(taskRepository.findByIdNotDeleted(task1.getId())).thenReturn(Optional.of(task1));
+            when(projectAuthorityUtil.hasAnyAuthority(project.getId(), authenticatedUser.getId()))
+                    .thenReturn(false);
+
+            //then
+            ForbiddenException forbiddenException =
+                    assertThrows(ForbiddenException.class,
+                            () -> commentServiceImpl.deleteComment(
+                                    authenticatedUser.getId(), comment.getId()));
+            assertEquals("You can't delete comments from task " + task1.getId()
+                            + " since you are not participant in project " + project.getId(),
+                    forbiddenException.getMessage());
+
+            //verify
+            verify(commentRepository, times(1))
+                    .findByIdAndUserId(comment.getId(), authenticatedUser.getId());
+            verify(taskRepository, times(1)).findByIdNotDeleted(task1.getId());
+            verify(projectAuthorityUtil, times(1))
+                    .hasAnyAuthority(project.getId(), authenticatedUser.getId());
+        }
+
+        @Test
+        void givenGoodRequest_whenDeleteComment_ThenSuccess() throws ForbiddenException {
+            //given
+            Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
+
+            User authenticatedUser = User.builder()
+                    .id(FIRST_USER_ID)
+                    .username(USERNAME_1)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_1)
+                    .firstName(FIRST_NAME)
+                    .lastName(LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
+
+            User projectOwner = User.builder()
+                    .id(LAST_USER_ID)
+                    .username(USERNAME_2)
+                    .password(PASSWORD_1_DB)
+                    .email(EMAIL_2)
+                    .firstName(ANOTHER_FIRST_NAME)
+                    .lastName(ANOTHER_LAST_NAME)
+                    .role(role)
+                    .isEnabled(true)
+                    .isAccountNonLocked(true)
+                    .build();
+
+            Project project = Project.builder()
+                    .id(FIRST_PROJECT_ID)
+                    .name(PROJECT_NAME)
+                    .description(PROJECT_DESCRIPTION)
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
+                    .status(Project.Status.INITIATED)
+                    .owner(projectOwner)
+                    .managers(Set.of(projectOwner, authenticatedUser))
+                    .employees(Set.of(projectOwner, authenticatedUser))
+                    .build();
+
+            Task task1 = Task.builder()
+                    .id(FIRST_TASK_ID)
+                    .name(TASK_NAME_1)
+                    .description(TASK_DESCRIPTION_1)
+                    .priority(Task.Priority.LOW)
+                    .status(Task.Status.NOT_STARTED)
+                    .dueDate(TASK_DUE_DATE)
+                    .project(project)
+                    .assignee(projectOwner)
+                    .isDeleted(false)
+                    .build();
+
+            Comment comment = Comment.builder()
+                    .id(FIRST_COMMENT_ID)
+                    .task(task1)
+                    .user(authenticatedUser)
+                    .text(COMMENT_TEXT)
+                    .timestamp(LocalDateTime.now())
+                    .build();
+
+            //when
+            when(commentRepository.findByIdAndUserId(comment.getId(), authenticatedUser.getId()))
+                    .thenReturn(Optional.of(comment));
+            when(taskRepository.findByIdNotDeleted(task1.getId())).thenReturn(Optional.of(task1));
+            when(projectAuthorityUtil.hasAnyAuthority(project.getId(), authenticatedUser.getId()))
+                    .thenReturn(true);
+            //then
+            commentServiceImpl.deleteComment(authenticatedUser.getId(), comment.getId());
+
+            //verify
+            verify(commentRepository, times(1))
+                    .findByIdAndUserId(comment.getId(), authenticatedUser.getId());
+            verify(taskRepository, times(1)).findByIdNotDeleted(task1.getId());
+            verify(projectAuthorityUtil, times(1))
+                    .hasAnyAuthority(project.getId(), authenticatedUser.getId());
+            verify(commentRepository, times(1)).deleteById(comment.getId());
         }
     }
 }
