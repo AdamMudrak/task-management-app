@@ -7,6 +7,7 @@ import static com.example.taskmanagementapp.constants.security.SecurityConstants
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.NO_ACTION_TOKEN_FOUND;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.NO_OWNER_OR_MANAGER_PERMISSION;
 import static com.example.taskmanagementapp.constants.security.SecurityConstants.NO_OWNER_PERMISSION;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -614,7 +615,7 @@ public class ProjectServiceImplTest {
                     .description(ANOTHER_PROJECT_DESCRIPTION)
                     .startDate(PROJECT_START_DATE.plusDays(TEN))
                     .endDate(PROJECT_END_DATE.plusDays(TEN))
-                    .status(Project.Status.INITIATED)
+                    .status(Project.Status.IN_PROGRESS)
                     .owner(newOwner)
                     .managers(new HashSet<>())
                     .employees(new HashSet<>())
@@ -652,6 +653,9 @@ public class ProjectServiceImplTest {
             assertEquals(expectedProjectResponse, projectServiceImpl.updateProjectById(
                     authenticatedUser.getId(), foundProject.getId(),
                     updateProjectRequest, newProjectStatusDto));
+            assertThat(updatedProject)
+                    .usingRecursiveComparison()
+                    .isEqualTo(foundProject);
 
             //verify
             verify(projectRepository, times(1))
@@ -920,11 +924,11 @@ public class ProjectServiceImplTest {
                     .build();
 
             Project updatedProject = Project.builder()
-                    .id(FIRST_PROJECT_ID)
+                    .id(ANOTHER_PROJECT_ID)
                     .name(ANOTHER_PROJECT_NAME)
                     .description(ANOTHER_PROJECT_DESCRIPTION)
-                    .startDate(PROJECT_START_DATE.plusDays(TEN))
-                    .endDate(PROJECT_END_DATE.plusDays(TEN))
+                    .startDate(PROJECT_START_DATE)
+                    .endDate(PROJECT_END_DATE)
                     .status(Project.Status.INITIATED)
                     .owner(authenticatedUser)
                     .managers(new HashSet<>())
@@ -951,6 +955,9 @@ public class ProjectServiceImplTest {
                             authenticatedUser.getId(),
                             expectedProject.getId(),
                             assignee.getId()));
+            assertThat(updatedProject)
+                    .usingRecursiveComparison()
+                    .isEqualTo(expectedProject);
 
             //verify
             verify(projectRepository, times(1)).findByIdNotDeleted(expectedProject.getId());
@@ -1392,6 +1399,9 @@ public class ProjectServiceImplTest {
             //then
             assertEquals(projectResponse,
                     projectServiceImpl.acceptAssignmentToProject(httpServletRequest));
+            assertThat(foundProject)
+                    .usingRecursiveComparison()
+                    .isEqualTo(modifiedProject);
 
             //verify
             verify(paramFromHttpRequestUtil, times(1))
