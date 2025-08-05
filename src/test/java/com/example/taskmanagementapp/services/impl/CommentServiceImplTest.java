@@ -315,12 +315,13 @@ public class CommentServiceImplTest {
                     .isDeleted(false)
                     .build();
 
+            LocalDateTime commentTimeStamp = LocalDateTime.now();
             Comment expectedComment = Comment.builder()
                     .id(FIRST_COMMENT_ID)
                     .task(task1)
                     .user(user)
                     .text(COMMENT_TEXT)
-                    .timestamp(LocalDateTime.now())
+                    .timestamp(commentTimeStamp)
                     .build();
 
             Comment updatedComment = Comment.builder()
@@ -328,7 +329,7 @@ public class CommentServiceImplTest {
                     .task(task1)
                     .user(user)
                     .text(UPDATED_COMMENT_TEXT)
-                    .timestamp(LocalDateTime.now())
+                    .timestamp(commentTimeStamp)
                     .build();
 
             CommentResponse expectedCommentResponse = new CommentResponse(

@@ -27,7 +27,7 @@ public class ChangeEmailService extends EmailService {
         actionToken.setActionToken(token + newEmail);
         actionTokenRepository.save(actionToken);
 
-        this.sendMessage(newEmail, CONFIRM_CHANGE_EMAIL_SUBJECT,
+        this.queueEmail(newEmail, CONFIRM_CHANGE_EMAIL_SUBJECT,
                 CONFIRM_CHANGE_EMAIL_BODY + System.lineSeparator()
                         + serverPath + "/users/change-email-success?token="
                         + token + "&newEmail" + SPLITERATOR + newEmail);

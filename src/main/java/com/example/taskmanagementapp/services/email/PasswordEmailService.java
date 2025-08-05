@@ -21,7 +21,7 @@ public class PasswordEmailService extends EmailService {
 
     public void sendInitiatePasswordReset(String toEmail) {
         String token = actionTokenUtil.generateActionToken(toEmail);
-        sendMessage(toEmail, INITIATE_RANDOM_PASSWORD_SUBJECT,
+        queueEmail(toEmail, INITIATE_RANDOM_PASSWORD_SUBJECT,
                 INITIATE_RANDOM_PASSWORD_BODY + System.lineSeparator()
                         + serverPath + "/auth/reset-password?token="
                         + token);
@@ -30,7 +30,7 @@ public class PasswordEmailService extends EmailService {
     }
 
     public void sendResetPassword(String toEmail, String randomPassword) {
-        sendMessage(toEmail, RANDOM_PASSWORD_SUBJECT,
+        queueEmail(toEmail, RANDOM_PASSWORD_SUBJECT,
                 RANDOM_PASSWORD_BODY
                         + System.lineSeparator()
                         + randomPassword

@@ -18,7 +18,7 @@ public class RegisterConfirmEmailService extends EmailService {
 
     public void sendRegisterConfirmEmail(String toEmail) {
         String token = actionTokenUtil.generateActionToken(toEmail);
-        sendMessage(toEmail, CONFIRM_REGISTRATION_SUBJECT,
+        queueEmail(toEmail, CONFIRM_REGISTRATION_SUBJECT,
                 CONFIRM_REGISTRATION_BODY + System.lineSeparator()
                         + serverPath + "/auth/register-success?token="
                         + actionTokenUtil.generateActionToken(toEmail));

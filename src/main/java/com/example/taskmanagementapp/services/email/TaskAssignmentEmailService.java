@@ -14,7 +14,7 @@ public class TaskAssignmentEmailService extends EmailService {
                                         String assignerEmail,
                                         String taskName,
                                         String projectName) {
-        this.sendMessage(assigneeEmail,
+        this.queueEmail(assigneeEmail,
                 TASK_ASSIGNED_SUBJECT,
                 TASK_ASSIGNED_BODY_1
                         + assignerEmail

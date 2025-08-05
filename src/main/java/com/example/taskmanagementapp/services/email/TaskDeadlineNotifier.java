@@ -53,7 +53,7 @@ public class TaskDeadlineNotifier extends EmailService {
         for (Map.Entry<User, List<Task>> entry : userTasks.entrySet()) {
             String toEmail = entry.getKey().getEmail();
             List<Task> tasks = entry.getValue();
-            this.sendMessage(toEmail, SUBJECT, formBody(tasks));
+            this.queueEmail(toEmail, SUBJECT, formBody(tasks));
         }
         logger.info("Task deadline notification sent");
     }

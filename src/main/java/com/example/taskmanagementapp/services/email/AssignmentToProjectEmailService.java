@@ -24,7 +24,7 @@ public class AssignmentToProjectEmailService extends EmailService {
                                     String projectName, String metaDateToken) {
         String shortToken = actionTokenUtil.generateActionToken(receiver);
 
-        sendMessage(receiver, ACCEPT_PROJECT_INVITATION_SUBJECT,
+        queueEmail(receiver, ACCEPT_PROJECT_INVITATION_SUBJECT,
                 ACCEPT_PROJECT_INVITATION_BODY_1 + SPACE + sender + SPACE
                         + ACCEPT_PROJECT_INVITATION_BODY_2
                         + SPACE + projectName + SPACE + ACCEPT_PROJECT_INVITATION_BODY_3
