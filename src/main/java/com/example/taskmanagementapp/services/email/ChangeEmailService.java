@@ -14,7 +14,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class ChangeEmailService extends EmailService {
+public class ChangeEmailService {
+    private final EmailService emailService;
     private final ActionTokenUtil actionTokenUtil;
     private final ActionTokenRepository actionTokenRepository;
     @Value("${server.path}")
@@ -27,7 +28,7 @@ public class ChangeEmailService extends EmailService {
         actionToken.setActionToken(token + newEmail);
         actionTokenRepository.save(actionToken);
 
-        this.queueEmail(newEmail, CONFIRM_CHANGE_EMAIL_SUBJECT,
+        emailService.queueEmail(newEmail, CONFIRM_CHANGE_EMAIL_SUBJECT,
                 CONFIRM_CHANGE_EMAIL_BODY + System.lineSeparator()
                         + serverPath + "/users/change-email-success?token="
                         + token + "&newEmail" + SPLITERATOR + newEmail);

@@ -25,8 +25,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class TaskDeadlineNotifier extends EmailService {
+public class TaskDeadlineNotifier {
     private static final Logger logger = LogManager.getLogger(TaskDeadlineNotifier.class);
+    private final EmailService emailService;
     private final TaskRepository taskRepository;
 
     @Async
@@ -53,7 +54,7 @@ public class TaskDeadlineNotifier extends EmailService {
         for (Map.Entry<User, List<Task>> entry : userTasks.entrySet()) {
             String toEmail = entry.getKey().getEmail();
             List<Task> tasks = entry.getValue();
-            this.queueEmail(toEmail, SUBJECT, formBody(tasks));
+            emailService.queueEmail(toEmail, SUBJECT, formBody(tasks));
         }
         logger.info("Task deadline notification sent");
     }

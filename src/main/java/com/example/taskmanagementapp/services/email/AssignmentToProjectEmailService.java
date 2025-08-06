@@ -15,7 +15,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class AssignmentToProjectEmailService extends EmailService {
+public class AssignmentToProjectEmailService {
+    private final EmailService emailService;
     private final ActionTokenUtil actionTokenUtil;
     @Value("${server.path}")
     private String serverPath;
@@ -24,7 +25,7 @@ public class AssignmentToProjectEmailService extends EmailService {
                                     String projectName, String metaDateToken) {
         String shortToken = actionTokenUtil.generateActionToken(receiver);
 
-        queueEmail(receiver, ACCEPT_PROJECT_INVITATION_SUBJECT,
+        emailService.queueEmail(receiver, ACCEPT_PROJECT_INVITATION_SUBJECT,
                 ACCEPT_PROJECT_INVITATION_BODY_1 + SPACE + sender + SPACE
                         + ACCEPT_PROJECT_INVITATION_BODY_2
                         + SPACE + projectName + SPACE + ACCEPT_PROJECT_INVITATION_BODY_3

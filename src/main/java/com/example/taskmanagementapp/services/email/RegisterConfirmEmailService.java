@@ -11,14 +11,15 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class RegisterConfirmEmailService extends EmailService {
+public class RegisterConfirmEmailService {
+    private final EmailService emailService;
     private final ActionTokenUtil actionTokenUtil;
     @Value("${server.path}")
     private String serverPath;
 
     public void sendRegisterConfirmEmail(String toEmail) {
         String token = actionTokenUtil.generateActionToken(toEmail);
-        queueEmail(toEmail, CONFIRM_REGISTRATION_SUBJECT,
+        emailService.queueEmail(toEmail, CONFIRM_REGISTRATION_SUBJECT,
                 CONFIRM_REGISTRATION_BODY + System.lineSeparator()
                         + serverPath + "/auth/register-success?token="
                         + actionTokenUtil.generateActionToken(toEmail));
