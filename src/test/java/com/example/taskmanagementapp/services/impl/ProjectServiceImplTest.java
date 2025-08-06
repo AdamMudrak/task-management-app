@@ -39,7 +39,6 @@ import com.example.taskmanagementapp.security.jwtutils.strategy.JwtType;
 import com.example.taskmanagementapp.services.email.AssignmentToProjectEmailService;
 import com.example.taskmanagementapp.services.utils.ParamFromHttpRequestUtil;
 import com.example.taskmanagementapp.services.utils.ProjectAuthorityUtil;
-import com.example.taskmanagementapp.testutils.Constants;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
@@ -84,6 +83,7 @@ public class ProjectServiceImplTest {
     private static final long THIRD_USER_ID = 3L;
     private static final long FIRST_PROJECT_ID = 1L;
     private static final long ANOTHER_PROJECT_ID = 2L;
+    private static final long RANDOM_PROJECT_ID = 1000L;
     private static final int TEN = 10;
     private static final long ACTION_EXPIRATION = 60000L;
     private static final long ULTRA_SHORT_EXPIRATION = 1L;
@@ -810,8 +810,8 @@ public class ProjectServiceImplTest {
         @Test
         void givenProjectId_whenDeleteProjectById_thenSuccess() throws ForbiddenException {
             //given
-            Long authenticatedUserId = Constants.FIRST_USER_ID;
-            Long projectId = Constants.FIRST_PROJECT_ID;
+            Long authenticatedUserId = FIRST_USER_ID;
+            Long projectId = FIRST_PROJECT_ID;
 
             //when
             when(projectRepository.existsByIdNotDeleted(projectId)).thenReturn(true);
@@ -826,8 +826,8 @@ public class ProjectServiceImplTest {
         @Test
         void givenAlienProjectId_whenDeleteProjectById_thenFail() {
             //given
-            Long authenticatedUserId = Constants.FIRST_USER_ID;
-            Long projectId = Constants.FIRST_PROJECT_ID;
+            Long authenticatedUserId = FIRST_USER_ID;
+            Long projectId = FIRST_PROJECT_ID;
 
             //when
             when(projectRepository.existsByIdNotDeleted(projectId)).thenReturn(true);
@@ -846,8 +846,8 @@ public class ProjectServiceImplTest {
         @Test
         void givenNotRealProjectId_whenDeleteProjectById_thenFail() {
             //given
-            Long authenticatedUserId = Constants.FIRST_USER_ID;
-            Long projectId = Constants.RANDOM_PROJECT_ID;
+            Long authenticatedUserId = FIRST_USER_ID;
+            Long projectId = RANDOM_PROJECT_ID;
 
             //when
             when(projectRepository.existsByIdNotDeleted(projectId)).thenReturn(false);

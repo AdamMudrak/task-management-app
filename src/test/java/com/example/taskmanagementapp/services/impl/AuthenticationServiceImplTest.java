@@ -45,7 +45,6 @@ import com.example.taskmanagementapp.security.jwtutils.strategy.JwtType;
 import com.example.taskmanagementapp.services.email.PasswordEmailService;
 import com.example.taskmanagementapp.services.email.RegisterConfirmEmailService;
 import com.example.taskmanagementapp.services.utils.ParamFromHttpRequestUtil;
-import com.example.taskmanagementapp.testutils.Constants;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -66,11 +65,24 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @ExtendWith(MockitoExtension.class)
 public class AuthenticationServiceImplTest {
     private static final String USERNAME_1 = "JohnDoe";
+    private static final String PASSWORD_1 = "Best_Password1@3$";
     private static final String PASSWORD_1_DB =
             "$2a$10$u4cOSEeePFyJlpvkPdtmhenMuPYhloQfrVS19DZU8/.5jtJNm7piW";
     private static final String EMAIL_1 = "john_doe@mail.com";
+    private static final String PASSWORD_2 = "newPassword1@";
+    private static final String PASSWORD_3 = "newPassword2@";
+    private static final String EMAIL_3 = "jane_doe@mail.com";
+    private static final String EMAIL_4 = "ricky_roe@mail.com";
+    private static final String USERNAME_5 = "TheBestJohnDoe";
+    private static final String EMAIL_5 = "bestjohndoe@mail.com";
     private static final String FIRST_NAME = "John";
     private static final String LAST_NAME = "Doe";
+    private static final long ULTRA_SHORT_EXPIRATION = 1L;
+    private static final long ACTION_EXPIRATION = 60000L;
+    private static final long ACCESS_EXPIRATION = 900000L;
+    private static final long REFRESH_EXPIRATION = 604800000L;
+    private static final String SECRET_KEY =
+            "eZTQb1Um2KE0dukTWfyHZSq2R3R1SFyqfRFfiReAPn1NHMKUBiTDKc5tajfn";
     private static final long FIRST_USER_ID = 1L;
     private UserRepository userRepository;
     private UserMapper userMapper;
@@ -104,8 +116,8 @@ public class AuthenticationServiceImplTest {
                 registerConfirmEmailService,
                 paramFromHttpRequestUtil,
                 roleRepository,
-                Constants.ACCESS_EXPIRATION,
-                Constants.REFRESH_EXPIRATION);
+                ACCESS_EXPIRATION,
+                REFRESH_EXPIRATION);
     }
 
     @Nested
@@ -130,12 +142,12 @@ public class AuthenticationServiceImplTest {
                     new SimpleGrantedAuthority(role.getName().name()));
 
             //when
-            when(userRepository.findByEmail(Constants.EMAIL_1)).thenReturn(Optional.of(user));
+            when(userRepository.findByEmail(EMAIL_1)).thenReturn(Optional.of(user));
             when(authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            Constants.USERNAME_1, Constants.PASSWORD_1)))
+                            USERNAME_1, PASSWORD_1)))
                     .thenReturn(new UsernamePasswordAuthenticationToken(
-                            Constants.USERNAME_1, Constants.PASSWORD_1_DB, grantedAuthorities));
+                            USERNAME_1, PASSWORD_1_DB, grantedAuthorities));
 
             JwtAccessUtil jwtAccessUtil = mock(JwtAccessUtil.class);
             when(jwtStrategy.getStrategy(JwtType.ACCESS))
@@ -147,17 +159,17 @@ public class AuthenticationServiceImplTest {
 
             //then
             LoginRequest validLoginRequest =
-                    new LoginRequest(Constants.EMAIL_1, Constants.PASSWORD_1);
+                    new LoginRequest(EMAIL_1, PASSWORD_1);
             HttpServletResponse httpServletResponse = mock(HttpServletResponse.class);
             LoginResponse loginResponseResult = authenticationService.authenticateUser(
                     validLoginRequest, httpServletResponse);
             assertEquals(new LoginResponse(LOGIN_SUCCESS), loginResponseResult);
 
             //verify
-            verify(userRepository, times(1)).findByEmail(Constants.EMAIL_1);
+            verify(userRepository, times(1)).findByEmail(EMAIL_1);
             verify(authenticationManager, times(1)).authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            Constants.USERNAME_1, Constants.PASSWORD_1));
+                            USERNAME_1, PASSWORD_1));
             verify(jwtStrategy, times(1)).getStrategy(JwtType.ACCESS);
             verify(jwtStrategy, times(1)).getStrategy(JwtType.REFRESHMENT);
         }
@@ -165,45 +177,45 @@ public class AuthenticationServiceImplTest {
         @Test
         void givenNotExistingEmail_whenAuthenticateUserByEmail_thenThrowEntityNotFound() {
             //when
-            when(userRepository.findByEmail(Constants.EMAIL_5))
+            when(userRepository.findByEmail(EMAIL_5))
                     .thenThrow(new EntityNotFoundException(
-                            "No user with email " + Constants.EMAIL_5 + " found"));
+                            "No user with email " + EMAIL_5 + " found"));
 
             //then
             LoginRequest invalidLoginRequest =
-                    new LoginRequest(Constants.EMAIL_5, Constants.PASSWORD_1);
+                    new LoginRequest(EMAIL_5, PASSWORD_1);
             HttpServletResponse httpServletResponse = mock(HttpServletResponse.class);
             EntityNotFoundException userNotFoundException =
                     assertThrows(EntityNotFoundException.class, () ->
                             authenticationService
                                     .authenticateUser(invalidLoginRequest, httpServletResponse));
             assertEquals("No user with email "
-                    + Constants.EMAIL_5 + " found", userNotFoundException.getMessage());
+                    + EMAIL_5 + " found", userNotFoundException.getMessage());
 
             //verify
-            verify(userRepository, times(1)).findByEmail(Constants.EMAIL_5);
+            verify(userRepository, times(1)).findByEmail(EMAIL_5);
         }
 
         @Test
         void givenNotExistingUsername_whenAuthenticateUserByUsername_thenThrowEntityNotFound() {
             //when
-            when(userRepository.findByUsername(Constants.USERNAME_5)).thenThrow(
+            when(userRepository.findByUsername(USERNAME_5)).thenThrow(
                     new EntityNotFoundException("No user with username "
-                    + Constants.USERNAME_5 + " found"));
+                    + USERNAME_5 + " found"));
 
             //then
             LoginRequest invalidLoginRequest =
-                    new LoginRequest(Constants.USERNAME_5, Constants.PASSWORD_1);
+                    new LoginRequest(USERNAME_5, PASSWORD_1);
             HttpServletResponse httpServletResponse = mock(HttpServletResponse.class);
             EntityNotFoundException userNotFoundException =
                     assertThrows(EntityNotFoundException.class, () ->
                             authenticationService
                                     .authenticateUser(invalidLoginRequest, httpServletResponse));
             assertEquals("No user with username "
-                    + Constants.USERNAME_5 + " found", userNotFoundException.getMessage());
+                    + USERNAME_5 + " found", userNotFoundException.getMessage());
 
             //verify
-            verify(userRepository, times(1)).findByUsername(Constants.USERNAME_5);
+            verify(userRepository, times(1)).findByUsername(USERNAME_5);
         }
 
         @Test
@@ -226,12 +238,12 @@ public class AuthenticationServiceImplTest {
                     new SimpleGrantedAuthority(role.getName().name()));
 
             //when
-            when(userRepository.findByUsername(Constants.USERNAME_1)).thenReturn(Optional.of(user));
+            when(userRepository.findByUsername(USERNAME_1)).thenReturn(Optional.of(user));
             when(authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            Constants.USERNAME_1, Constants.PASSWORD_1)))
+                            USERNAME_1, PASSWORD_1)))
                     .thenReturn(new UsernamePasswordAuthenticationToken(
-                            Constants.USERNAME_1, Constants.PASSWORD_1_DB, grantedAuthorities));
+                            USERNAME_1, PASSWORD_1_DB, grantedAuthorities));
 
             JwtAccessUtil jwtAccessUtil = mock(JwtAccessUtil.class);
             when(jwtStrategy.getStrategy(JwtType.ACCESS))
@@ -243,17 +255,17 @@ public class AuthenticationServiceImplTest {
 
             //then
             LoginRequest validLoginRequest =
-                    new LoginRequest(Constants.USERNAME_1, Constants.PASSWORD_1);
+                    new LoginRequest(USERNAME_1, PASSWORD_1);
             HttpServletResponse httpServletResponse = mock(HttpServletResponse.class);
             LoginResponse loginResponseResult = authenticationService.authenticateUser(
                     validLoginRequest, httpServletResponse);
             assertEquals(new LoginResponse(LOGIN_SUCCESS), loginResponseResult);
 
             //verify
-            verify(userRepository, times(1)).findByUsername(Constants.USERNAME_1);
+            verify(userRepository, times(1)).findByUsername(USERNAME_1);
             verify(authenticationManager, times(1)).authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            Constants.USERNAME_1, Constants.PASSWORD_1));
+                            USERNAME_1, PASSWORD_1));
             verify(jwtStrategy, times(1)).getStrategy(JwtType.ACCESS);
             verify(jwtStrategy, times(1)).getStrategy(JwtType.REFRESHMENT);
         }
@@ -275,12 +287,12 @@ public class AuthenticationServiceImplTest {
                     .build();
 
             //when
-            when(userRepository.findByEmail(Constants.EMAIL_3))
+            when(userRepository.findByEmail(EMAIL_3))
                     .thenReturn(Optional.of(lockedUser));
 
             //then
             LoginRequest lockedUserLoginRequest =
-                    new LoginRequest(Constants.EMAIL_3, Constants.PASSWORD_1);
+                    new LoginRequest(EMAIL_3, PASSWORD_1);
             HttpServletResponse httpServletResponse = mock(HttpServletResponse.class);
             LoginException loginException = assertThrows(LoginException.class,
                     () -> authenticationService.authenticateUser(
@@ -289,7 +301,7 @@ public class AuthenticationServiceImplTest {
             assertEquals(ACCOUNT_IS_LOCKED, loginException.getMessage());
 
             //verify
-            verify(userRepository, times(1)).findByEmail(Constants.EMAIL_3);
+            verify(userRepository, times(1)).findByEmail(EMAIL_3);
         }
 
         @Test
@@ -309,12 +321,12 @@ public class AuthenticationServiceImplTest {
                     .build();
 
             //when
-            when(userRepository.findByEmail(Constants.EMAIL_4))
+            when(userRepository.findByEmail(EMAIL_4))
                     .thenReturn(Optional.of(disabledUser));
 
             //then
             LoginRequest disabledUserRequest =
-                    new LoginRequest(Constants.EMAIL_4, Constants.PASSWORD_1);
+                    new LoginRequest(EMAIL_4, PASSWORD_1);
             HttpServletResponse httpServletResponse = mock(HttpServletResponse.class);
             LoginException loginException = assertThrows(LoginException.class,
                     () -> authenticationService.authenticateUser(
@@ -323,7 +335,7 @@ public class AuthenticationServiceImplTest {
             assertEquals(REGISTERED_BUT_NOT_ACTIVATED, loginException.getMessage());
 
             //verify
-            verify(userRepository, times(1)).findByEmail(Constants.EMAIL_4);
+            verify(userRepository, times(1)).findByEmail(EMAIL_4);
         }
 
         @Test
@@ -343,25 +355,25 @@ public class AuthenticationServiceImplTest {
                     .build();
 
             //when
-            when(userRepository.findByEmail(Constants.EMAIL_1)).thenReturn(Optional.of(user));
+            when(userRepository.findByEmail(EMAIL_1)).thenReturn(Optional.of(user));
             when(authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            Constants.USERNAME_1, Constants.PASSWORD_2)))
+                            USERNAME_1, PASSWORD_2)))
                     .thenThrow(new BadCredentialsException("Bad credentials"));
 
             //then
             LoginRequest invalidLoginRequest =
-                    new LoginRequest(Constants.EMAIL_1, Constants.PASSWORD_2);
+                    new LoginRequest(EMAIL_1, PASSWORD_2);
             HttpServletResponse httpServletResponse = mock(HttpServletResponse.class);
 
             assertThrows(LoginException.class, () -> authenticationService.authenticateUser(
                     invalidLoginRequest, httpServletResponse));
 
             //verify
-            verify(userRepository, times(1)).findByEmail(Constants.EMAIL_1);
+            verify(userRepository, times(1)).findByEmail(EMAIL_1);
             verify(authenticationManager, times(1)).authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            Constants.USERNAME_1, Constants.PASSWORD_2));
+                            USERNAME_1, PASSWORD_2));
         }
 
         @Test
@@ -381,25 +393,25 @@ public class AuthenticationServiceImplTest {
                     .build();
 
             //when
-            when(userRepository.findByUsername(Constants.USERNAME_1)).thenReturn(Optional.of(user));
+            when(userRepository.findByUsername(USERNAME_1)).thenReturn(Optional.of(user));
             when(authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            Constants.USERNAME_1, Constants.PASSWORD_2)))
+                            USERNAME_1, PASSWORD_2)))
                     .thenThrow(new BadCredentialsException("Bad credentials"));
 
             //then
             LoginRequest invalidLoginRequest =
-                    new LoginRequest(Constants.USERNAME_1, Constants.PASSWORD_2);
+                    new LoginRequest(USERNAME_1, PASSWORD_2);
             HttpServletResponse httpServletResponse = mock(HttpServletResponse.class);
 
             assertThrows(LoginException.class, () -> authenticationService.authenticateUser(
                     invalidLoginRequest, httpServletResponse));
 
             //verify
-            verify(userRepository, times(1)).findByUsername(Constants.USERNAME_1);
+            verify(userRepository, times(1)).findByUsername(USERNAME_1);
             verify(authenticationManager, times(1)).authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            Constants.USERNAME_1, Constants.PASSWORD_2));
+                            USERNAME_1, PASSWORD_2));
         }
     }
 
@@ -423,14 +435,14 @@ public class AuthenticationServiceImplTest {
                     .build();
 
             //when
-            when(userRepository.findByEmail(Constants.EMAIL_1)).thenReturn(Optional.of(user));
+            when(userRepository.findByEmail(EMAIL_1)).thenReturn(Optional.of(user));
 
             //then
             assertEquals(new PasswordResetLinkResponse(SEND_LINK_TO_RESET_PASSWORD),
-                    authenticationService.sendPasswordResetLink(Constants.EMAIL_1));
+                    authenticationService.sendPasswordResetLink(EMAIL_1));
 
             //verify
-            verify(userRepository, times(1)).findByEmail(Constants.EMAIL_1);
+            verify(userRepository, times(1)).findByEmail(EMAIL_1);
         }
 
         @Test
@@ -451,14 +463,14 @@ public class AuthenticationServiceImplTest {
                     .build();
 
             //when
-            when(userRepository.findByUsername(Constants.USERNAME_1)).thenReturn(Optional.of(user));
+            when(userRepository.findByUsername(USERNAME_1)).thenReturn(Optional.of(user));
 
             //then
             assertEquals(new PasswordResetLinkResponse(SEND_LINK_TO_RESET_PASSWORD),
-                    authenticationService.sendPasswordResetLink(Constants.USERNAME_1));
+                    authenticationService.sendPasswordResetLink(USERNAME_1));
 
             //verify
-            verify(userRepository, times(1)).findByUsername(Constants.USERNAME_1);
+            verify(userRepository, times(1)).findByUsername(USERNAME_1);
         }
 
         @Test
@@ -478,16 +490,16 @@ public class AuthenticationServiceImplTest {
                     .build();
 
             //when
-            when(userRepository.findByEmail(Constants.EMAIL_3))
+            when(userRepository.findByEmail(EMAIL_3))
                     .thenReturn(Optional.of(lockedUser));
 
             //then
             LoginException loginException = assertThrows(LoginException.class,
-                    () -> authenticationService.sendPasswordResetLink(Constants.EMAIL_3));
+                    () -> authenticationService.sendPasswordResetLink(EMAIL_3));
             assertEquals(ACCOUNT_IS_LOCKED, loginException.getMessage());
 
             //verify
-            verify(userRepository, times(1)).findByEmail(Constants.EMAIL_3);
+            verify(userRepository, times(1)).findByEmail(EMAIL_3);
         }
 
         @Test
@@ -507,54 +519,54 @@ public class AuthenticationServiceImplTest {
                     .build();
 
             //when
-            when(userRepository.findByEmail(Constants.EMAIL_4))
+            when(userRepository.findByEmail(EMAIL_4))
                     .thenReturn(Optional.of(disabledUser));
 
             //then
             LoginException loginException = assertThrows(LoginException.class,
-                    () -> authenticationService.sendPasswordResetLink(Constants.EMAIL_4));
+                    () -> authenticationService.sendPasswordResetLink(EMAIL_4));
             assertEquals(REGISTERED_BUT_NOT_ACTIVATED, loginException.getMessage());
 
             //verify
-            verify(userRepository, times(1)).findByEmail(Constants.EMAIL_4);
+            verify(userRepository, times(1)).findByEmail(EMAIL_4);
         }
 
         @Test
         void givenAnEmailOfNonExistingUser_whenSendPasswordResetLink_thenThrowEntityNotFound() {
             //when
-            when(userRepository.findByEmail(Constants.EMAIL_5))
+            when(userRepository.findByEmail(EMAIL_5))
                     .thenThrow(new EntityNotFoundException(
-                            "No user with email " + Constants.EMAIL_5 + " found"));
+                            "No user with email " + EMAIL_5 + " found"));
 
             //then
             EntityNotFoundException userNotFoundException =
                     assertThrows(EntityNotFoundException.class, () ->
                             authenticationService
-                                    .sendPasswordResetLink(Constants.EMAIL_5));
+                                    .sendPasswordResetLink(EMAIL_5));
             assertEquals("No user with email "
-                    + Constants.EMAIL_5 + " found", userNotFoundException.getMessage());
+                    + EMAIL_5 + " found", userNotFoundException.getMessage());
 
             //verify
-            verify(userRepository, times(1)).findByEmail(Constants.EMAIL_5);
+            verify(userRepository, times(1)).findByEmail(EMAIL_5);
         }
 
         @Test
         void givenAUsernameOfNonExistingUser_whenSendPasswordResetLink_thenThrowEntityNotFound() {
             //when
-            when(userRepository.findByUsername(Constants.USERNAME_5))
+            when(userRepository.findByUsername(USERNAME_5))
                     .thenThrow(new EntityNotFoundException(
-                            "No user with username " + Constants.USERNAME_5 + " found"));
+                            "No user with username " + USERNAME_5 + " found"));
 
             //then
             EntityNotFoundException userNotFoundException =
                     assertThrows(EntityNotFoundException.class, () ->
                             authenticationService
-                                    .sendPasswordResetLink(Constants.USERNAME_5));
+                                    .sendPasswordResetLink(USERNAME_5));
             assertEquals("No user with username "
-                    + Constants.USERNAME_5 + " found", userNotFoundException.getMessage());
+                    + USERNAME_5 + " found", userNotFoundException.getMessage());
 
             //verify
-            verify(userRepository, times(1)).findByUsername(Constants.USERNAME_5);
+            verify(userRepository, times(1)).findByUsername(USERNAME_5);
         }
     }
 
@@ -576,8 +588,8 @@ public class AuthenticationServiceImplTest {
                     .isAccountNonLocked(true)
                     .build();
             JwtAbstractUtil jwtActionUtil =
-                    new JwtActionUtil(Constants.SECRET_KEY, Constants.ACTION_EXPIRATION);
-            String goodToken = jwtActionUtil.generateToken(Constants.EMAIL_1);
+                    new JwtActionUtil(SECRET_KEY, ACTION_EXPIRATION);
+            String goodToken = jwtActionUtil.generateToken(EMAIL_1);
             HttpServletRequest request = mock(HttpServletRequest.class);
 
             //when
@@ -585,7 +597,7 @@ public class AuthenticationServiceImplTest {
                     .parseRandomParameterAndToken(request))
                         .thenReturn(goodToken);
             when(jwtStrategy.getStrategy(JwtType.ACTION)).thenReturn(jwtActionUtil);
-            when(userRepository.findByEmail(Constants.EMAIL_1)).thenReturn(Optional.of(user));
+            when(userRepository.findByEmail(EMAIL_1)).thenReturn(Optional.of(user));
 
             //then
             assertEquals(new ResetLinkSentResponse(CHECK_YOUR_EMAIL),
@@ -594,15 +606,15 @@ public class AuthenticationServiceImplTest {
             //verify
             verify(paramFromHttpRequestUtil, times(1)).parseRandomParameterAndToken(request);
             verify(jwtStrategy, times(1)).getStrategy(JwtType.ACTION);
-            verify(userRepository, times(1)).findByEmail(Constants.EMAIL_1);
+            verify(userRepository, times(1)).findByEmail(EMAIL_1);
         }
 
         @Test
         void givenBadToken_whenConfirmResetPassword_thenThrowLinkExpiredException() {
             //given
             JwtAbstractUtil jwtBadActionUtil =
-                    new JwtActionUtil(Constants.SECRET_KEY, Constants.ULTRA_SHORT_EXPIRATION);
-            String badToken = jwtBadActionUtil.generateToken(Constants.EMAIL_1);
+                    new JwtActionUtil(SECRET_KEY, ULTRA_SHORT_EXPIRATION);
+            String badToken = jwtBadActionUtil.generateToken(EMAIL_1);
             HttpServletRequest request = mock(HttpServletRequest.class);
 
             //when
@@ -641,13 +653,13 @@ public class AuthenticationServiceImplTest {
                     .isAccountNonLocked(true)
                     .build();
             PasswordChangeRequest passwordChangeRequest = new PasswordChangeRequest(
-                    Constants.PASSWORD_1,
-                    Constants.PASSWORD_2,
-                    Constants.PASSWORD_2);
+                    PASSWORD_1,
+                    PASSWORD_2,
+                    PASSWORD_2);
 
             //when
             when(passwordEncoder.matches(
-                    Constants.PASSWORD_1, Constants.PASSWORD_1_DB)).thenReturn(true);
+                    PASSWORD_1, PASSWORD_1_DB)).thenReturn(true);
 
             //then
             assertEquals(new PasswordChangeResponse(PASSWORD_SET_SUCCESSFULLY),
@@ -655,7 +667,7 @@ public class AuthenticationServiceImplTest {
 
             //verify
             verify(passwordEncoder, times(1))
-                    .matches(Constants.PASSWORD_1, Constants.PASSWORD_1_DB);
+                    .matches(PASSWORD_1, PASSWORD_1_DB);
         }
 
         @Test
@@ -674,13 +686,13 @@ public class AuthenticationServiceImplTest {
                     .isAccountNonLocked(true)
                     .build();
             PasswordChangeRequest passwordChangeRequest = new PasswordChangeRequest(
-                    Constants.PASSWORD_3,
-                    Constants.PASSWORD_2,
-                    Constants.PASSWORD_2);
+                    PASSWORD_3,
+                    PASSWORD_2,
+                    PASSWORD_2);
 
             //when
             when(passwordEncoder.matches(
-                    Constants.PASSWORD_3, Constants.PASSWORD_1_DB)).thenReturn(false);
+                    PASSWORD_3, PASSWORD_1_DB)).thenReturn(false);
 
             //then
             PasswordMismatchException passwordMismatchException =
@@ -692,7 +704,7 @@ public class AuthenticationServiceImplTest {
 
             //verify
             verify(passwordEncoder, times(1))
-                    .matches(Constants.PASSWORD_3, Constants.PASSWORD_1_DB);
+                    .matches(PASSWORD_3, PASSWORD_1_DB);
         }
     }
 
@@ -714,12 +726,12 @@ public class AuthenticationServiceImplTest {
                     .isAccountNonLocked(true)
                     .build();
             RegistrationRequest registrationRequest = new RegistrationRequest(
-                    Constants.USERNAME_1,
-                    Constants.PASSWORD_1,
-                    Constants.PASSWORD_1,
-                    Constants.EMAIL_1,
-                    Constants.FIRST_NAME,
-                    Constants.LAST_NAME);
+                    USERNAME_1,
+                    PASSWORD_1,
+                    PASSWORD_1,
+                    EMAIL_1,
+                    FIRST_NAME,
+                    LAST_NAME);
 
             //when
             when(userMapper.toUser(registrationRequest)).thenReturn(user);
@@ -736,48 +748,48 @@ public class AuthenticationServiceImplTest {
         void givenRegDtoWithExistingEmail_whenRegister_thenThrowsRegistrationException() {
             //given
             RegistrationRequest registrationRequest = new RegistrationRequest(
-                    Constants.USERNAME_1,
-                    Constants.PASSWORD_1,
-                    Constants.PASSWORD_1,
-                    Constants.EMAIL_1,
-                    Constants.FIRST_NAME,
-                    Constants.LAST_NAME);
+                    USERNAME_1,
+                    PASSWORD_1,
+                    PASSWORD_1,
+                    EMAIL_1,
+                    FIRST_NAME,
+                    LAST_NAME);
 
             //when
-            when(userRepository.existsByEmail(Constants.EMAIL_1)).thenReturn(true);
+            when(userRepository.existsByEmail(EMAIL_1)).thenReturn(true);
 
             //then
             RegistrationException registrationException = assertThrows(RegistrationException.class,
                     () -> authenticationService.register(registrationRequest));
             assertEquals("User with email "
-                    + Constants.EMAIL_1 + " already exists", registrationException.getMessage());
+                    + EMAIL_1 + " already exists", registrationException.getMessage());
 
             //verify
-            verify(userRepository, times(1)).existsByEmail(Constants.EMAIL_1);
+            verify(userRepository, times(1)).existsByEmail(EMAIL_1);
         }
 
         @Test
         void givenRegDtoWithExistingUsername_whenRegister_thenThrowRegistrationException() {
             //given
             RegistrationRequest registrationRequest = new RegistrationRequest(
-                    Constants.USERNAME_1,
-                    Constants.PASSWORD_1,
-                    Constants.PASSWORD_1,
-                    Constants.EMAIL_1,
-                    Constants.FIRST_NAME,
-                    Constants.LAST_NAME);
+                    USERNAME_1,
+                    PASSWORD_1,
+                    PASSWORD_1,
+                    EMAIL_1,
+                    FIRST_NAME,
+                    LAST_NAME);
 
             //when
-            when(userRepository.existsByUsername(Constants.USERNAME_1)).thenReturn(true);
+            when(userRepository.existsByUsername(USERNAME_1)).thenReturn(true);
 
             //then
             RegistrationException registrationException = assertThrows(RegistrationException.class,
                     () -> authenticationService.register(registrationRequest));
             assertEquals("User with username "
-                    + Constants.USERNAME_1 + " already exists", registrationException.getMessage());
+                    + USERNAME_1 + " already exists", registrationException.getMessage());
 
             //verify
-            verify(userRepository, times(1)).existsByUsername(Constants.USERNAME_1);
+            verify(userRepository, times(1)).existsByUsername(USERNAME_1);
         }
     }
 
@@ -799,15 +811,15 @@ public class AuthenticationServiceImplTest {
                     .isAccountNonLocked(true)
                     .build();
             JwtAbstractUtil jwtActionUtil =
-                    new JwtActionUtil(Constants.SECRET_KEY, Constants.ACTION_EXPIRATION);
+                    new JwtActionUtil(SECRET_KEY, ACTION_EXPIRATION);
             HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
-            String token = jwtActionUtil.generateToken(Constants.EMAIL_1);
+            String token = jwtActionUtil.generateToken(EMAIL_1);
 
             //when
             when(paramFromHttpRequestUtil
                     .parseRandomParameterAndToken(request)).thenReturn(token);
             when(jwtStrategy.getStrategy(JwtType.ACTION)).thenReturn(jwtActionUtil);
-            when(userRepository.findByEmail(Constants.EMAIL_1)).thenReturn(Optional.of(user));
+            when(userRepository.findByEmail(EMAIL_1)).thenReturn(Optional.of(user));
 
             //then
             assertEquals(new RegistrationConfirmationResponse(REGISTRATION_CONFIRMED),
@@ -816,7 +828,7 @@ public class AuthenticationServiceImplTest {
             //verify
             verify(paramFromHttpRequestUtil, times(1)).parseRandomParameterAndToken(request);
             verify(jwtStrategy, times(1)).getStrategy(JwtType.ACTION);
-            verify(userRepository, times(1)).findByEmail(Constants.EMAIL_1);
+            verify(userRepository, times(1)).findByEmail(EMAIL_1);
         }
     }
 }
