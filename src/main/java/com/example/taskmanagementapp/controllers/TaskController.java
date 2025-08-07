@@ -125,6 +125,6 @@ public class TaskController {
     public List<TaskResponse> getTasksWithLabel(@AuthenticationPrincipal User user,
                                         @PathVariable @Positive Long labelId,
                                         @Parameter(example = PAGEABLE_EXAMPLE) Pageable pageable) {
-        return taskService.getTasksWithLabel(user, labelId, pageable);
+        return taskService.getTasksWithLabel(user.getId(), labelId, pageable);
     }
 }

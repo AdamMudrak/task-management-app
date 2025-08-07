@@ -1,5 +1,8 @@
 package com.example.taskmanagementapp.services.impl;
 
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.NO_ACCESS_PERMISSION_FOR_PROJECT_TASKS;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.NO_ACCESS_PERMISSION_FOR_TASK;
+import static com.example.taskmanagementapp.constants.security.SecurityConstants.NO_PERMISSION_FOR_TASK_DELETION;
 import static com.example.taskmanagementapp.services.utils.UpdateValueValidatorUtil.areDatesValid;
 import static com.example.taskmanagementapp.services.utils.UpdateValueValidatorUtil.areStringsValid;
 
@@ -86,7 +89,7 @@ public class TaskServiceImpl implements TaskService {
             return taskMapper.toTaskDtoList(
                     taskRepository.findAllByProjectIdNonDeleted(projectId, pageable).getContent());
         } else {
-            throw new ForbiddenException("You have no permission to access this project tasks");
+            throw new ForbiddenException(NO_ACCESS_PERMISSION_FOR_PROJECT_TASKS);
         }
     }
 
@@ -100,7 +103,7 @@ public class TaskServiceImpl implements TaskService {
         if (projectAuthorityUtil.hasAnyAuthority(thisTaskProjectId, authenticatedUserId)) {
             return taskMapper.toTaskDto(task);
         } else {
-            throw new ForbiddenException("You have no permission to access this task");
+            throw new ForbiddenException(NO_ACCESS_PERMISSION_FOR_TASK);
         }
     }
 
@@ -119,7 +122,7 @@ public class TaskServiceImpl implements TaskService {
                     taskStatusDto, taskPriorityDto);
             return taskMapper.toTaskDto(taskRepository.save(task));
         } else {
-            throw new ForbiddenException("You have no permission to update this task");
+            throw new ForbiddenException(NO_ACCESS_PERMISSION_FOR_TASK);
         }
     }
 
@@ -133,18 +136,19 @@ public class TaskServiceImpl implements TaskService {
             commentRepository.deleteAllByTaskId(taskId);
             taskRepository.deleteById(taskId);
         } else {
-            throw new ForbiddenException("You have no permission to delete this task");
+            throw new ForbiddenException(NO_PERMISSION_FOR_TASK_DELETION);
         }
     }
 
     @Override
-    public List<TaskResponse> getTasksWithLabel(User user, Long labelId, Pageable pageable) {
-        if (labelRepository.existsByIdAndUserId(labelId, user.getId())) {
+    public List<TaskResponse> getTasksWithLabel(
+            Long authenticatedUserId, Long labelId, Pageable pageable) {
+        if (labelRepository.existsByIdAndUserId(labelId, authenticatedUserId)) {
             return taskMapper.toTaskDtoList(
                     taskRepository.findAllByLabelIdNonDeleted(labelId, pageable).getContent());
         } else {
             throw new EntityNotFoundException(
-                    "No label with id " + labelId + " for user with id " + user.getId());
+                    "No label with id " + labelId + " for user with id " + authenticatedUserId);
         }
     }
 
@@ -164,8 +168,8 @@ public class TaskServiceImpl implements TaskService {
         }
 
         if (updateTaskDto.projectId() != null) {
-            Project project = projectRepository.findById(updateTaskDto.projectId()).orElseThrow(
-                    () -> new EntityNotFoundException(
+            Project project = projectRepository.findByIdNotDeleted(updateTaskDto.projectId())
+                    .orElseThrow(() -> new EntityNotFoundException(
                             "No project with id " + updateTaskDto.projectId()));
 
             if (projectAuthorityUtil.hasManagerialAuthority(

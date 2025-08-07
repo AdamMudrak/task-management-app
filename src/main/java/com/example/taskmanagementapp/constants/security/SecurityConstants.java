@@ -78,6 +78,12 @@ public class SecurityConstants {
             "You should be owner or manager of this project to assign new employees and managers";
     public static final String NO_ACTION_TOKEN_FOUND =
             "No active token found for such request... Might be forged...";
+    public static final String NO_ACCESS_PERMISSION_FOR_TASK =
+            "You have no permission to access this task";
+    public static final String NO_ACCESS_PERMISSION_FOR_PROJECT_TASKS =
+            "You have no permission to access this project tasks";
+    public static final String NO_PERMISSION_FOR_TASK_DELETION =
+            "You have no permission to delete this task";
 
     public static final String CONFIRM_CHANGE_EMAIL_SUBJECT =
             "Confirm email change in Facio";
