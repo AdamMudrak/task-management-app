@@ -10,7 +10,6 @@ import com.dropbox.core.v2.DbxClientV2;
 import com.example.taskmanagementapp.entity.Role;
 import com.example.taskmanagementapp.entity.User;
 import com.example.taskmanagementapp.exception.EntityNotFoundException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +20,12 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class UserRepositoryTest {
-    private static final String USERNAME_1 = "JohnDoe";
-    private static final String USERNAME_2 = "RichardRoe";
-    private static final String PASSWORD_1_DB =
+    private static final String TEST_USERNAME = "JohnDoe";
+    private static final String ANOTHER_TEST_USERNAME = "RichardRoe";
+    private static final String TEST_PASSWORD_ENCODED =
             "$2a$10$u4cOSEeePFyJlpvkPdtmhenMuPYhloQfrVS19DZU8/.5jtJNm7piW";
-    private static final String EMAIL_1 = "john_doe@mail.com";
-    private static final String EMAIL_2 = "richard_roe@mail.com";
+    private static final String TEST_EMAIL = "john_doe@mail.com";
+    private static final String ANOTHER_TEST_EMAIL = "richard_roe@mail.com";
     private static final String FIRST_NAME = "John";
     private static final String LAST_NAME = "Doe";
     private static final String ROLE_USER = "ROLE_USER";
@@ -44,9 +43,9 @@ class UserRepositoryTest {
 
         userRepository.save(
                 User.builder()
-                        .username(USERNAME_1)
-                        .password(PASSWORD_1_DB)
-                        .email(EMAIL_1)
+                        .username(TEST_USERNAME)
+                        .password(TEST_PASSWORD_ENCODED)
+                        .email(TEST_EMAIL)
                         .firstName(FIRST_NAME)
                         .lastName(LAST_NAME)
                         .role(savedRole)
@@ -57,9 +56,9 @@ class UserRepositoryTest {
 
     @Test
     void givenUser_whenFindByUsername_thenReturnUser() {
-        User user = userRepository.findByUsername(USERNAME_1).orElseThrow(
+        User user = userRepository.findByUsername(TEST_USERNAME).orElseThrow(
                 () -> new EntityNotFoundException("No user found with username \""
-                        + USERNAME_1 + "\""));
+                        + TEST_USERNAME + "\""));
 
         userAssertions(user);
     }
@@ -67,14 +66,14 @@ class UserRepositoryTest {
     @Test
     void givenNotExistingUser_whenFindByUsername_thenReturnEmptyUser() {
         assertTrue(userRepository.findByUsername(
-                USERNAME_2).isEmpty());
+                ANOTHER_TEST_USERNAME).isEmpty());
     }
 
     @Test
     void givenUser_whenFindByEmail_thenReturnUser() {
-        User user = userRepository.findByEmail(EMAIL_1).orElseThrow(
+        User user = userRepository.findByEmail(TEST_EMAIL).orElseThrow(
                 () -> new EntityNotFoundException("No user found with username \""
-                        + EMAIL_1 + "\""));
+                        + TEST_EMAIL + "\""));
 
         userAssertions(user);
     }
@@ -82,35 +81,35 @@ class UserRepositoryTest {
     @Test
     void givenNotExistingUser_whenFindByEmail_thenReturnEmptyUser() {
         assertTrue(userRepository.findByEmail(
-                EMAIL_2).isEmpty());
+                ANOTHER_TEST_EMAIL).isEmpty());
     }
 
     @Test
     void givenUser_whenExistsByUsername_thenReturnTrue() {
-        assertTrue(userRepository.existsByUsername(USERNAME_1));
+        assertTrue(userRepository.existsByUsername(TEST_USERNAME));
     }
 
     @Test
     void givenNotExistingUser_whenExistsByUsername_thenReturnFalse() {
         assertFalse(userRepository.existsByUsername(
-                USERNAME_2));
+                ANOTHER_TEST_USERNAME));
     }
 
     @Test
     void givenUser_whenExistsByEmail_thenReturnTrue() {
-        assertTrue(userRepository.existsByEmail(EMAIL_1));
+        assertTrue(userRepository.existsByEmail(TEST_EMAIL));
     }
 
     @Test
     void givenNotExistingUser_whenExistsByEmail_thenReturnFalse() {
-        assertFalse(userRepository.existsByEmail(EMAIL_2));
+        assertFalse(userRepository.existsByEmail(ANOTHER_TEST_EMAIL));
     }
 
     private void userAssertions(User user) {
         assertNotNull(user);
-        assertEquals(USERNAME_1, user.getUsername());
-        assertEquals(PASSWORD_1_DB, user.getPassword());
-        assertEquals(EMAIL_1, user.getEmail());
+        assertEquals(TEST_USERNAME, user.getUsername());
+        assertEquals(TEST_PASSWORD_ENCODED, user.getPassword());
+        assertEquals(TEST_EMAIL, user.getEmail());
         assertEquals(FIRST_NAME, user.getFirstName());
         assertEquals(LAST_NAME, user.getLastName());
         assertEquals(ROLE_USER, user.getRole().getName().name());

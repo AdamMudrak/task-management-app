@@ -36,10 +36,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TaskRepositoryTest {
-    private static final String USERNAME_1 = "JohnDoe";
-    private static final String PASSWORD_1_DB =
+    private static final String TEST_USERNAME = "JohnDoe";
+    private static final String TEST_PASSWORD_ENCODED =
             "$2a$10$u4cOSEeePFyJlpvkPdtmhenMuPYhloQfrVS19DZU8/.5jtJNm7piW";
-    private static final String EMAIL_1 = "john_doe@mail.com";
+    private static final String TEST_EMAIL = "john_doe@mail.com";
     private static final String FIRST_NAME = "John";
     private static final String LAST_NAME = "Doe";
     private static final String PROJECT_NAME = "projectName";
@@ -48,11 +48,11 @@ class TaskRepositoryTest {
     private static final String ANOTHER_PROJECT_DESCRIPTION = "anotherProjectDescription";
     private static final LocalDate PROJECT_START_DATE = LocalDate.of(2025, 1, 1);
     private static final LocalDate PROJECT_END_DATE = LocalDate.of(2025, 12, 31);
-    private static final String TASK_NAME_1 = "taskName";
-    private static final String TASK_DESCRIPTION_1 = "taskDescription";
+    private static final String TASK_NAME = "taskName";
+    private static final String TASK_DESCRIPTION = "taskDescription";
     private static final LocalDate TASK_DUE_DATE = LocalDate.of(2025, 12, 31);
-    private static final String LABEL_NAME_1 = "labelName";
-    private static final String LABEL_NAME_2 = "anotherLabelName";
+    private static final String LABEL_NAME = "labelName";
+    private static final String ANOTHER_LABEL_NAME = "anotherLabelName";
     private static final Logger logger = LogManager.getLogger(TaskRepositoryTest.class);
     @MockitoBean
     private final DbxClientV2 dbxClientV2 = null; //unused since not needed
@@ -66,10 +66,10 @@ class TaskRepositoryTest {
     private TaskRepository taskRepository;
     @Autowired
     private LabelRepository labelRepository;
-    private User user1;
+    private User savedUser;
     private Project livingProject;
     private Project deletedProject;
-    private Task task1;
+    private Task task;
     private Label livingLabel;
     private Label labelWithNoTask;
 
@@ -78,11 +78,11 @@ class TaskRepositoryTest {
         Role savedRole = roleRepository.save(
                 Role.builder().name(Role.RoleName.ROLE_USER).build());
 
-        user1 = userRepository.save(
+        savedUser = userRepository.save(
                 User.builder()
-                        .username(USERNAME_1)
-                        .password(PASSWORD_1_DB)
-                        .email(EMAIL_1)
+                        .username(TEST_USERNAME)
+                        .password(TEST_PASSWORD_ENCODED)
+                        .email(TEST_EMAIL)
                         .firstName(FIRST_NAME)
                         .lastName(LAST_NAME)
                         .role(savedRole)
@@ -98,9 +98,9 @@ class TaskRepositoryTest {
                         .endDate(PROJECT_END_DATE)
                         .status(Project.Status.IN_PROGRESS)
                         .isDeleted(false)
-                        .owner(user1)
-                        .managers(Set.of(user1))
-                        .employees(Set.of(user1))
+                        .owner(savedUser)
+                        .managers(Set.of(savedUser))
+                        .employees(Set.of(savedUser))
                         .build()));
 
         deletedProject = projectRepository.save(projectRepository.save(
@@ -111,9 +111,9 @@ class TaskRepositoryTest {
                         .endDate(PROJECT_END_DATE)
                         .status(Project.Status.COMPLETED)
                         .isDeleted(true)
-                        .owner(user1)
-                        .managers(Set.of(user1))
-                        .employees(Set.of(user1))
+                        .owner(savedUser)
+                        .managers(Set.of(savedUser))
+                        .employees(Set.of(savedUser))
                         .build()));
     }
 
@@ -136,31 +136,31 @@ class TaskRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        task1 = taskRepository.save(
+        task = taskRepository.save(
                 Task.builder()
-                        .name(TASK_NAME_1)
-                        .description(TASK_DESCRIPTION_1)
+                        .name(TASK_NAME)
+                        .description(TASK_DESCRIPTION)
                         .priority(Task.Priority.LOW)
                         .status(Task.Status.NOT_STARTED)
                         .dueDate(TASK_DUE_DATE)
                         .project(livingProject)
-                        .assignee(user1)
+                        .assignee(savedUser)
                         .isDeleted(false)
                         .build());
 
         livingLabel = labelRepository.save(
                         Label.builder()
-                                .name(LABEL_NAME_1)
+                                .name(LABEL_NAME)
                                 .color(Label.Color.RED)
-                                .user(user1)
-                                .tasks(Set.of(task1))
+                                .user(savedUser)
+                                .tasks(Set.of(task))
                                 .build());
 
         labelWithNoTask = labelRepository.save(
                         Label.builder()
-                                .name(LABEL_NAME_2)
+                                .name(ANOTHER_LABEL_NAME)
                                 .color(Label.Color.YELLOW)
-                                .user(user1)
+                                .user(savedUser)
                                 .build());
     }
 
@@ -188,16 +188,16 @@ class TaskRepositoryTest {
 
     @Test
     void givenTask_whenFindByIdNotDeleted_thenReturnTask() {
-        Task task = taskRepository.findByIdNotDeleted(task1.getId()).orElseThrow(
-                () -> new EntityNotFoundException("Task with id " + task1.getId() + " not found"));
+        Task task = taskRepository.findByIdNotDeleted(this.task.getId()).orElseThrow(
+                () -> new EntityNotFoundException("Task with id " + this.task.getId() + " not found"));
         taskAssertions(task);
     }
 
     @Test
     void givenDeletedByProjectTask_whenFindByIdNotDeleted_thenReturnOptionalEmpty() {
-        assertTrue(taskRepository.findByIdNotDeleted(task1.getId()).isPresent());
+        assertTrue(taskRepository.findByIdNotDeleted(task.getId()).isPresent());
         taskRepository.deleteAllByProjectId(livingProject.getId());
-        assertTrue(taskRepository.findByIdNotDeleted(task1.getId()).isEmpty());
+        assertTrue(taskRepository.findByIdNotDeleted(task.getId()).isEmpty());
     }
 
     @Test
@@ -216,14 +216,14 @@ class TaskRepositoryTest {
 
     private void taskAssertions(Task task) {
         assertNotNull(task);
-        assertEquals(task1.getId(), task.getId());
-        assertEquals(TASK_NAME_1, task.getName());
-        assertEquals(TASK_DESCRIPTION_1, task.getDescription());
+        assertEquals(this.task.getId(), task.getId());
+        assertEquals(TASK_NAME, task.getName());
+        assertEquals(TASK_DESCRIPTION, task.getDescription());
         assertEquals(Task.Priority.LOW, task.getPriority());
         assertEquals(Task.Status.NOT_STARTED, task.getStatus());
         assertEquals(TASK_DUE_DATE, task.getDueDate());
         assertEquals(livingProject, task.getProject());
-        assertEquals(user1, task.getAssignee());
+        assertEquals(savedUser, task.getAssignee());
         assertFalse(task.isDeleted());
     }
 }

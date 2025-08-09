@@ -20,7 +20,6 @@ import javax.sql.DataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,25 +33,25 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AttachmentRepositoryTest {
-    private static final String USERNAME_1 = "JohnDoe";
-    private static final String PASSWORD_1_DB =
+    private static final String TEST_USERNAME = "JohnDoe";
+    private static final String TEST_PASSWORD_ENCODED =
             "$2a$10$u4cOSEeePFyJlpvkPdtmhenMuPYhloQfrVS19DZU8/.5jtJNm7piW";
-    private static final String EMAIL_1 = "john_doe@mail.com";
+    private static final String TEST_EMAIL = "john_doe@mail.com";
     private static final String FIRST_NAME = "John";
     private static final String LAST_NAME = "Doe";
     private static final String PROJECT_NAME = "projectName";
     private static final String PROJECT_DESCRIPTION = "projectDescription";
     private static final LocalDate PROJECT_START_DATE = LocalDate.of(2025, 1, 1);
     private static final LocalDate PROJECT_END_DATE = LocalDate.of(2025, 12, 31);
-    private static final String TASK_NAME_1 = "taskName";
-    private static final String TASK_NAME_2 = "anotherTaskName";
-    private static final String TASK_DESCRIPTION_1 = "taskDescription";
-    private static final String TASK_DESCRIPTION_2 = "anotherTaskDescription";
+    private static final String TASK_NAME = "taskName";
+    private static final String ANOTHER_TASK_NAME = "anotherTaskName";
+    private static final String TASK_DESCRIPTION = "taskDescription";
+    private static final String ANOTHER_TASK_DESCRIPTION = "anotherTaskDescription";
     private static final LocalDate TASK_DUE_DATE = LocalDate.of(2025, 12, 31);
-    private static final String FILE_ID_1 = "fileId1";
-    private static final String FILE_NAME_1 = "fileName1";
-    private static final String FILE_ID_2 = "fileId2";
-    private static final String FILE_NAME_2 = "fileName2";
+    private static final String FILE_ID = "fileId1";
+    private static final String FILE_NAME = "fileName1";
+    private static final String ANOTHER_FILE_ID = "fileId2";
+    private static final String ANOTHER_FILE_NAME = "fileName2";
     private static final LocalDateTime UPLOADED_DATE = LocalDateTime.of(2025, 1, 6, 0, 0);
     private static final Logger logger = LogManager.getLogger(AttachmentRepositoryTest.class);
     @MockitoBean
@@ -67,21 +66,21 @@ class AttachmentRepositoryTest {
     private TaskRepository taskRepository;
     @Autowired
     private AttachmentRepository attachmentRepository;
-    private Task task1;
-    private Task task2;
-    private Long attachment1Id;
-    private Long attachment2Id;
+    private Task task;
+    private Task anotherTask;
+    private Long firstAttachmentId;
+    private Long anotherAttachmentId;
 
     @BeforeAll
     void setUpBeforeAll() {
         Role savedRole = roleRepository.save(
                 Role.builder().name(Role.RoleName.ROLE_USER).build());
 
-        User user1 = userRepository.save(
+        User user = userRepository.save(
                 User.builder()
-                        .username(USERNAME_1)
-                        .password(PASSWORD_1_DB)
-                        .email(EMAIL_1)
+                        .username(TEST_USERNAME)
+                        .password(TEST_PASSWORD_ENCODED)
+                        .email(TEST_EMAIL)
                         .firstName(FIRST_NAME)
                         .lastName(LAST_NAME)
                         .role(savedRole)
@@ -97,31 +96,31 @@ class AttachmentRepositoryTest {
                         .endDate(PROJECT_END_DATE)
                         .status(Project.Status.IN_PROGRESS)
                         .isDeleted(false)
-                        .owner(user1)
-                        .managers(Set.of(user1))
-                        .employees(Set.of(user1))
+                        .owner(user)
+                        .managers(Set.of(user))
+                        .employees(Set.of(user))
                         .build());
 
-        task1 = taskRepository.save(
+        task = taskRepository.save(
                 Task.builder()
-                        .name(TASK_NAME_1)
-                        .description(TASK_DESCRIPTION_1)
+                        .name(TASK_NAME)
+                        .description(TASK_DESCRIPTION)
                         .priority(Task.Priority.LOW)
                         .status(Task.Status.NOT_STARTED)
                         .dueDate(TASK_DUE_DATE)
                         .project(project)
-                        .assignee(user1)
+                        .assignee(user)
                         .isDeleted(false)
                         .build());
 
-        task2 = taskRepository.save(Task.builder()
-                .name(TASK_NAME_2)
-                .description(TASK_DESCRIPTION_2)
+        anotherTask = taskRepository.save(Task.builder()
+                .name(ANOTHER_TASK_NAME)
+                .description(ANOTHER_TASK_DESCRIPTION)
                 .priority(Task.Priority.MEDIUM)
                 .status(Task.Status.IN_PROGRESS)
                 .dueDate(TASK_DUE_DATE)
                 .project(project)
-                .assignee(user1)
+                .assignee(user)
                 .isDeleted(false)
                 .build());
     }
@@ -146,46 +145,46 @@ class AttachmentRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        Attachment attachment1 = attachmentRepository.save(
+        Attachment firstSavedAttachment = attachmentRepository.save(
                 Attachment.builder()
-                        .task(task1)
-                        .fileId(FILE_ID_1)
-                        .fileName(FILE_NAME_1)
+                        .task(task)
+                        .fileId(FILE_ID)
+                        .fileName(FILE_NAME)
                         .uploadDate(UPLOADED_DATE)
                         .build());
-        attachment1Id = attachment1.getId();
+        firstAttachmentId = firstSavedAttachment.getId();
 
-        Attachment attachment2 = attachmentRepository.save(
+        Attachment anotherSavedAttachment = attachmentRepository.save(
                 Attachment.builder()
-                        .task(task1)
-                        .fileId(FILE_ID_2)
-                        .fileName(FILE_NAME_2)
+                        .task(task)
+                        .fileId(ANOTHER_FILE_ID)
+                        .fileName(ANOTHER_FILE_NAME)
                         .uploadDate(UPLOADED_DATE)
                         .build());
-        attachment2Id = attachment2.getId();
+        anotherAttachmentId = anotherSavedAttachment.getId();
     }
 
     @Test
     void givenTwoAttachments_whenFindAllByTaskId_thenReturnTwoAttachments() {
-        List<Attachment> attachments = attachmentRepository.findAllByTaskId(task1.getId());
+        List<Attachment> attachments = attachmentRepository.findAllByTaskId(task.getId());
         for (Attachment attachment : attachments) {
-            if (attachment.getId().equals(attachment1Id)) {
-                attachmentAssertions(attachment, FILE_ID_1, FILE_NAME_1);
-            } else if (attachment.getId().equals(attachment2Id)) {
-                attachmentAssertions(attachment, FILE_ID_2, FILE_NAME_2);
+            if (attachment.getId().equals(firstAttachmentId)) {
+                attachmentAssertions(attachment, FILE_ID, FILE_NAME);
+            } else if (attachment.getId().equals(anotherAttachmentId)) {
+                attachmentAssertions(attachment, ANOTHER_FILE_ID, ANOTHER_FILE_NAME);
             }
         }
     }
 
     @Test
     void givenTaskWithNoAttachment_whenFindAllByTaskId_thenReturnEmptyList() {
-        assertTrue(attachmentRepository.findAllByTaskId(task2.getId()).isEmpty());
+        assertTrue(attachmentRepository.findAllByTaskId(anotherTask.getId()).isEmpty());
     }
 
     private void attachmentAssertions(Attachment attachment, String fileId, String fileName) {
         assertEquals(fileId, attachment.getFileId());
         assertEquals(fileName, attachment.getFileName());
-        assertEquals(task1, attachment.getTask());
+        assertEquals(task, attachment.getTask());
         assertEquals(UPLOADED_DATE, attachment.getUploadDate());
     }
 }

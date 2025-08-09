@@ -35,12 +35,12 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class CommentRepositoryTest {
-    private static final String USERNAME_1 = "JohnDoe";
-    private static final String USERNAME_2 = "RichardRoe";
-    private static final String PASSWORD_1_DB =
+    private static final String TEST_USERNAME = "JohnDoe";
+    private static final String ANOTHER_TEST_USERNAME = "RichardRoe";
+    private static final String TEST_PASSWORD_ENCODED =
             "$2a$10$u4cOSEeePFyJlpvkPdtmhenMuPYhloQfrVS19DZU8/.5jtJNm7piW";
-    private static final String EMAIL_1 = "john_doe@mail.com";
-    private static final String EMAIL_2 = "richard_roe@mail.com";
+    private static final String TEST_EMAIL = "john_doe@mail.com";
+    private static final String ANOTHER_TEST_EMAIL = "richard_roe@mail.com";
     private static final String FIRST_NAME = "John";
     private static final String LAST_NAME = "Doe";
     private static final String ANOTHER_FIRST_NAME = "Richard";
@@ -49,14 +49,14 @@ public class CommentRepositoryTest {
     private static final String PROJECT_DESCRIPTION = "projectDescription";
     private static final LocalDate PROJECT_START_DATE = LocalDate.of(2025, 1, 1);
     private static final LocalDate PROJECT_END_DATE = LocalDate.of(2025, 12, 31);
-    private static final String TASK_NAME_1 = "taskName";
-    private static final String TASK_NAME_2 = "anotherTaskName";
-    private static final String TASK_DESCRIPTION_1 = "taskDescription";
-    private static final String TASK_DESCRIPTION_2 = "anotherTaskDescription";
+    private static final String TASK_NAME = "taskName";
+    private static final String ANOTHER_TASK_NAME = "anotherTaskName";
+    private static final String TASK_DESCRIPTION = "taskDescription";
+    private static final String ANOTHER_TASK_DESCRIPTION = "anotherTaskDescription";
     private static final LocalDate TASK_DUE_DATE = LocalDate.of(2025, 12, 31);
     private static final LocalDateTime TIME_STAMP = LocalDateTime.of(2025, 1, 6, 8, 30);
-    private static final String COMMENT_TEXT_1 = "commentText1";
-    private static final String COMMENT_TEXT_2 = "commentText2";
+    private static final String COMMENT_TEXT = "commentText1";
+    private static final String ANOTHER_COMMENT_TEXT = "commentText2";
     private static final Logger logger = LogManager.getLogger(CommentRepositoryTest.class);
     @MockitoBean
     private final DbxClientV2 dbxClientV2 = null; //unused since not needed
@@ -70,23 +70,23 @@ public class CommentRepositoryTest {
     private TaskRepository taskRepository;
     @Autowired
     private CommentRepository commentRepository;
-    private User user1;
-    private User user2;
-    private Task task1;
-    private Task task2;
-    private Comment comment1;
-    private Comment comment2;
+    private User user;
+    private User userWithNoComments;
+    private Task task;
+    private Task taskWithNoComments;
+    private Comment firstTaskComment;
+    private Comment anotherTaskComment;
 
     @BeforeAll
     void setUpBeforeAll() {
         Role savedRole = roleRepository.save(
                 Role.builder().name(Role.RoleName.ROLE_USER).build());
 
-        user1 = userRepository.save(
+        user = userRepository.save(
                 User.builder()
-                        .username(USERNAME_1)
-                        .password(PASSWORD_1_DB)
-                        .email(EMAIL_1)
+                        .username(TEST_USERNAME)
+                        .password(TEST_PASSWORD_ENCODED)
+                        .email(TEST_EMAIL)
                         .firstName(FIRST_NAME)
                         .lastName(LAST_NAME)
                         .role(savedRole)
@@ -94,11 +94,11 @@ public class CommentRepositoryTest {
                         .isAccountNonLocked(true)
                         .build());
 
-        user2 = userRepository.save(
+        userWithNoComments = userRepository.save(
                 User.builder()
-                        .username(USERNAME_2)
-                        .password(PASSWORD_1_DB)
-                        .email(EMAIL_2)
+                        .username(ANOTHER_TEST_USERNAME)
+                        .password(TEST_PASSWORD_ENCODED)
+                        .email(ANOTHER_TEST_EMAIL)
                         .firstName(ANOTHER_FIRST_NAME)
                         .lastName(ANOTHER_LAST_NAME)
                         .role(savedRole)
@@ -114,31 +114,31 @@ public class CommentRepositoryTest {
                         .endDate(PROJECT_END_DATE)
                         .status(Project.Status.IN_PROGRESS)
                         .isDeleted(false)
-                        .owner(user1)
-                        .managers(Set.of(user1))
-                        .employees(Set.of(user1))
+                        .owner(user)
+                        .managers(Set.of(user))
+                        .employees(Set.of(user))
                         .build());
 
-        task1 = taskRepository.save(
+        task = taskRepository.save(
                 Task.builder()
-                        .name(TASK_NAME_1)
-                        .description(TASK_DESCRIPTION_1)
+                        .name(TASK_NAME)
+                        .description(TASK_DESCRIPTION)
                         .priority(Task.Priority.LOW)
                         .status(Task.Status.NOT_STARTED)
                         .dueDate(TASK_DUE_DATE)
                         .project(project)
-                        .assignee(user1)
+                        .assignee(user)
                         .isDeleted(false)
                         .build());
 
-        task2 = taskRepository.save(Task.builder()
-                .name(TASK_NAME_2)
-                .description(TASK_DESCRIPTION_2)
+        taskWithNoComments = taskRepository.save(Task.builder()
+                .name(ANOTHER_TASK_NAME)
+                .description(ANOTHER_TASK_DESCRIPTION)
                 .priority(Task.Priority.MEDIUM)
                 .status(Task.Status.IN_PROGRESS)
                 .dueDate(TASK_DUE_DATE)
                 .project(project)
-                .assignee(user1)
+                .assignee(user)
                 .isDeleted(false)
                 .build());
     }
@@ -163,35 +163,35 @@ public class CommentRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        comment1 = commentRepository.save(
+        firstTaskComment = commentRepository.save(
                 Comment.builder()
-                        .task(task1)
-                        .user(user1)
-                        .text(COMMENT_TEXT_1)
+                        .task(task)
+                        .user(user)
+                        .text(COMMENT_TEXT)
                         .timestamp(TIME_STAMP)
                         .build());
 
-        comment2 = commentRepository.save(
+        anotherTaskComment = commentRepository.save(
                 Comment.builder()
-                        .task(task1)
-                        .user(user1)
-                        .text(COMMENT_TEXT_2)
+                        .task(task)
+                        .user(user)
+                        .text(ANOTHER_COMMENT_TEXT)
                         .timestamp(TIME_STAMP)
                         .build());
     }
 
     @Test
-    void givenTwoCommentsOfUser1ForTask1_whenFindAllByTaskId_thenReturnListOfTwoComments() {
+    void givenTwoCommentsOfUserForTask_whenFindAllByTaskId_thenReturnListOfTwoComments() {
         List<Comment> commentList =
-                commentRepository.findAllByTaskId(task1.getId(), Pageable.unpaged()).getContent();
+                commentRepository.findAllByTaskId(task.getId(), Pageable.unpaged()).getContent();
         assertEquals(2, commentList.size());
         for (Comment comment : commentList) {
-            if (comment.getId().equals(comment1.getId())) {
-                commentAssertions(comment, task1, user1,
-                        COMMENT_TEXT_1);
-            } else if (comment.getId().equals(comment2.getId())) {
-                commentAssertions(comment, task1, user1,
-                        COMMENT_TEXT_2);
+            if (comment.getId().equals(firstTaskComment.getId())) {
+                commentAssertions(comment, task, user,
+                        COMMENT_TEXT);
+            } else if (comment.getId().equals(anotherTaskComment.getId())) {
+                commentAssertions(comment, task, user,
+                        ANOTHER_COMMENT_TEXT);
             }
         }
     }
@@ -199,38 +199,38 @@ public class CommentRepositoryTest {
     @Test
     void givenTaskWithNoComments_whenFindAllByTaskId_thenReturnEmptyList() {
         assertTrue(
-                commentRepository.findAllByTaskId(task2.getId(), Pageable.unpaged()).isEmpty());
+                commentRepository.findAllByTaskId(taskWithNoComments.getId(), Pageable.unpaged()).isEmpty());
     }
 
     @Test
-    void givenTwoCommentsOfUser1ForTask1_whenDeleteAllByTaskId_thenReturnEmptyList() {
+    void givenTwoCommentsOfUserForTask_whenDeleteAllByTaskId_thenReturnEmptyList() {
         List<Comment> commentList =
-                commentRepository.findAllByTaskId(task1.getId(), Pageable.unpaged()).getContent();
+                commentRepository.findAllByTaskId(task.getId(), Pageable.unpaged()).getContent();
         assertEquals(2, commentList.size());
-        commentRepository.deleteAllByTaskId(task1.getId());
+        commentRepository.deleteAllByTaskId(task.getId());
         assertTrue(
-                commentRepository.findAllByTaskId(task1.getId(), Pageable.unpaged()).isEmpty());
+                commentRepository.findAllByTaskId(task.getId(), Pageable.unpaged()).isEmpty());
     }
 
     @Test
     void givenComment_whenFindByIdAndUserId_thenReturnCommentTwice() {
-        Comment firstComment = commentRepository.findByIdAndUserId(comment1.getId(), user1.getId())
+        Comment firstComment = commentRepository.findByIdAndUserId(firstTaskComment.getId(), user.getId())
                 .orElseThrow(() -> new EntityNotFoundException("No comment with id "
-                        + comment1.getId() + " for user with id " + user1.getId()));
-        commentAssertions(firstComment, task1, user1, COMMENT_TEXT_1);
+                        + firstTaskComment.getId() + " for user with id " + user.getId()));
+        commentAssertions(firstComment, task, user, COMMENT_TEXT);
 
-        Comment secondComment = commentRepository.findByIdAndUserId(comment2.getId(), user1.getId())
+        Comment secondComment = commentRepository.findByIdAndUserId(anotherTaskComment.getId(), user.getId())
                 .orElseThrow(() -> new EntityNotFoundException("No comment with id "
-                        + comment2.getId() + " for user with id " + user1.getId()));
-        commentAssertions(secondComment, task1, user1, COMMENT_TEXT_2);
+                        + anotherTaskComment.getId() + " for user with id " + user.getId()));
+        commentAssertions(secondComment, task, user, ANOTHER_COMMENT_TEXT);
     }
 
     @Test
     void givenUserWithNoComment_whenFindByIdAndUserId_thenReturnEmpty() {
         assertTrue(
-                commentRepository.findByIdAndUserId(comment1.getId(), user2.getId()).isEmpty());
+                commentRepository.findByIdAndUserId(firstTaskComment.getId(), userWithNoComments.getId()).isEmpty());
         assertTrue(
-                commentRepository.findByIdAndUserId(comment2.getId(), user2.getId()).isEmpty());
+                commentRepository.findByIdAndUserId(anotherTaskComment.getId(), userWithNoComments.getId()).isEmpty());
     }
 
     private void commentAssertions(Comment comment, Task task, User user,
