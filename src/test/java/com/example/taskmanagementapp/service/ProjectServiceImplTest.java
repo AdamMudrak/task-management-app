@@ -1,4 +1,4 @@
-package com.example.taskmanagementapp.service.impl;
+package com.example.taskmanagementapp.service;
 
 import static com.example.taskmanagementapp.constant.security.SecurityConstants.CANNOT_ACCESS_PROJECT;
 import static com.example.taskmanagementapp.constant.security.SecurityConstants.CANNOT_DELETE_MANAGER;
@@ -37,6 +37,7 @@ import com.example.taskmanagementapp.security.jwtutil.impl.JwtActionUtil;
 import com.example.taskmanagementapp.security.jwtutil.strategy.JwtStrategy;
 import com.example.taskmanagementapp.security.jwtutil.strategy.JwtType;
 import com.example.taskmanagementapp.service.email.AssignmentToProjectEmailService;
+import com.example.taskmanagementapp.service.impl.ProjectServiceImpl;
 import com.example.taskmanagementapp.service.utils.ParamFromHttpRequestUtil;
 import com.example.taskmanagementapp.service.utils.ProjectAuthorityUtil;
 import io.jsonwebtoken.JwtException;

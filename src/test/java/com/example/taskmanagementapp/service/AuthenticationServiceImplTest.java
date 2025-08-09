@@ -1,4 +1,4 @@
-package com.example.taskmanagementapp.service.impl;
+package com.example.taskmanagementapp.service;
 
 import static com.example.taskmanagementapp.constant.security.SecurityConstants.ACCOUNT_IS_LOCKED;
 import static com.example.taskmanagementapp.constant.security.SecurityConstants.CHECK_YOUR_EMAIL;
@@ -44,6 +44,7 @@ import com.example.taskmanagementapp.security.jwtutil.strategy.JwtStrategy;
 import com.example.taskmanagementapp.security.jwtutil.strategy.JwtType;
 import com.example.taskmanagementapp.service.email.PasswordEmailService;
 import com.example.taskmanagementapp.service.email.RegisterConfirmEmailService;
+import com.example.taskmanagementapp.service.impl.AuthenticationServiceImpl;
 import com.example.taskmanagementapp.service.utils.ParamFromHttpRequestUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

@@ -1,4 +1,4 @@
-package com.example.taskmanagementapp.service.impl;
+package com.example.taskmanagementapp.service;
 
 import static com.example.taskmanagementapp.constant.security.SecurityConstants.NO_ACCESS_PERMISSION_FOR_TASK;
 import static com.example.taskmanagementapp.constant.security.SecurityConstants.NO_PERMISSION_FOR_TASK_DELETION;
@@ -27,6 +27,7 @@ import com.example.taskmanagementapp.repository.ProjectRepository;
 import com.example.taskmanagementapp.repository.TaskRepository;
 import com.example.taskmanagementapp.repository.UserRepository;
 import com.example.taskmanagementapp.service.email.TaskAssignmentEmailService;
+import com.example.taskmanagementapp.service.impl.TaskServiceImpl;
 import com.example.taskmanagementapp.service.utils.ProjectAuthorityUtil;
 import java.time.LocalDate;
 import java.util.List;

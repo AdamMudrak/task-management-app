@@ -1,4 +1,4 @@
-package com.example.taskmanagementapp.service.impl;
+package com.example.taskmanagementapp.service;
 
 import static com.example.taskmanagementapp.constant.security.SecurityConstants.CONFIRM_NEW_EMAIL_MESSAGE;
 import static com.example.taskmanagementapp.constant.security.SecurityConstants.FORBIDDEN_STATUS_CHANGE;
@@ -30,6 +30,7 @@ import com.example.taskmanagementapp.security.jwtutil.impl.JwtActionUtil;
 import com.example.taskmanagementapp.security.jwtutil.strategy.JwtStrategy;
 import com.example.taskmanagementapp.security.jwtutil.strategy.JwtType;
 import com.example.taskmanagementapp.service.email.ChangeEmailService;
+import com.example.taskmanagementapp.service.impl.UserServiceImpl;
 import com.example.taskmanagementapp.service.utils.ParamFromHttpRequestUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Arrays;

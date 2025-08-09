@@ -1,4 +1,4 @@
-package com.example.taskmanagementapp.service.impl;
+package com.example.taskmanagementapp.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,6 +20,7 @@ import com.example.taskmanagementapp.exception.ForbiddenException;
 import com.example.taskmanagementapp.mapper.CommentMapper;
 import com.example.taskmanagementapp.repository.CommentRepository;
 import com.example.taskmanagementapp.repository.TaskRepository;
+import com.example.taskmanagementapp.service.impl.CommentServiceImpl;
 import com.example.taskmanagementapp.service.utils.ProjectAuthorityUtil;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
