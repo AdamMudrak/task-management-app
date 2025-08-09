@@ -55,27 +55,28 @@ import org.springframework.web.context.WebApplicationContext;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
 public class AuthControllerTest {
-    private static final String USERNAME_1 = "JohnDoe";
-    private static final String PASSWORD_1 = "Best_Password1@3$";
-    private static final String PASSWORD_1_DB =
+    private static final String VALID_USERNAME = "JohnDoe";
+    private static final String VALID_EMAIL = "john_doe@mail.com";
+    private static final String FIRST_TEST_PASSWORD = "Best_Password1@3$";
+    private static final String FIRST_TEST_PASWORD_ENCODED =
             "$2a$10$u4cOSEeePFyJlpvkPdtmhenMuPYhloQfrVS19DZU8/.5jtJNm7piW";
-    private static final String EMAIL_1 = "john_doe@mail.com";
 
-    private static final String USERNAME_2 = "RichardRoe";
-    private static final String PASSWORD_2 = "newPassword1@";
-    private static final String EMAIL_2 = "richard_roe@mail.com";
 
-    private static final String USERNAME_3 = "JaneDoe";
-    private static final String EMAIL_3 = "jane_doe@mail.com";
+    private static final String DISABLED_USERNAME = "RichardRoe";
+    private static final String DISABLED_EMAIL = "richard_roe@mail.com";
+    private static final String SECOND_TEST_PASSWORD = "newPassword1@";
 
-    private static final String USERNAME_4 = "TheBestJohnDoe";
-    private static final String EMAIL_4 = "bestjohndoe@mail.com";
+    private static final String NOT_ACTIVATED_USERNAME = "JaneDoe";
+    private static final String NOT_ACTIVATED_EMAIL = "jane_doe@mail.com";
 
-    private static final String USERNAME_5 = "TheNewJohnDoe";
-    private static final String EMAIL_5 = "newjohndoe@mail.com";
+    private static final String CONFIRM_REGISTER_SUCCESS_USERNAME = "TheBestJohnDoe";
+    private static final String CONFIRM_REGISTER_SUCCESS_EMAIL = "bestjohndoe@mail.com";
 
-    private static final String USERNAME_6 = "YetAnotherJohnDoe";
-    private static final String EMAIL_6 = "yetanothertestjohndoe@mail.com";
+    private static final String REGISTER_SUCCESS_USERNAME = "TheNewJohnDoe";
+    private static final String REGISTER_SUCCESS_EMAIL = "newjohndoe@mail.com";
+
+    private static final String EXISTS_BY_EMAIL_USERNAME = "YetAnotherJohnDoe";
+    private static final String EXISTS_BY_USERNAME_EMAIL = "yetanothertestjohndoe@mail.com";
 
     private static final String INVALID_USERNAME = "username@likemail.com";
     private static final String INVALID_EMAIL = "invalidmail.com";
@@ -85,6 +86,10 @@ public class AuthControllerTest {
 
     private static final String FIRST_NAME = "John";
     private static final String LAST_NAME = "Doe";
+
+    private static final String MOCK_EMAIL = "mock@mail.com";
+    private static final String MOCK_USERNAME = "mockUsername";
+    private static final String MOCK_PASSWORD = "Mock_Password1";
 
     private static final List<String> EXPECTED_ERRORS_ON_REGISTER = List.of(
             "firstName must not be blank.",
@@ -98,9 +103,6 @@ public class AuthControllerTest {
             "username : invalid username. Can't be like email.");
 
     private static final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(STRENGTH);
-    private static final String MOCK_EMAIL = "mock@mail.com";
-    private static final String MOCK_USERNAME = "mockUsername";
-    private static final String MOCK_PASSWORD = "Mock_Password1";
     private MockMvc mockMvc;
     @Autowired
     private ObjectMapper objectMapper;
@@ -127,9 +129,9 @@ public class AuthControllerTest {
 
         user = userRepository.save(
                 User.builder()
-                        .username(USERNAME_1)
-                        .password(PASSWORD_1_DB)
-                        .email(EMAIL_1)
+                        .username(VALID_USERNAME)
+                        .password(FIRST_TEST_PASWORD_ENCODED)
+                        .email(VALID_EMAIL)
                         .firstName(FIRST_NAME)
                         .lastName(LAST_NAME)
                         .role(savedRole)
@@ -139,9 +141,9 @@ public class AuthControllerTest {
 
         disabledUser = userRepository.save(
                 User.builder()
-                        .username(USERNAME_2)
-                        .password(PASSWORD_1_DB)
-                        .email(EMAIL_2)
+                        .username(DISABLED_USERNAME)
+                        .password(FIRST_TEST_PASWORD_ENCODED)
+                        .email(DISABLED_EMAIL)
                         .firstName(FIRST_NAME)
                         .lastName(LAST_NAME)
                         .role(savedRole)
@@ -151,9 +153,9 @@ public class AuthControllerTest {
 
         notActivatedUser = userRepository.save(
                 User.builder()
-                        .username(USERNAME_3)
-                        .password(PASSWORD_1_DB)
-                        .email(EMAIL_3)
+                        .username(NOT_ACTIVATED_USERNAME)
+                        .password(FIRST_TEST_PASWORD_ENCODED)
+                        .email(NOT_ACTIVATED_EMAIL)
                         .firstName(FIRST_NAME)
                         .lastName(LAST_NAME)
                         .role(savedRole)
@@ -201,10 +203,10 @@ public class AuthControllerTest {
         @Test
         void givenNewRegistrationRequest_whenRegister_thenReturnSuccess() throws Exception {
             successfulRegistration(new RegistrationRequest(
-                    USERNAME_5,
-                    PASSWORD_1,
-                    PASSWORD_1,
-                    EMAIL_5,
+                    REGISTER_SUCCESS_USERNAME,
+                    FIRST_TEST_PASSWORD,
+                    FIRST_TEST_PASSWORD,
+                    REGISTER_SUCCESS_EMAIL,
                     FIRST_NAME,
                     LAST_NAME));
         }
@@ -213,10 +215,10 @@ public class AuthControllerTest {
         void givenRegistrationRequestWithExistingUsername_whenRegister_thenConflict()
                 throws Exception {
             RegistrationRequest registrationRequest = new RegistrationRequest(
-                    USERNAME_1,
-                    PASSWORD_1,
-                    PASSWORD_1,
-                    EMAIL_6,
+                    VALID_USERNAME,
+                    FIRST_TEST_PASSWORD,
+                    FIRST_TEST_PASSWORD,
+                    EXISTS_BY_USERNAME_EMAIL,
                     FIRST_NAME,
                     LAST_NAME);
             String jsonRequest = objectMapper.writeValueAsString(registrationRequest);
@@ -239,10 +241,10 @@ public class AuthControllerTest {
         void givenRegistrationRequestWithExistingEmail_whenRegister_thenConflict()
                 throws Exception {
             RegistrationRequest registrationRequest = new RegistrationRequest(
-                    USERNAME_6,
-                            PASSWORD_1,
-                            PASSWORD_1,
-                            EMAIL_1,
+                    EXISTS_BY_EMAIL_USERNAME,
+                    FIRST_TEST_PASSWORD,
+                    FIRST_TEST_PASSWORD,
+                    VALID_EMAIL,
                             FIRST_NAME,
                             LAST_NAME);
             String jsonRequest = objectMapper.writeValueAsString(registrationRequest);
@@ -267,10 +269,10 @@ public class AuthControllerTest {
         void givenSuccessfulRegistrationRequest_whenConfirmRegistration_thenSuccess()
                 throws Exception {
             RegistrationRequest registrationRequest = new RegistrationRequest(
-                    USERNAME_4,
-                    PASSWORD_1,
-                    PASSWORD_1,
-                    EMAIL_4,
+                    CONFIRM_REGISTER_SUCCESS_USERNAME,
+                    FIRST_TEST_PASSWORD,
+                    FIRST_TEST_PASSWORD,
+                    CONFIRM_REGISTER_SUCCESS_EMAIL,
                     FIRST_NAME,
                     LAST_NAME);
             successfulRegistration(registrationRequest);
@@ -344,7 +346,7 @@ public class AuthControllerTest {
         void givenExistingUser_whenLoginWithEmail_thenGetResponseWithTokensInCookies()
                 throws Exception {
             String jsonRequest = objectMapper.writeValueAsString(
-                    new LoginRequest(EMAIL_1, PASSWORD_1));
+                    new LoginRequest(VALID_EMAIL, FIRST_TEST_PASSWORD));
             List<String> expectedCookies = new ArrayList<>();
             expectedCookies.add("refreshToken");
             expectedCookies.add("accessToken");
@@ -367,7 +369,7 @@ public class AuthControllerTest {
         void givenExistingUser_whenLoginWithUsername_thenGetResponseWithTokensInCookies()
                 throws Exception {
             String jsonRequest = objectMapper.writeValueAsString(
-                    new LoginRequest(USERNAME_1, PASSWORD_1));
+                    new LoginRequest(VALID_USERNAME, FIRST_TEST_PASSWORD));
             List<String> expectedCookies = new ArrayList<>();
             expectedCookies.add("refreshToken");
             expectedCookies.add("accessToken");
@@ -390,7 +392,7 @@ public class AuthControllerTest {
         void givenExistingUserWithWrongPassword_whenLoginWithUsername_thenLoginException()
                 throws Exception {
             String jsonRequest = objectMapper.writeValueAsString(
-                    new LoginRequest(USERNAME_1, MOCK_PASSWORD));
+                    new LoginRequest(VALID_USERNAME, MOCK_PASSWORD));
 
             MvcResult result = mockMvc
                     .perform(MockMvcRequestBuilders.post("/auth/login")
@@ -408,7 +410,7 @@ public class AuthControllerTest {
         void givenExistingDisabledUser_whenLoginWithUsername_thenLoginException()
                 throws Exception {
             String jsonRequest = objectMapper.writeValueAsString(
-                    new LoginRequest(USERNAME_2, PASSWORD_1));
+                    new LoginRequest(DISABLED_USERNAME, FIRST_TEST_PASSWORD));
 
             MvcResult result = mockMvc
                     .perform(MockMvcRequestBuilders.post("/auth/login")
@@ -427,7 +429,7 @@ public class AuthControllerTest {
         void givenExistingUserWithWrongPassword_whenLoginWithEmail_thenLoginException()
                 throws Exception {
             String jsonRequest = objectMapper.writeValueAsString(
-                    new LoginRequest(EMAIL_1, MOCK_PASSWORD));
+                    new LoginRequest(VALID_EMAIL, MOCK_PASSWORD));
 
             MvcResult result = mockMvc
                     .perform(MockMvcRequestBuilders.post("/auth/login")
@@ -445,7 +447,7 @@ public class AuthControllerTest {
         void givenExistingUserWithWrongLogin_whenLoginWithEmail_thenLoginException()
                 throws Exception {
             String jsonRequest = objectMapper.writeValueAsString(
-                    new LoginRequest(MOCK_EMAIL, PASSWORD_1));
+                    new LoginRequest(MOCK_EMAIL, FIRST_TEST_PASSWORD));
 
             MvcResult result = mockMvc
                     .perform(MockMvcRequestBuilders.post("/auth/login")
@@ -463,7 +465,7 @@ public class AuthControllerTest {
         void givenExistingUserWithWrongLogin_whenLoginWithUsername_thenLoginException()
                 throws Exception {
             String jsonRequest = objectMapper.writeValueAsString(
-                    new LoginRequest(MOCK_USERNAME, PASSWORD_1));
+                    new LoginRequest(MOCK_USERNAME, FIRST_TEST_PASSWORD));
 
             MvcResult result = mockMvc
                     .perform(MockMvcRequestBuilders.post("/auth/login")
@@ -480,36 +482,36 @@ public class AuthControllerTest {
 
     @Nested
     class ChangePassword {
-        @WithUserDetails(USERNAME_1)
+        @WithUserDetails(VALID_USERNAME)
         @Test
         void givenLoggedInUser_whenChangePassword_thenSuccess() throws Exception {
             String jsonRequest = objectMapper.writeValueAsString(new PasswordChangeRequest(
-                    PASSWORD_1,
-                    PASSWORD_2,
-                    PASSWORD_2));
+                    FIRST_TEST_PASSWORD,
+                    SECOND_TEST_PASSWORD,
+                    SECOND_TEST_PASSWORD));
 
             mockMvc.perform(MockMvcRequestBuilders.post("/auth/change-password")
                             .content(jsonRequest)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk());
 
-            User user = userRepository.findByUsername(USERNAME_1)
+            User user = userRepository.findByUsername(VALID_USERNAME)
                     .orElseThrow(() -> new EntityNotFoundException(
-                            "No user with username " + USERNAME_1));
-            assertTrue(encoder.matches(PASSWORD_2, user.getPassword()));
+                            "No user with username " + VALID_USERNAME));
+            assertTrue(encoder.matches(SECOND_TEST_PASSWORD, user.getPassword()));
 
             //reset this test
-            user.setPassword(PASSWORD_1_DB);
+            user.setPassword(FIRST_TEST_PASWORD_ENCODED);
             userRepository.save(user);
         }
 
-        @WithUserDetails(USERNAME_1)
+        @WithUserDetails(VALID_USERNAME)
         @Test
         void givenLoggedInUser_whenChangePassword_repeatPasswordDoesNotMatch_thenFail()
                 throws Exception {
             String jsonRequest = objectMapper.writeValueAsString(new PasswordChangeRequest(
-                    PASSWORD_1,
-                    PASSWORD_2,
+                    FIRST_TEST_PASSWORD,
+                    SECOND_TEST_PASSWORD,
                     MOCK_PASSWORD));
 
             MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/auth/change-password")
@@ -521,14 +523,14 @@ public class AuthControllerTest {
             assertEquals(NEW_PASSWORD_MISMATCH, jsonNode.get("errors").get(0).asText());
         }
 
-        @WithUserDetails(USERNAME_1)
+        @WithUserDetails(VALID_USERNAME)
         @Test
         void givenLoggedInUser_whenChangePassword_currentPasswordDoesNotMatch_thenFail()
                 throws Exception {
             String jsonRequest = objectMapper.writeValueAsString(new PasswordChangeRequest(
                     MOCK_PASSWORD,
-                    PASSWORD_2,
-                    PASSWORD_2));
+                    SECOND_TEST_PASSWORD,
+                    SECOND_TEST_PASSWORD));
 
             MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/auth/change-password")
                             .content(jsonRequest)
@@ -540,14 +542,14 @@ public class AuthControllerTest {
                     + "password and using a new random password.", jsonNode.get("errors").asText());
         }
 
-        @WithUserDetails(USERNAME_1)
+        @WithUserDetails(VALID_USERNAME)
         @Test
         void givenLoggedInUser_whenChangePassword_currentPasswordCollidesWithNewPassword_thenFail()
                 throws Exception {
             String jsonRequest = objectMapper.writeValueAsString(new PasswordChangeRequest(
-                    PASSWORD_1,
-                    PASSWORD_1,
-                    PASSWORD_1));
+                    FIRST_TEST_PASSWORD,
+                    FIRST_TEST_PASSWORD,
+                    FIRST_TEST_PASSWORD));
 
             MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/auth/change-password")
                             .content(jsonRequest)
@@ -748,7 +750,7 @@ public class AuthControllerTest {
             assertEquals(CHECK_YOUR_EMAIL, jsonNode.get("response").asText());
 
             //verify that login with a new password works
-            jsonRequest = objectMapper.writeValueAsString(new LoginRequest(EMAIL_1,
+            jsonRequest = objectMapper.writeValueAsString(new LoginRequest(VALID_EMAIL,
                     TestCaptureService.getLastValue()[0]));
             TestCaptureService.clear();
             List<String> expectedCookies = new ArrayList<>();
