@@ -1,10 +1,10 @@
 package com.example.taskmanagementapp.security;
 
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.DIVIDER;
+import static com.example.taskmanagementapp.constant.security.SecurityConstants.DIVIDER;
 
-import com.example.taskmanagementapp.security.jwtutils.abstr.JwtAbstractUtil;
-import com.example.taskmanagementapp.security.jwtutils.strategy.JwtStrategy;
-import com.example.taskmanagementapp.security.jwtutils.strategy.JwtType;
+import com.example.taskmanagementapp.security.jwtutil.abstr.JwtAbstractUtil;
+import com.example.taskmanagementapp.security.jwtutil.strategy.JwtStrategy;
+import com.example.taskmanagementapp.security.jwtutil.strategy.JwtType;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;

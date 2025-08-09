@@ -1,6 +1,6 @@
 package com.example.taskmanagementapp.validation.date;
 
-import com.example.taskmanagementapp.dtos.project.request.UpdateProjectRequest;
+import com.example.taskmanagementapp.dto.project.request.UpdateProjectRequest;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

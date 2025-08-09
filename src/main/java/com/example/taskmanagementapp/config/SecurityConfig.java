@@ -1,6 +1,6 @@
 package com.example.taskmanagementapp.config;
 
-import static com.example.taskmanagementapp.constants.security.SecurityConstants.STRENGTH;
+import static com.example.taskmanagementapp.constant.security.SecurityConstants.STRENGTH;
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 import com.example.taskmanagementapp.security.JwtAuthenticationFilter;

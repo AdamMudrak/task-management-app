@@ -1,0 +1,212 @@
+package com.example.taskmanagementapp.repository;
+
+import com.dropbox.core.v2.DbxClientV2;
+import com.example.taskmanagementapp.entity.Project;
+import com.example.taskmanagementapp.entity.Role;
+import com.example.taskmanagementapp.entity.User;
+import com.example.taskmanagementapp.exception.EntityNotFoundException;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+
+@DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class ProjectRepositoryTest {
+    private static final String USERNAME_1 = "JohnDoe";
+    private static final String USERNAME_2 = "RichardRoe";
+    private static final String PASSWORD_1_DB =
+            "$2a$10$u4cOSEeePFyJlpvkPdtmhenMuPYhloQfrVS19DZU8/.5jtJNm7piW";
+    private static final String EMAIL_1 = "john_doe@mail.com";
+    private static final String EMAIL_2 = "richard_roe@mail.com";
+    private static final String FIRST_NAME = "John";
+    private static final String LAST_NAME = "Doe";
+    private static final String ANOTHER_FIRST_NAME = "Richard";
+    private static final String ANOTHER_LAST_NAME = "Roe";
+    private static final String PROJECT_NAME = "projectName";
+    private static final String PROJECT_DESCRIPTION = "projectDescription";
+    private static final String ANOTHER_PROJECT_NAME = "anotherProjectName";
+    private static final String ANOTHER_PROJECT_DESCRIPTION = "anotherProjectDescription";
+    private static final LocalDate PROJECT_START_DATE = LocalDate.of(2025, 1, 1);
+    private static final LocalDate PROJECT_END_DATE = LocalDate.of(2025, 12, 31);
+    @MockitoBean
+    private final DbxClientV2 dbxClientV2 = null; //unused since not needed
+    @Autowired
+    private RoleRepository roleRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private ProjectRepository projectRepository;
+    private User user1;
+    private User user2;
+    private Long existingProjectId;
+    private Long deletedProjectId;
+
+    @BeforeAll
+    void setUpBeforeAll() {
+        Role savedRole = roleRepository.save(
+                Role.builder().name(Role.RoleName.ROLE_USER).build());
+
+        user1 = userRepository.save(
+                User.builder()
+                        .username(USERNAME_1)
+                        .password(PASSWORD_1_DB)
+                        .email(EMAIL_1)
+                        .firstName(FIRST_NAME)
+                        .lastName(LAST_NAME)
+                        .role(savedRole)
+                        .isEnabled(true)
+                        .isAccountNonLocked(true)
+                        .build());
+
+        user2 = userRepository.save(
+                User.builder()
+                        .username(USERNAME_2)
+                        .password(PASSWORD_1_DB)
+                        .email(EMAIL_2)
+                        .firstName(ANOTHER_FIRST_NAME)
+                        .lastName(ANOTHER_LAST_NAME)
+                        .role(savedRole)
+                        .isEnabled(true)
+                        .isAccountNonLocked(true)
+                        .build());
+    }
+
+    @AfterAll
+    void tearDownAfterAll() {
+        userRepository.deleteAll();
+        roleRepository.deleteAll();
+    }
+
+    @BeforeEach
+    void setUp() {
+        existingProjectId = projectRepository.save(
+                Project.builder()
+                        .name(PROJECT_NAME)
+                        .description(PROJECT_DESCRIPTION)
+                        .startDate(PROJECT_START_DATE)
+                        .endDate(PROJECT_END_DATE)
+                        .status(Project.Status.IN_PROGRESS)
+                        .isDeleted(false)
+                        .owner(user1)
+                        .managers(Set.of(user1))
+                        .employees(Set.of(user1))
+                        .build())
+                .getId();
+        
+        deletedProjectId = projectRepository.save(
+                Project.builder()
+                        .name(ANOTHER_PROJECT_NAME)
+                        .description(ANOTHER_PROJECT_DESCRIPTION)
+                        .startDate(PROJECT_START_DATE)
+                        .endDate(PROJECT_END_DATE)
+                        .status(Project.Status.IN_PROGRESS)
+                        .isDeleted(true)
+                        .owner(user1)
+                        .managers(Set.of(user1))
+                        .employees(Set.of(user1))
+                        .build())
+                .getId();
+    }
+
+    @Test
+    void givenUserWithNoProjects_whenFindAllByEmployeeId_thenReturnEmptyList() {
+        Assertions.assertTrue(projectRepository.findAllByEmployeeId(
+                user2.getId(), Pageable.unpaged()).isEmpty());
+    }
+
+    @Test
+    void givenUserWithNoProjects_whenFindAllByOwnerId_thenReturnEmptyList() {
+        Assertions.assertTrue(projectRepository.findAllByOwnerId(
+                user2.getId(), Pageable.unpaged()).isEmpty());
+    }
+
+    @Test
+    void givenNotDeletedProject_whenFindAllByOwnerId_thenReturnSingleProject() {
+        List<Project> projectList = projectRepository
+                .findAllByOwnerId(user1.getId(), Pageable.unpaged()).getContent();
+        Assertions.assertEquals(1, projectList.size());
+        projectAssertions(projectList.getFirst(), false,
+                PROJECT_NAME, PROJECT_DESCRIPTION);
+    }
+
+    @Test
+    void givenDeletedProject_whenFindAllByOwnerIdDeleted_thenReturnSingleProject() {
+        List<Project> projectList = projectRepository
+                .findAllByOwnerIdDeleted(user1.getId(), Pageable.unpaged()).getContent();
+        Assertions.assertEquals(1, projectList.size());
+        projectAssertions(projectList.getFirst(), true,
+                ANOTHER_PROJECT_NAME, ANOTHER_PROJECT_DESCRIPTION);
+    }
+
+    @Test
+    void givenNotDeletedProject_whenFindAllByEmployeeId_thenReturnSingleProject() {
+        List<Project> projectList = projectRepository
+                .findAllByEmployeeId(user1.getId(), Pageable.unpaged()).getContent();
+        Assertions.assertEquals(1, projectList.size());
+        projectAssertions(projectList.getFirst(), false,
+                PROJECT_NAME, PROJECT_DESCRIPTION);
+    }
+
+    @Test
+    void givenExistingProjectId_whenFindByIdNotDeleted_thenReturnSingleProject() {
+        Project project = projectRepository.findByIdNotDeleted(existingProjectId).orElseThrow(
+                () -> new EntityNotFoundException("No project with id " + existingProjectId));
+        projectAssertions(project, false, PROJECT_NAME, PROJECT_DESCRIPTION);
+    }
+
+    @Test
+    void givenExistingProjectId_whenExistsByIdNotDeleted_thenReturnTrue() {
+        Assertions.assertTrue(projectRepository.existsByIdNotDeleted(existingProjectId));
+    }
+
+    @Test
+    void givenDeletedProjectId_whenExistsByIdNotDeleted_thenReturnFalse() {
+        Assertions.assertFalse(projectRepository.existsByIdNotDeleted(deletedProjectId));
+    }
+
+    @Test
+    void givenNotDeletedProject_whenIsUserSomebody_thenReturnTrue() {
+        Assertions.assertTrue(projectRepository.isUserOwner(existingProjectId, user1.getId()));
+        Assertions.assertTrue(projectRepository.isUserManager(existingProjectId, user1.getId()));
+        Assertions.assertTrue(projectRepository
+                .isUserEmployee(existingProjectId, user1.getId()));
+    }
+
+    @Test
+    void givenDeletedProject_whenIsUserSomebody_thenReturnFalse() {
+        Assertions.assertFalse(projectRepository.isUserOwner(deletedProjectId, user1.getId()));
+        Assertions.assertFalse(projectRepository.isUserManager(deletedProjectId, user1.getId()));
+        Assertions.assertFalse(projectRepository
+                .isUserEmployee(deletedProjectId, user1.getId()));
+    }
+
+    private void projectAssertions(Project project, boolean isDeleted,
+                                   String projectName, String projectDescription) {
+        Assertions.assertNotNull(project);
+        Assertions.assertEquals(projectName, project.getName());
+        Assertions.assertEquals(projectDescription, project.getDescription());
+        Assertions.assertEquals(PROJECT_START_DATE, project.getStartDate());
+        Assertions.assertEquals(PROJECT_END_DATE, project.getEndDate());
+        Assertions.assertEquals(Project.Status.IN_PROGRESS, project.getStatus());
+        if (isDeleted) {
+            Assertions.assertTrue(project.isDeleted());
+        } else {
+            Assertions.assertFalse(project.isDeleted());
+        }
+        Assertions.assertEquals(user1.getId(), project.getOwner().getId());
+        Assertions.assertEquals(1, project.getManagers().size());
+        Assertions.assertEquals(1, project.getEmployees().size());
+    }
+}

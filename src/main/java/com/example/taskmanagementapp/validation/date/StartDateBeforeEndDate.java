@@ -1,6 +1,6 @@
 package com.example.taskmanagementapp.validation.date;
 
-import static com.example.taskmanagementapp.constants.validation.ValidationConstants.END_DATE_EARLIER_THAN_START_DATE;
+import static com.example.taskmanagementapp.constant.validation.ValidationConstants.END_DATE_EARLIER_THAN_START_DATE;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

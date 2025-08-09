@@ -1,6 +1,6 @@
 package com.example.taskmanagementapp.validation.emailandusername;
 
-import static com.example.taskmanagementapp.constants.validation.ValidationConstants.INVALID_EMAIL;
+import static com.example.taskmanagementapp.constant.validation.ValidationConstants.INVALID_EMAIL;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

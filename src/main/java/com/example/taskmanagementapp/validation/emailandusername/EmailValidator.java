@@ -1,6 +1,6 @@
 package com.example.taskmanagementapp.validation.emailandusername;
 
-import static com.example.taskmanagementapp.constants.validation.ValidationConstants.COMPILED_EMAIL_PATTERN;
+import static com.example.taskmanagementapp.constant.validation.ValidationConstants.COMPILED_EMAIL_PATTERN;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

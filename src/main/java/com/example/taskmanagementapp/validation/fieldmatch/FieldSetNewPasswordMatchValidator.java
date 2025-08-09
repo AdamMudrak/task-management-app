@@ -1,6 +1,6 @@
 package com.example.taskmanagementapp.validation.fieldmatch;
 
-import com.example.taskmanagementapp.dtos.authentication.request.PasswordChangeRequest;
+import com.example.taskmanagementapp.dto.authentication.request.PasswordChangeRequest;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

@@ -1,6 +1,6 @@
 package com.example.taskmanagementapp.validation.date;
 
-import static com.example.taskmanagementapp.constants.validation.ValidationConstants.COMPILED_DATE_PATTERN;
+import static com.example.taskmanagementapp.constant.validation.ValidationConstants.COMPILED_DATE_PATTERN;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
