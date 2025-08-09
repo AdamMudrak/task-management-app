@@ -61,14 +61,14 @@ import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 public class ProjectServiceImplTest {
-    private static final String USERNAME_1 = "JohnDoe";
-    private static final String PASSWORD_1_DB =
+    private static final String TEST_USERNAME = "JohnDoe";
+    private static final String TEST_PASSWORD_ENCODED =
             "$2a$10$u4cOSEeePFyJlpvkPdtmhenMuPYhloQfrVS19DZU8/.5jtJNm7piW";
-    private static final String EMAIL_1 = "john_doe@mail.com";
-    private static final String USERNAME_2 = "RichardRoe";
-    private static final String EMAIL_2 = "richard_roe@mail.com";
-    private static final String USERNAME_3 = "JaneDoe";
-    private static final String EMAIL_3 = "jane_doe@mail.com";
+    private static final String TEST_EMAIL = "john_doe@mail.com";
+    private static final String ANOTHER_TEST_USERNAME = "RichardRoe";
+    private static final String ANOTHER_TEST_EMAIL = "richard_roe@mail.com";
+    private static final String YET_ANOTHER_TEST_USERNAME = "JaneDoe";
+    private static final String YET_ANOTHER_TEST_EMAIL = "jane_doe@mail.com";
     private static final String FIRST_NAME = "John";
     private static final String LAST_NAME = "Doe";
     private static final String ANOTHER_FIRST_NAME = "Richard";
@@ -123,9 +123,9 @@ public class ProjectServiceImplTest {
 
             User user = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -182,9 +182,9 @@ public class ProjectServiceImplTest {
 
             User user = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -247,11 +247,11 @@ public class ProjectServiceImplTest {
             PageRequest pageRequest = PageRequest.of(0, 1);
 
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
-            User user1 = User.builder()
+            User owner = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -259,11 +259,11 @@ public class ProjectServiceImplTest {
                     .isAccountNonLocked(true)
                     .build();
 
-            User user2 = User.builder()
+            User employee = User.builder()
                     .id(SECOND_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -271,7 +271,7 @@ public class ProjectServiceImplTest {
                     .isAccountNonLocked(true)
                     .build();
 
-            //user1 is assigned as owner and manager of this project, whereas user2 - as employee
+            //owner is assigned as owner and manager of this project, whereas employee - as employee
             Project project = Project.builder()
                     .id(FIRST_PROJECT_ID)
                     .name(PROJECT_NAME)
@@ -279,9 +279,9 @@ public class ProjectServiceImplTest {
                     .startDate(PROJECT_START_DATE)
                     .endDate(PROJECT_END_DATE)
                     .status(Project.Status.INITIATED)
-                    .owner(user1)
-                    .managers(Set.of(user1, user2))
-                    .employees(Set.of(user1, user2))
+                    .owner(owner)
+                    .managers(Set.of(owner, employee))
+                    .employees(Set.of(owner, employee))
                     .build();
 
             ProjectResponse projectResponse = ProjectResponse.builder()
@@ -291,9 +291,9 @@ public class ProjectServiceImplTest {
                     .startDate(PROJECT_START_DATE)
                     .endDate(PROJECT_END_DATE)
                     .statusDto(ProjectStatusDto.INITIATED)
-                    .ownerId(user1.getId())
-                    .managerIds(Set.of(user1.getId(), user2.getId()))
-                    .employeeIds(Set.of(user1.getId(), user2.getId()))
+                    .ownerId(owner.getId())
+                    .managerIds(Set.of(owner.getId(), employee.getId()))
+                    .employeeIds(Set.of(owner.getId(), employee.getId()))
                     .build();
 
             Page<Project> projects = new PageImpl<>(List.of(project));
@@ -303,27 +303,27 @@ public class ProjectServiceImplTest {
             List<ProjectResponse> emptyProjectResponses = List.of();
 
             //when
-            when(projectRepository.findAllByOwnerId(user1.getId(), pageRequest))
+            when(projectRepository.findAllByOwnerId(owner.getId(), pageRequest))
                     .thenReturn(projects);
             when(projectMapper.toProjectDtoList(projects.getContent()))
                     .thenReturn(projectResponses);
 
-            when(projectRepository.findAllByOwnerId(user2.getId(), pageRequest))
+            when(projectRepository.findAllByOwnerId(employee.getId(), pageRequest))
                     .thenReturn(emptyProjects);
             when(projectMapper.toProjectDtoList(emptyProjects.getContent()))
                     .thenReturn(emptyProjectResponses);
 
             //then
             assertEquals(projectResponses, projectServiceImpl
-                    .getCreatedProjects(user1.getId(), pageRequest));
+                    .getCreatedProjects(owner.getId(), pageRequest));
 
             assertEquals(emptyProjectResponses, projectServiceImpl
-                    .getCreatedProjects(user2.getId(), pageRequest));
+                    .getCreatedProjects(employee.getId(), pageRequest));
 
             //verify
-            verify(projectRepository, times(1)).findAllByOwnerId(user1.getId(), pageRequest);
+            verify(projectRepository, times(1)).findAllByOwnerId(owner.getId(), pageRequest);
             verify(projectMapper, times(1)).toProjectDtoList(projects.getContent());
-            verify(projectRepository, times(1)).findAllByOwnerId(user2.getId(), pageRequest);
+            verify(projectRepository, times(1)).findAllByOwnerId(employee.getId(), pageRequest);
             verify(projectMapper, times(1)).toProjectDtoList(emptyProjects.getContent());
         }
     }
@@ -336,9 +336,9 @@ public class ProjectServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
             User user = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -400,9 +400,9 @@ public class ProjectServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
             User user = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -445,9 +445,9 @@ public class ProjectServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
             User user = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -501,11 +501,11 @@ public class ProjectServiceImplTest {
         void givenAnotherUserProjectId_whenGetProjectById_thenFail() {
             //given
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
-            User user1 = User.builder()
+            User owner = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -513,11 +513,11 @@ public class ProjectServiceImplTest {
                     .isAccountNonLocked(true)
                     .build();
 
-            User user2 = User.builder()
+            User userNotInProject = User.builder()
                     .id(SECOND_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -532,28 +532,28 @@ public class ProjectServiceImplTest {
                     .startDate(PROJECT_START_DATE)
                     .endDate(PROJECT_END_DATE)
                     .status(Project.Status.INITIATED)
-                    .owner(user1)
-                    .managers(Set.of(user1))
-                    .employees(Set.of(user1))
+                    .owner(owner)
+                    .managers(Set.of(owner))
+                    .employees(Set.of(owner))
                     .build();
 
             //when
             when(projectRepository.findByIdNotDeleted(expectedProject.getId()))
                     .thenReturn(Optional.of(expectedProject));
-            when(projectAuthorityUtil.hasAnyAuthority(expectedProject.getId(), user2.getId()))
+            when(projectAuthorityUtil.hasAnyAuthority(expectedProject.getId(), userNotInProject.getId()))
                     .thenReturn(false);
 
             //then
             ForbiddenException forbiddenException = assertThrows(ForbiddenException.class,
                     () -> projectServiceImpl.getProjectById(
-                            user2.getId(), expectedProject.getId()));
+                            userNotInProject.getId(), expectedProject.getId()));
             assertEquals(NO_ACCESS_PERMISSION,
                     forbiddenException.getMessage());
 
             //verify
             verify(projectRepository, times(1)).findByIdNotDeleted(expectedProject.getId());
             verify(projectAuthorityUtil, times(1)).hasAnyAuthority(
-                    expectedProject.getId(), user2.getId());
+                    expectedProject.getId(), userNotInProject.getId());
         }
     }
 
@@ -566,9 +566,9 @@ public class ProjectServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
             User authenticatedUser = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -578,9 +578,9 @@ public class ProjectServiceImplTest {
 
             User newOwner = User.builder()
                     .id(SECOND_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -674,9 +674,9 @@ public class ProjectServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
             User authenticatedUser = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -686,9 +686,9 @@ public class ProjectServiceImplTest {
 
             User owner = User.builder()
                     .id(SECOND_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -741,9 +741,9 @@ public class ProjectServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
             User authenticatedUser = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -753,9 +753,9 @@ public class ProjectServiceImplTest {
 
             User owner = User.builder()
                     .id(SECOND_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -874,9 +874,9 @@ public class ProjectServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
             User authenticatedUser = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -886,9 +886,9 @@ public class ProjectServiceImplTest {
 
             User assignee = User.builder()
                     .id(SECOND_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -977,9 +977,9 @@ public class ProjectServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
             User authenticatedUser = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -989,9 +989,9 @@ public class ProjectServiceImplTest {
 
             User assignee = User.builder()
                     .id(SECOND_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -1042,9 +1042,9 @@ public class ProjectServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
             User authenticatedUser = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -1054,9 +1054,9 @@ public class ProjectServiceImplTest {
 
             User owner = User.builder()
                     .id(SECOND_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -1066,9 +1066,9 @@ public class ProjectServiceImplTest {
 
             User managerToBeDeleted = User.builder()
                     .id(THIRD_USER_ID)
-                    .username(USERNAME_3)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_3)
+                    .username(YET_ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(YET_ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_FIRST_NAME)
                     .role(role)
@@ -1123,9 +1123,9 @@ public class ProjectServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
             User authenticatedUser = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -1135,9 +1135,9 @@ public class ProjectServiceImplTest {
 
             User owner = User.builder()
                     .id(SECOND_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -1187,9 +1187,9 @@ public class ProjectServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
             User authenticatedUser = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -1199,9 +1199,9 @@ public class ProjectServiceImplTest {
 
             User assignee = User.builder()
                     .id(SECOND_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -1255,9 +1255,9 @@ public class ProjectServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
             User authenticatedUser = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -1311,9 +1311,9 @@ public class ProjectServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
             User assignee = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -1323,9 +1323,9 @@ public class ProjectServiceImplTest {
 
             User owner = User.builder()
                     .id(SECOND_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -1421,7 +1421,7 @@ public class ProjectServiceImplTest {
         void givenInvalidShortLivedToken_whenAcceptAssignmentToProject_thenException() {
             //given
             JwtAbstractUtil jwtActionUtil = new JwtActionUtil(SECRET_KEY, ULTRA_SHORT_EXPIRATION);
-            String shortToken = jwtActionUtil.generateToken(EMAIL_1);
+            String shortToken = jwtActionUtil.generateToken(TEST_EMAIL);
             try {
                 Thread.sleep(ULTRA_SHORT_EXPIRATION * TEN);
             } catch (InterruptedException e) {
@@ -1444,8 +1444,8 @@ public class ProjectServiceImplTest {
         void givenNotExistingActionToken_whenAcceptAssignmentToProject_thenException() {
             //given
             JwtAbstractUtil jwtActionUtil = new JwtActionUtil(SECRET_KEY,ACTION_EXPIRATION);
-            String shortToken = jwtActionUtil.generateToken(EMAIL_1);
-            String partOfToken = jwtActionUtil.generateToken(EMAIL_1);
+            String shortToken = jwtActionUtil.generateToken(TEST_EMAIL);
+            String partOfToken = jwtActionUtil.generateToken(TEST_EMAIL);
             boolean isNewEmployeeManager = true;
             String actionToken = "" + FIRST_PROJECT_ID + FIRST_USER_ID
                     + isNewEmployeeManager + partOfToken;

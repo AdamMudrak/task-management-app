@@ -40,13 +40,13 @@ import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 public class CommentServiceImplTest {
-    private static final String USERNAME_1 = "JohnDoe";
-    private static final String PASSWORD_1_DB =
+    private static final String TEST_USERNAME = "JohnDoe";
+    private static final String TEST_PASSWORD_ENCODED =
             "$2a$10$u4cOSEeePFyJlpvkPdtmhenMuPYhloQfrVS19DZU8/.5jtJNm7piW";
-    private static final String EMAIL_1 = "john_doe@mail.com";
+    private static final String TEST_EMAIL = "john_doe@mail.com";
 
-    private static final String USERNAME_2 = "RichardRoe";
-    private static final String EMAIL_2 = "richard_roe@mail.com";
+    private static final String ANOTHER_TEST_USERNAME = "RichardRoe";
+    private static final String ANOTHER_TEST_EMAIL = "richard_roe@mail.com";
 
     private static final String FIRST_NAME = "John";
     private static final String LAST_NAME = "Doe";
@@ -59,17 +59,17 @@ public class CommentServiceImplTest {
     private static final LocalDate PROJECT_START_DATE = LocalDate.of(2025, 1, 1);
     private static final LocalDate PROJECT_END_DATE = LocalDate.of(2025, 12, 31);
 
-    private static final Long FIRST_TASK_ID = 1L;
-    private static final Long SECOND_TASK_ID = 2L;
-    private static final String TASK_NAME_1 = "taskName";
-    private static final String TASK_DESCRIPTION_1 = "taskDescription";
+    private static final Long TASK_ID = 1L;
+    private static final Long ANOTHER_TASK_ID = 2L;
+    private static final String TASK_NAME = "taskName";
+    private static final String TASK_DESCRIPTION = "taskDescription";
     private static final LocalDate TASK_DUE_DATE = LocalDate.of(2025, 12, 31);
 
-    private static final long FIRST_USER_ID = 1L;
-    private static final long LAST_USER_ID = 2L;
+    private static final long USER_ID = 1L;
+    private static final long ANOTHER_USER_ID = 2L;
     private static final long RANDOM_USER_ID = 1000L;
 
-    private static final long FIRST_PROJECT_ID = 1L;
+    private static final long PROJECT_ID = 1L;
     private static final long FIRST_COMMENT_ID = 1L;
     private static final long SECOND_COMMENT_ID = 2L;
     private static final long RANDOM_COMMENT_ID = 1000L;
@@ -99,10 +99,10 @@ public class CommentServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
 
             User user = User.builder()
-                    .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .id(USER_ID)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -111,7 +111,7 @@ public class CommentServiceImplTest {
                     .build();
 
             Project project = Project.builder()
-                    .id(FIRST_PROJECT_ID)
+                    .id(PROJECT_ID)
                     .name(PROJECT_NAME)
                     .description(PROJECT_DESCRIPTION)
                     .startDate(PROJECT_START_DATE)
@@ -122,10 +122,10 @@ public class CommentServiceImplTest {
                     .employees(Set.of(user))
                     .build();
 
-            Task task1 = Task.builder()
-                    .id(FIRST_TASK_ID)
-                    .name(TASK_NAME_1)
-                    .description(TASK_DESCRIPTION_1)
+            Task task = Task.builder()
+                    .id(TASK_ID)
+                    .name(TASK_NAME)
+                    .description(TASK_DESCRIPTION)
                     .priority(Task.Priority.LOW)
                     .status(Task.Status.NOT_STARTED)
                     .dueDate(TASK_DUE_DATE)
@@ -135,12 +135,12 @@ public class CommentServiceImplTest {
                     .build();
 
             CommentRequest validDto = new CommentRequest(
-                    FIRST_TASK_ID,
+                    TASK_ID,
                     COMMENT_TEXT);
 
             Comment expectedComment = Comment.builder()
                     .id(FIRST_COMMENT_ID)
-                    .task(task1)
+                    .task(task)
                     .user(user)
                     .text(COMMENT_TEXT)
                     .timestamp(LocalDateTime.now())
@@ -148,16 +148,16 @@ public class CommentServiceImplTest {
 
             CommentResponse expectedCommentResponse = new CommentResponse(
                     FIRST_COMMENT_ID,
-                    FIRST_TASK_ID,
-                    FIRST_USER_ID,
+                    TASK_ID,
+                    USER_ID,
                     COMMENT_TEXT,
                     expectedComment.getTimestamp());
 
             //when
-            when(taskRepository.findByIdNotDeleted(FIRST_TASK_ID)).thenReturn(Optional.of(task1));
-            when(projectAuthorityUtil.hasAnyAuthority(task1.getProject().getId(), user.getId()))
+            when(taskRepository.findByIdNotDeleted(TASK_ID)).thenReturn(Optional.of(task));
+            when(projectAuthorityUtil.hasAnyAuthority(task.getProject().getId(), user.getId()))
                     .thenReturn(true);
-            when(commentMapper.toAddComment(validDto, task1, user)).thenReturn(expectedComment);
+            when(commentMapper.toAddComment(validDto, task, user)).thenReturn(expectedComment);
             when(commentRepository.save(expectedComment)).thenReturn(expectedComment);
             when(commentMapper.toCommentDto(expectedComment)).thenReturn(expectedCommentResponse);
 
@@ -165,10 +165,10 @@ public class CommentServiceImplTest {
             assertEquals(expectedCommentResponse, commentServiceImpl.addComment(user, validDto));
 
             //verify
-            verify(taskRepository, times(1)).findByIdNotDeleted(FIRST_TASK_ID);
+            verify(taskRepository, times(1)).findByIdNotDeleted(TASK_ID);
             verify(projectAuthorityUtil, times(1))
-                    .hasAnyAuthority(task1.getProject().getId(), user.getId());
-            verify(commentMapper, times(1)).toAddComment(validDto, task1, user);
+                    .hasAnyAuthority(task.getProject().getId(), user.getId());
+            verify(commentMapper, times(1)).toAddComment(validDto, task, user);
             verify(commentRepository, times(1)).save(expectedComment);
             verify(commentMapper, times(1)).toCommentDto(expectedComment);
         }
@@ -179,10 +179,10 @@ public class CommentServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
 
             User user = User.builder()
-                    .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .id(USER_ID)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -191,11 +191,11 @@ public class CommentServiceImplTest {
                     .build();
 
             CommentRequest validDto = new CommentRequest(
-                    SECOND_TASK_ID,
+                    ANOTHER_TASK_ID,
                     COMMENT_TEXT);
 
             //when
-            when(taskRepository.findByIdNotDeleted(SECOND_TASK_ID)).thenReturn(Optional.empty());
+            when(taskRepository.findByIdNotDeleted(ANOTHER_TASK_ID)).thenReturn(Optional.empty());
 
             //then
             EntityNotFoundException entityNotFoundException =
@@ -205,7 +205,7 @@ public class CommentServiceImplTest {
                     entityNotFoundException.getMessage());
 
             //verify
-            verify(taskRepository, times(1)).findByIdNotDeleted(SECOND_TASK_ID);
+            verify(taskRepository, times(1)).findByIdNotDeleted(ANOTHER_TASK_ID);
         }
 
         @Test
@@ -214,10 +214,10 @@ public class CommentServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
 
             User user = User.builder()
-                    .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .id(USER_ID)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -226,7 +226,7 @@ public class CommentServiceImplTest {
                     .build();
 
             Project project = Project.builder()
-                    .id(FIRST_PROJECT_ID)
+                    .id(PROJECT_ID)
                     .name(PROJECT_NAME)
                     .description(PROJECT_DESCRIPTION)
                     .startDate(PROJECT_START_DATE)
@@ -237,10 +237,10 @@ public class CommentServiceImplTest {
                     .employees(Set.of(user))
                     .build();
 
-            Task task1 = Task.builder()
-                    .id(FIRST_TASK_ID)
-                    .name(TASK_NAME_1)
-                    .description(TASK_DESCRIPTION_1)
+            Task task = Task.builder()
+                    .id(TASK_ID)
+                    .name(TASK_NAME)
+                    .description(TASK_DESCRIPTION)
                     .priority(Task.Priority.LOW)
                     .status(Task.Status.NOT_STARTED)
                     .dueDate(TASK_DUE_DATE)
@@ -250,12 +250,12 @@ public class CommentServiceImplTest {
                     .build();
 
             CommentRequest validDto = new CommentRequest(
-                    FIRST_TASK_ID,
+                    TASK_ID,
                     COMMENT_TEXT);
 
             //when
-            when(taskRepository.findByIdNotDeleted(FIRST_TASK_ID)).thenReturn(Optional.of(task1));
-            when(projectAuthorityUtil.hasAnyAuthority(task1.getProject().getId(), user.getId()))
+            when(taskRepository.findByIdNotDeleted(TASK_ID)).thenReturn(Optional.of(task));
+            when(projectAuthorityUtil.hasAnyAuthority(task.getProject().getId(), user.getId()))
                     .thenReturn(false);
 
             //then
@@ -267,9 +267,9 @@ public class CommentServiceImplTest {
                     forbiddenException.getMessage());
 
             //verify
-            verify(taskRepository, times(1)).findByIdNotDeleted(FIRST_TASK_ID);
+            verify(taskRepository, times(1)).findByIdNotDeleted(TASK_ID);
             verify(projectAuthorityUtil, times(1))
-                    .hasAnyAuthority(task1.getProject().getId(), user.getId());
+                    .hasAnyAuthority(task.getProject().getId(), user.getId());
         }
     }
 
@@ -281,10 +281,10 @@ public class CommentServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
 
             User user = User.builder()
-                    .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .id(USER_ID)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -293,7 +293,7 @@ public class CommentServiceImplTest {
                     .build();
 
             Project project = Project.builder()
-                    .id(FIRST_PROJECT_ID)
+                    .id(PROJECT_ID)
                     .name(PROJECT_NAME)
                     .description(PROJECT_DESCRIPTION)
                     .startDate(PROJECT_START_DATE)
@@ -304,10 +304,10 @@ public class CommentServiceImplTest {
                     .employees(Set.of(user))
                     .build();
 
-            Task task1 = Task.builder()
-                    .id(FIRST_TASK_ID)
-                    .name(TASK_NAME_1)
-                    .description(TASK_DESCRIPTION_1)
+            Task task = Task.builder()
+                    .id(TASK_ID)
+                    .name(TASK_NAME)
+                    .description(TASK_DESCRIPTION)
                     .priority(Task.Priority.LOW)
                     .status(Task.Status.NOT_STARTED)
                     .dueDate(TASK_DUE_DATE)
@@ -319,7 +319,7 @@ public class CommentServiceImplTest {
             LocalDateTime commentTimeStamp = LocalDateTime.now();
             Comment expectedComment = Comment.builder()
                     .id(FIRST_COMMENT_ID)
-                    .task(task1)
+                    .task(task)
                     .user(user)
                     .text(COMMENT_TEXT)
                     .timestamp(commentTimeStamp)
@@ -327,7 +327,7 @@ public class CommentServiceImplTest {
 
             Comment updatedComment = Comment.builder()
                     .id(FIRST_COMMENT_ID)
-                    .task(task1)
+                    .task(task)
                     .user(user)
                     .text(UPDATED_COMMENT_TEXT)
                     .timestamp(commentTimeStamp)
@@ -335,16 +335,16 @@ public class CommentServiceImplTest {
 
             CommentResponse expectedCommentResponse = new CommentResponse(
                     FIRST_COMMENT_ID,
-                    FIRST_TASK_ID,
-                    FIRST_USER_ID,
+                    TASK_ID,
+                    USER_ID,
                     UPDATED_COMMENT_TEXT,
                     expectedComment.getTimestamp());
 
             //when
-            when(commentRepository.findByIdAndUserId(FIRST_COMMENT_ID, FIRST_USER_ID))
+            when(commentRepository.findByIdAndUserId(FIRST_COMMENT_ID, USER_ID))
                     .thenReturn(Optional.of(expectedComment));
-            when(taskRepository.findByIdNotDeleted(FIRST_TASK_ID)).thenReturn(Optional.of(task1));
-            when(projectAuthorityUtil.hasAnyAuthority(task1.getProject().getId(), user.getId()))
+            when(taskRepository.findByIdNotDeleted(TASK_ID)).thenReturn(Optional.of(task));
+            when(projectAuthorityUtil.hasAnyAuthority(task.getProject().getId(), user.getId()))
                     .thenReturn(true);
             when(commentRepository.save(expectedComment)).thenReturn(updatedComment);
             when(commentMapper.toCommentDto(updatedComment)).thenReturn(expectedCommentResponse);
@@ -359,10 +359,10 @@ public class CommentServiceImplTest {
                     .isEqualTo(expectedComment);
 
             //verify
-            verify(commentRepository, times(1)).findByIdAndUserId(FIRST_COMMENT_ID, FIRST_USER_ID);
-            verify(taskRepository, times(1)).findByIdNotDeleted(FIRST_TASK_ID);
+            verify(commentRepository, times(1)).findByIdAndUserId(FIRST_COMMENT_ID, USER_ID);
+            verify(taskRepository, times(1)).findByIdNotDeleted(TASK_ID);
             verify(projectAuthorityUtil, times(1))
-                    .hasAnyAuthority(task1.getProject().getId(), user.getId());
+                    .hasAnyAuthority(task.getProject().getId(), user.getId());
             verify(commentRepository, times(1)).save(updatedComment);
             verify(commentMapper, times(1)).toCommentDto(updatedComment);
         }
@@ -370,22 +370,22 @@ public class CommentServiceImplTest {
         @Test
         void givenRandomCommentId_whenUpdateComment_thenSuccess() {
             //when
-            when(commentRepository.findByIdAndUserId(RANDOM_COMMENT_ID, FIRST_USER_ID))
+            when(commentRepository.findByIdAndUserId(RANDOM_COMMENT_ID, USER_ID))
                     .thenReturn(Optional.empty());
 
             //then
             EntityNotFoundException entityNotFoundException =
                     assertThrows(EntityNotFoundException.class,
                             () -> commentServiceImpl.updateComment(
-                                FIRST_USER_ID,
+                                    USER_ID,
                                 new UpdateCommentRequest(COMMENT_TEXT),
                                 RANDOM_COMMENT_ID));
             assertEquals("No comment with id " + RANDOM_COMMENT_ID
-                    + " found for user " + FIRST_USER_ID, entityNotFoundException.getMessage());
+                    + " found for user " + USER_ID, entityNotFoundException.getMessage());
 
             //verify
             verify(commentRepository, times(1))
-                    .findByIdAndUserId(RANDOM_COMMENT_ID, FIRST_USER_ID);
+                    .findByIdAndUserId(RANDOM_COMMENT_ID, USER_ID);
         }
 
         @Test
@@ -394,10 +394,10 @@ public class CommentServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
 
             User user = User.builder()
-                    .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .id(USER_ID)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -406,10 +406,10 @@ public class CommentServiceImplTest {
                     .build();
 
             User owner = User.builder()
-                    .id(LAST_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .id(ANOTHER_USER_ID)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -418,7 +418,7 @@ public class CommentServiceImplTest {
                     .build();
 
             Project project = Project.builder()
-                    .id(FIRST_PROJECT_ID)
+                    .id(PROJECT_ID)
                     .name(PROJECT_NAME)
                     .description(PROJECT_DESCRIPTION)
                     .startDate(PROJECT_START_DATE)
@@ -429,10 +429,10 @@ public class CommentServiceImplTest {
                     .employees(Set.of(owner))
                     .build();
 
-            Task task1 = Task.builder()
-                    .id(FIRST_TASK_ID)
-                    .name(TASK_NAME_1)
-                    .description(TASK_DESCRIPTION_1)
+            Task task = Task.builder()
+                    .id(TASK_ID)
+                    .name(TASK_NAME)
+                    .description(TASK_DESCRIPTION)
                     .priority(Task.Priority.LOW)
                     .status(Task.Status.NOT_STARTED)
                     .dueDate(TASK_DUE_DATE)
@@ -443,17 +443,17 @@ public class CommentServiceImplTest {
 
             Comment expectedComment = Comment.builder()
                     .id(FIRST_COMMENT_ID)
-                    .task(task1)
+                    .task(task)
                     .user(user)
                     .text(COMMENT_TEXT)
                     .timestamp(LocalDateTime.now())
                     .build();
 
             //when
-            when(commentRepository.findByIdAndUserId(FIRST_COMMENT_ID, FIRST_USER_ID))
+            when(commentRepository.findByIdAndUserId(FIRST_COMMENT_ID, USER_ID))
                     .thenReturn(Optional.of(expectedComment));
-            when(taskRepository.findByIdNotDeleted(FIRST_TASK_ID)).thenReturn(Optional.of(task1));
-            when(projectAuthorityUtil.hasAnyAuthority(task1.getProject().getId(), user.getId()))
+            when(taskRepository.findByIdNotDeleted(TASK_ID)).thenReturn(Optional.of(task));
+            when(projectAuthorityUtil.hasAnyAuthority(task.getProject().getId(), user.getId()))
                     .thenReturn(false);
 
             //then
@@ -462,15 +462,15 @@ public class CommentServiceImplTest {
                         user.getId(),
                         new UpdateCommentRequest(UPDATED_COMMENT_TEXT),
                         FIRST_COMMENT_ID));
-            assertEquals("You can't update comments for task " + task1.getId()
+            assertEquals("You can't update comments for task " + task.getId()
                     + " since you are not participant in project " + project.getId(),
                     forbiddenException.getMessage());
 
             //verify
-            verify(commentRepository, times(1)).findByIdAndUserId(FIRST_COMMENT_ID, FIRST_USER_ID);
-            verify(taskRepository, times(1)).findByIdNotDeleted(FIRST_TASK_ID);
+            verify(commentRepository, times(1)).findByIdAndUserId(FIRST_COMMENT_ID, USER_ID);
+            verify(taskRepository, times(1)).findByIdNotDeleted(TASK_ID);
             verify(projectAuthorityUtil, times(1))
-                    .hasAnyAuthority(task1.getProject().getId(), user.getId());
+                    .hasAnyAuthority(task.getProject().getId(), user.getId());
         }
     }
 
@@ -482,10 +482,10 @@ public class CommentServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
 
             User owner = User.builder()
-                    .id(LAST_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .id(ANOTHER_USER_ID)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -494,7 +494,7 @@ public class CommentServiceImplTest {
                     .build();
 
             Project project = Project.builder()
-                    .id(FIRST_PROJECT_ID)
+                    .id(PROJECT_ID)
                     .name(PROJECT_NAME)
                     .description(PROJECT_DESCRIPTION)
                     .startDate(PROJECT_START_DATE)
@@ -505,10 +505,10 @@ public class CommentServiceImplTest {
                     .employees(Set.of(owner))
                     .build();
 
-            Task task1 = Task.builder()
-                    .id(FIRST_TASK_ID)
-                    .name(TASK_NAME_1)
-                    .description(TASK_DESCRIPTION_1)
+            Task task = Task.builder()
+                    .id(TASK_ID)
+                    .name(TASK_NAME)
+                    .description(TASK_DESCRIPTION)
                     .priority(Task.Priority.LOW)
                     .status(Task.Status.NOT_STARTED)
                     .dueDate(TASK_DUE_DATE)
@@ -517,56 +517,56 @@ public class CommentServiceImplTest {
                     .isDeleted(false)
                     .build();
 
-            Comment comment1 = Comment.builder()
+            Comment comment = Comment.builder()
                     .id(FIRST_COMMENT_ID)
-                    .task(task1)
+                    .task(task)
                     .user(owner)
                     .text(COMMENT_TEXT)
                     .timestamp(LocalDateTime.now())
                     .build();
 
-            Comment comment2 = Comment.builder()
+            Comment anotherComment = Comment.builder()
                     .id(SECOND_COMMENT_ID)
-                    .task(task1)
+                    .task(task)
                     .user(owner)
                     .text(UPDATED_COMMENT_TEXT)
                     .timestamp(LocalDateTime.now())
                     .build();
 
-            Page<Comment> commentPage = new PageImpl<>(List.of(comment1, comment2));
+            Page<Comment> commentPage = new PageImpl<>(List.of(comment, anotherComment));
 
             List<CommentResponse> commentResponses = List.of(
                     new CommentResponse(
-                            comment1.getId(),
-                            comment1.getTask().getId(),
-                            comment1.getUser().getId(),
-                            comment1.getText(),
-                            comment1.getTimestamp()),
+                            comment.getId(),
+                            comment.getTask().getId(),
+                            comment.getUser().getId(),
+                            comment.getText(),
+                            comment.getTimestamp()),
                     new CommentResponse(
-                            comment2.getId(),
-                            comment2.getTask().getId(),
-                            comment2.getUser().getId(),
-                            comment2.getText(),
-                            comment2.getTimestamp()));
+                            anotherComment.getId(),
+                            anotherComment.getTask().getId(),
+                            anotherComment.getUser().getId(),
+                            anotherComment.getText(),
+                            anotherComment.getTimestamp()));
 
             Pageable pageable = PageRequest.of(FIRST_PAGE, PAGE_SIZE);
             //when
-            when(taskRepository.findByIdNotDeleted(FIRST_TASK_ID)).thenReturn(Optional.of(task1));
+            when(taskRepository.findByIdNotDeleted(TASK_ID)).thenReturn(Optional.of(task));
             when(projectAuthorityUtil.hasAnyAuthority(project.getId(), owner.getId()))
                     .thenReturn(true);
-            when(commentRepository.findAllByTaskId(FIRST_TASK_ID, pageable))
+            when(commentRepository.findAllByTaskId(TASK_ID, pageable))
                     .thenReturn(commentPage);
             when(commentMapper.toCommentDtoList(commentPage.getContent()))
                     .thenReturn(commentResponses);
 
             //then
             assertEquals(commentResponses, commentServiceImpl
-                    .getAllComments(owner.getId(), task1.getId(), pageable));
+                    .getAllComments(owner.getId(), task.getId(), pageable));
 
             //verify
-            verify(taskRepository, times(1)).findByIdNotDeleted(FIRST_TASK_ID);
-            verify(projectAuthorityUtil, times(1)).hasAnyAuthority(task1.getId(), owner.getId());
-            verify(commentRepository, times(1)).findAllByTaskId(FIRST_TASK_ID, pageable);
+            verify(taskRepository, times(1)).findByIdNotDeleted(TASK_ID);
+            verify(projectAuthorityUtil, times(1)).hasAnyAuthority(task.getId(), owner.getId());
+            verify(commentRepository, times(1)).findAllByTaskId(TASK_ID, pageable);
             verify(commentMapper, times(1)).toCommentDtoList(commentPage.getContent());
         }
 
@@ -576,10 +576,10 @@ public class CommentServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
 
             User owner = User.builder()
-                    .id(LAST_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .id(ANOTHER_USER_ID)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -588,7 +588,7 @@ public class CommentServiceImplTest {
                     .build();
 
             Project project = Project.builder()
-                    .id(FIRST_PROJECT_ID)
+                    .id(PROJECT_ID)
                     .name(PROJECT_NAME)
                     .description(PROJECT_DESCRIPTION)
                     .startDate(PROJECT_START_DATE)
@@ -599,10 +599,10 @@ public class CommentServiceImplTest {
                     .employees(Set.of(owner))
                     .build();
 
-            Task task1 = Task.builder()
-                    .id(FIRST_TASK_ID)
-                    .name(TASK_NAME_1)
-                    .description(TASK_DESCRIPTION_1)
+            Task task = Task.builder()
+                    .id(TASK_ID)
+                    .name(TASK_NAME)
+                    .description(TASK_DESCRIPTION)
                     .priority(Task.Priority.LOW)
                     .status(Task.Status.NOT_STARTED)
                     .dueDate(TASK_DUE_DATE)
@@ -611,20 +611,20 @@ public class CommentServiceImplTest {
                     .isDeleted(false)
                     .build();
             //when
-            when(taskRepository.findByIdNotDeleted(FIRST_TASK_ID)).thenReturn(Optional.of(task1));
+            when(taskRepository.findByIdNotDeleted(TASK_ID)).thenReturn(Optional.of(task));
             when(projectAuthorityUtil.hasAnyAuthority(project.getId(), RANDOM_USER_ID))
                     .thenReturn(false);
 
             //then
             ForbiddenException forbiddenException = assertThrows(ForbiddenException.class,
                     () -> commentServiceImpl.getAllComments(
-                            RANDOM_USER_ID, FIRST_TASK_ID, Pageable.unpaged()));
-            assertEquals("You can't get comments for task " + task1.getId()
+                            RANDOM_USER_ID, TASK_ID, Pageable.unpaged()));
+            assertEquals("You can't get comments for task " + task.getId()
                             + " since you are not participant in project " + project.getId(),
                     forbiddenException.getMessage());
 
             //verify
-            verify(taskRepository, times(1)).findByIdNotDeleted(FIRST_TASK_ID);
+            verify(taskRepository, times(1)).findByIdNotDeleted(TASK_ID);
             verify(projectAuthorityUtil, times(1)).hasAnyAuthority(project.getId(), RANDOM_USER_ID);
         }
     }
@@ -637,10 +637,10 @@ public class CommentServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
 
             User authenticatedUser = User.builder()
-                    .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .id(USER_ID)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -649,10 +649,10 @@ public class CommentServiceImplTest {
                     .build();
 
             User commentOwner = User.builder()
-                    .id(LAST_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .id(ANOTHER_USER_ID)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -661,7 +661,7 @@ public class CommentServiceImplTest {
                     .build();
 
             Project project = Project.builder()
-                    .id(FIRST_PROJECT_ID)
+                    .id(PROJECT_ID)
                     .name(PROJECT_NAME)
                     .description(PROJECT_DESCRIPTION)
                     .startDate(PROJECT_START_DATE)
@@ -672,10 +672,10 @@ public class CommentServiceImplTest {
                     .employees(Set.of(commentOwner, authenticatedUser))
                     .build();
 
-            Task task1 = Task.builder()
-                    .id(FIRST_TASK_ID)
-                    .name(TASK_NAME_1)
-                    .description(TASK_DESCRIPTION_1)
+            Task task = Task.builder()
+                    .id(TASK_ID)
+                    .name(TASK_NAME)
+                    .description(TASK_DESCRIPTION)
                     .priority(Task.Priority.LOW)
                     .status(Task.Status.NOT_STARTED)
                     .dueDate(TASK_DUE_DATE)
@@ -686,7 +686,7 @@ public class CommentServiceImplTest {
 
             Comment comment = Comment.builder()
                     .id(FIRST_COMMENT_ID)
-                    .task(task1)
+                    .task(task)
                     .user(commentOwner)
                     .text(COMMENT_TEXT)
                     .timestamp(LocalDateTime.now())
@@ -716,10 +716,10 @@ public class CommentServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
 
             User authenticatedUser = User.builder()
-                    .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .id(USER_ID)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -728,10 +728,10 @@ public class CommentServiceImplTest {
                     .build();
 
             User commentOwner = User.builder()
-                    .id(LAST_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .id(ANOTHER_USER_ID)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -740,7 +740,7 @@ public class CommentServiceImplTest {
                     .build();
 
             Project project = Project.builder()
-                    .id(FIRST_PROJECT_ID)
+                    .id(PROJECT_ID)
                     .name(PROJECT_NAME)
                     .description(PROJECT_DESCRIPTION)
                     .startDate(PROJECT_START_DATE)
@@ -751,10 +751,10 @@ public class CommentServiceImplTest {
                     .employees(Set.of(commentOwner, authenticatedUser))
                     .build();
 
-            Task task1 = Task.builder()
-                    .id(FIRST_TASK_ID)
-                    .name(TASK_NAME_1)
-                    .description(TASK_DESCRIPTION_1)
+            Task task = Task.builder()
+                    .id(TASK_ID)
+                    .name(TASK_NAME)
+                    .description(TASK_DESCRIPTION)
                     .priority(Task.Priority.LOW)
                     .status(Task.Status.NOT_STARTED)
                     .dueDate(TASK_DUE_DATE)
@@ -765,7 +765,7 @@ public class CommentServiceImplTest {
 
             Comment comment = Comment.builder()
                     .id(FIRST_COMMENT_ID)
-                    .task(task1)
+                    .task(task)
                     .user(authenticatedUser)
                     .text(COMMENT_TEXT)
                     .timestamp(LocalDateTime.now())
@@ -774,20 +774,20 @@ public class CommentServiceImplTest {
             //when
             when(commentRepository.findByIdAndUserId(comment.getId(), authenticatedUser.getId()))
                     .thenReturn(Optional.of(comment));
-            when(taskRepository.findByIdNotDeleted(task1.getId())).thenReturn(Optional.empty());
+            when(taskRepository.findByIdNotDeleted(task.getId())).thenReturn(Optional.empty());
 
             //then
             EntityNotFoundException entityNotFoundException =
                     assertThrows(EntityNotFoundException.class,
                             () -> commentServiceImpl.deleteComment(
                                     authenticatedUser.getId(), comment.getId()));
-            assertEquals("No active task with id " + task1.getId(),
+            assertEquals("No active task with id " + task.getId(),
                     entityNotFoundException.getMessage());
 
             //verify
             verify(commentRepository, times(1))
                     .findByIdAndUserId(comment.getId(), authenticatedUser.getId());
-            verify(taskRepository, times(1)).findByIdNotDeleted(task1.getId());
+            verify(taskRepository, times(1)).findByIdNotDeleted(task.getId());
         }
 
         @Test
@@ -796,10 +796,10 @@ public class CommentServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
 
             User authenticatedUser = User.builder()
-                    .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .id(USER_ID)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -808,10 +808,10 @@ public class CommentServiceImplTest {
                     .build();
 
             User commentOwner = User.builder()
-                    .id(LAST_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .id(ANOTHER_USER_ID)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -820,7 +820,7 @@ public class CommentServiceImplTest {
                     .build();
 
             Project project = Project.builder()
-                    .id(FIRST_PROJECT_ID)
+                    .id(PROJECT_ID)
                     .name(PROJECT_NAME)
                     .description(PROJECT_DESCRIPTION)
                     .startDate(PROJECT_START_DATE)
@@ -831,10 +831,10 @@ public class CommentServiceImplTest {
                     .employees(Set.of(commentOwner))
                     .build();
 
-            Task task1 = Task.builder()
-                    .id(FIRST_TASK_ID)
-                    .name(TASK_NAME_1)
-                    .description(TASK_DESCRIPTION_1)
+            Task task = Task.builder()
+                    .id(TASK_ID)
+                    .name(TASK_NAME)
+                    .description(TASK_DESCRIPTION)
                     .priority(Task.Priority.LOW)
                     .status(Task.Status.NOT_STARTED)
                     .dueDate(TASK_DUE_DATE)
@@ -845,7 +845,7 @@ public class CommentServiceImplTest {
 
             Comment comment = Comment.builder()
                     .id(FIRST_COMMENT_ID)
-                    .task(task1)
+                    .task(task)
                     .user(authenticatedUser)
                     .text(COMMENT_TEXT)
                     .timestamp(LocalDateTime.now())
@@ -854,7 +854,7 @@ public class CommentServiceImplTest {
             //when
             when(commentRepository.findByIdAndUserId(comment.getId(), authenticatedUser.getId()))
                     .thenReturn(Optional.of(comment));
-            when(taskRepository.findByIdNotDeleted(task1.getId())).thenReturn(Optional.of(task1));
+            when(taskRepository.findByIdNotDeleted(task.getId())).thenReturn(Optional.of(task));
             when(projectAuthorityUtil.hasAnyAuthority(project.getId(), authenticatedUser.getId()))
                     .thenReturn(false);
 
@@ -863,14 +863,14 @@ public class CommentServiceImplTest {
                     assertThrows(ForbiddenException.class,
                             () -> commentServiceImpl.deleteComment(
                                     authenticatedUser.getId(), comment.getId()));
-            assertEquals("You can't delete comments from task " + task1.getId()
+            assertEquals("You can't delete comments from task " + task.getId()
                             + " since you are not participant in project " + project.getId(),
                     forbiddenException.getMessage());
 
             //verify
             verify(commentRepository, times(1))
                     .findByIdAndUserId(comment.getId(), authenticatedUser.getId());
-            verify(taskRepository, times(1)).findByIdNotDeleted(task1.getId());
+            verify(taskRepository, times(1)).findByIdNotDeleted(task.getId());
             verify(projectAuthorityUtil, times(1))
                     .hasAnyAuthority(project.getId(), authenticatedUser.getId());
         }
@@ -881,10 +881,10 @@ public class CommentServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
 
             User authenticatedUser = User.builder()
-                    .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .id(USER_ID)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -893,10 +893,10 @@ public class CommentServiceImplTest {
                     .build();
 
             User projectOwner = User.builder()
-                    .id(LAST_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .id(ANOTHER_USER_ID)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -905,7 +905,7 @@ public class CommentServiceImplTest {
                     .build();
 
             Project project = Project.builder()
-                    .id(FIRST_PROJECT_ID)
+                    .id(PROJECT_ID)
                     .name(PROJECT_NAME)
                     .description(PROJECT_DESCRIPTION)
                     .startDate(PROJECT_START_DATE)
@@ -916,10 +916,10 @@ public class CommentServiceImplTest {
                     .employees(Set.of(projectOwner, authenticatedUser))
                     .build();
 
-            Task task1 = Task.builder()
-                    .id(FIRST_TASK_ID)
-                    .name(TASK_NAME_1)
-                    .description(TASK_DESCRIPTION_1)
+            Task task = Task.builder()
+                    .id(TASK_ID)
+                    .name(TASK_NAME)
+                    .description(TASK_DESCRIPTION)
                     .priority(Task.Priority.LOW)
                     .status(Task.Status.NOT_STARTED)
                     .dueDate(TASK_DUE_DATE)
@@ -930,7 +930,7 @@ public class CommentServiceImplTest {
 
             Comment comment = Comment.builder()
                     .id(FIRST_COMMENT_ID)
-                    .task(task1)
+                    .task(task)
                     .user(authenticatedUser)
                     .text(COMMENT_TEXT)
                     .timestamp(LocalDateTime.now())
@@ -939,7 +939,7 @@ public class CommentServiceImplTest {
             //when
             when(commentRepository.findByIdAndUserId(comment.getId(), authenticatedUser.getId()))
                     .thenReturn(Optional.of(comment));
-            when(taskRepository.findByIdNotDeleted(task1.getId())).thenReturn(Optional.of(task1));
+            when(taskRepository.findByIdNotDeleted(task.getId())).thenReturn(Optional.of(task));
             when(projectAuthorityUtil.hasAnyAuthority(project.getId(), authenticatedUser.getId()))
                     .thenReturn(true);
             //then
@@ -948,7 +948,7 @@ public class CommentServiceImplTest {
             //verify
             verify(commentRepository, times(1))
                     .findByIdAndUserId(comment.getId(), authenticatedUser.getId());
-            verify(taskRepository, times(1)).findByIdNotDeleted(task1.getId());
+            verify(taskRepository, times(1)).findByIdNotDeleted(task.getId());
             verify(projectAuthorityUtil, times(1))
                     .hasAnyAuthority(project.getId(), authenticatedUser.getId());
             verify(commentRepository, times(1)).deleteById(comment.getId());
