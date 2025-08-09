@@ -46,13 +46,13 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 public class TaskServiceImplTest {
-    private static final String USERNAME_1 = "JohnDoe";
-    private static final String PASSWORD_1_DB =
+    private static final String TEST_USERNAME = "JohnDoe";
+    private static final String TEST_PASSWORD_ENCODED =
             "$2a$10$u4cOSEeePFyJlpvkPdtmhenMuPYhloQfrVS19DZU8/.5jtJNm7piW";
-    private static final String EMAIL_1 = "john_doe@mail.com";
+    private static final String TEST_EMAIL = "john_doe@mail.com";
 
-    private static final String USERNAME_2 = "RichardRoe";
-    private static final String EMAIL_2 = "richard_roe@mail.com";
+    private static final String ANOTHER_TEST_USERNAME = "RichardRoe";
+    private static final String ANOTHER_TEST_EMAIL = "richard_roe@mail.com";
 
     private static final String FIRST_NAME = "John";
     private static final String LAST_NAME = "Doe";
@@ -67,16 +67,16 @@ public class TaskServiceImplTest {
     private static final LocalDate PROJECT_START_DATE = LocalDate.of(2025, 1, 1);
     private static final LocalDate PROJECT_END_DATE = LocalDate.of(2025, 12, 31);
 
-    private static final String TASK_NAME_1 = "taskName";
-    private static final String TASK_NAME_2 = "anotherTaskName";
-    private static final String TASK_NAME_3 = "yetAnotherTaskName";
-    private static final String TASK_DESCRIPTION_1 = "taskDescription";
-    private static final String TASK_DESCRIPTION_2 = "anotherTaskDescription";
-    private static final String TASK_DESCRIPTION_3 = "yetAnotherTaskDescription";
+    private static final String TASK_NAME = "taskName";
+    private static final String ANOTHER_TASK_NAME = "anotherTaskName";
+    private static final String YET_ANOTHER_TASK_NAME = "yetAnotherTaskName";
+    private static final String TASK_DESCRIPTION = "taskDescription";
+    private static final String ANOTHER_TASK_DESCRIPTION = "anotherTaskDescription";
+    private static final String YET_ANOTHER_TASK_DESCRIPTION = "yetAnotherTaskDescription";
     private static final LocalDate TASK_DUE_DATE = LocalDate.of(2025, 12, 31);
 
     private static final long FIRST_USER_ID = 1L;
-    private static final long LAST_USER_ID = 2L;
+    private static final long ANOTHER_USER_ID = 2L;
     private static final long RANDOM_USER_ID = 1000L;
 
     private static final long FIRST_PROJECT_ID = 1L;
@@ -120,9 +120,9 @@ public class TaskServiceImplTest {
 
             User authenticatedUser = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -144,8 +144,8 @@ public class TaskServiceImplTest {
                     .build();
 
             TaskRequest taskRequest = new TaskRequest(
-                    TASK_NAME_1,
-                    TASK_DESCRIPTION_1,
+                    TASK_NAME,
+                    TASK_DESCRIPTION,
                     TASK_DUE_DATE,
                     deletedProject.getId(),
                     authenticatedUser.getId());
@@ -175,9 +175,9 @@ public class TaskServiceImplTest {
 
             User authenticatedUser = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -198,8 +198,8 @@ public class TaskServiceImplTest {
                     .build();
 
             TaskRequest taskRequest = new TaskRequest(
-                    TASK_NAME_1,
-                    TASK_DESCRIPTION_1,
+                    TASK_NAME,
+                    TASK_DESCRIPTION,
                     TASK_DUE_DATE,
                     project.getId(),
                     RANDOM_USER_ID);
@@ -231,9 +231,9 @@ public class TaskServiceImplTest {
 
             User authenticatedUser = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -242,10 +242,10 @@ public class TaskServiceImplTest {
                     .build();
 
             User owner = User.builder()
-                    .id(LAST_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .id(ANOTHER_USER_ID)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -266,8 +266,8 @@ public class TaskServiceImplTest {
                     .build();
 
             TaskRequest taskRequest = new TaskRequest(
-                    TASK_NAME_1,
-                    TASK_DESCRIPTION_1,
+                    TASK_NAME,
+                    TASK_DESCRIPTION,
                     TASK_DUE_DATE,
                     project.getId(),
                     owner.getId());
@@ -304,9 +304,9 @@ public class TaskServiceImplTest {
 
             User authenticatedUser = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -315,10 +315,10 @@ public class TaskServiceImplTest {
                     .build();
 
             User assigneeOutsider = User.builder()
-                    .id(LAST_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .id(ANOTHER_USER_ID)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -339,8 +339,8 @@ public class TaskServiceImplTest {
                     .build();
 
             TaskRequest taskRequest = new TaskRequest(
-                    TASK_NAME_1,
-                    TASK_DESCRIPTION_1,
+                    TASK_NAME,
+                    TASK_DESCRIPTION,
                     TASK_DUE_DATE,
                     project.getId(),
                     assigneeOutsider.getId());
@@ -383,9 +383,9 @@ public class TaskServiceImplTest {
 
             User authenticatedUser = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -394,10 +394,10 @@ public class TaskServiceImplTest {
                     .build();
 
             User assignee = User.builder()
-                    .id(LAST_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .id(ANOTHER_USER_ID)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -418,8 +418,8 @@ public class TaskServiceImplTest {
                     .build();
 
             TaskRequest taskRequest = new TaskRequest(
-                    TASK_NAME_1,
-                    TASK_DESCRIPTION_1,
+                    TASK_NAME,
+                    TASK_DESCRIPTION,
                     TASK_DUE_DATE,
                     project.getId(),
                     assignee.getId());
@@ -515,9 +515,9 @@ public class TaskServiceImplTest {
 
             User authenticatedUser = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -539,8 +539,8 @@ public class TaskServiceImplTest {
 
             Task firstTask = Task.builder()
                     .id(FIRST_TASK_ID)
-                    .name(TASK_NAME_1)
-                    .description(TASK_DESCRIPTION_1)
+                    .name(TASK_NAME)
+                    .description(TASK_DESCRIPTION)
                     .dueDate(TASK_DUE_DATE)
                     .priority(Task.Priority.LOW)
                     .status(Task.Status.NOT_STARTED)
@@ -551,8 +551,8 @@ public class TaskServiceImplTest {
 
             Task secondTask = Task.builder()
                     .id(SECOND_TASK_ID)
-                    .name(TASK_NAME_2)
-                    .description(TASK_DESCRIPTION_2)
+                    .name(ANOTHER_TASK_NAME)
+                    .description(ANOTHER_TASK_DESCRIPTION)
                     .dueDate(TASK_DUE_DATE)
                     .priority(Task.Priority.MEDIUM)
                     .status(Task.Status.COMPLETED)
@@ -563,8 +563,8 @@ public class TaskServiceImplTest {
 
             Task thirdTask = Task.builder()
                     .id(THIRD_TASK_ID)
-                    .name(TASK_NAME_3)
-                    .description(TASK_DESCRIPTION_3)
+                    .name(YET_ANOTHER_TASK_NAME)
+                    .description(YET_ANOTHER_TASK_DESCRIPTION)
                     .dueDate(TASK_DUE_DATE)
                     .priority(Task.Priority.HIGH)
                     .status(Task.Status.IN_PROGRESS)
@@ -651,9 +651,9 @@ public class TaskServiceImplTest {
 
             User authenticatedUser = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -662,10 +662,10 @@ public class TaskServiceImplTest {
                     .build();
 
             User assignee = User.builder()
-                    .id(LAST_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .id(ANOTHER_USER_ID)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -687,8 +687,8 @@ public class TaskServiceImplTest {
 
             Task taskFromRepo = Task.builder()
                     .id(FIRST_TASK_ID)
-                    .name(TASK_NAME_1)
-                    .description(TASK_DESCRIPTION_1)
+                    .name(TASK_NAME)
+                    .description(TASK_DESCRIPTION)
                     .dueDate(TASK_DUE_DATE)
                     .priority(Task.Priority.LOW)
                     .status(Task.Status.NOT_STARTED)
@@ -699,8 +699,8 @@ public class TaskServiceImplTest {
 
             TaskResponse taskResponse = TaskResponse.builder()
                     .id(FIRST_TASK_ID)
-                    .name(TASK_NAME_1)
-                    .description(TASK_DESCRIPTION_1)
+                    .name(TASK_NAME)
+                    .description(TASK_DESCRIPTION)
                     .dueDate(TASK_DUE_DATE)
                     .projectId(project.getId())
                     .assigneeId(assignee.getId())
@@ -749,9 +749,9 @@ public class TaskServiceImplTest {
 
             User authenticatedUser = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -760,10 +760,10 @@ public class TaskServiceImplTest {
                     .build();
 
             User owner = User.builder()
-                    .id(LAST_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .id(ANOTHER_USER_ID)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -785,8 +785,8 @@ public class TaskServiceImplTest {
 
             Task taskFromRepo = Task.builder()
                     .id(FIRST_TASK_ID)
-                    .name(TASK_NAME_1)
-                    .description(TASK_DESCRIPTION_1)
+                    .name(TASK_NAME)
+                    .description(TASK_DESCRIPTION)
                     .dueDate(TASK_DUE_DATE)
                     .priority(Task.Priority.LOW)
                     .status(Task.Status.NOT_STARTED)
@@ -821,9 +821,9 @@ public class TaskServiceImplTest {
 
             User authenticatedUser = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -832,10 +832,10 @@ public class TaskServiceImplTest {
                     .build();
 
             User assignee = User.builder()
-                    .id(LAST_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .id(ANOTHER_USER_ID)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -869,8 +869,8 @@ public class TaskServiceImplTest {
 
             Task taskFromRepo = Task.builder()
                     .id(FIRST_TASK_ID)
-                    .name(TASK_NAME_1)
-                    .description(TASK_DESCRIPTION_1)
+                    .name(TASK_NAME)
+                    .description(TASK_DESCRIPTION)
                     .dueDate(TASK_DUE_DATE)
                     .priority(Task.Priority.LOW)
                     .status(Task.Status.NOT_STARTED)
@@ -881,8 +881,8 @@ public class TaskServiceImplTest {
 
             Task taskFromRepoAfterUpdate = Task.builder()
                     .id(FIRST_TASK_ID)
-                    .name(TASK_NAME_2)
-                    .description(TASK_DESCRIPTION_2)
+                    .name(ANOTHER_TASK_NAME)
+                    .description(ANOTHER_TASK_DESCRIPTION)
                     .dueDate(TASK_DUE_DATE)
                     .priority(Task.Priority.MEDIUM)
                     .status(Task.Status.IN_PROGRESS)
@@ -893,8 +893,8 @@ public class TaskServiceImplTest {
 
             TaskResponse taskResponse = TaskResponse.builder()
                     .id(FIRST_TASK_ID)
-                    .name(TASK_NAME_2)
-                    .description(TASK_DESCRIPTION_2)
+                    .name(ANOTHER_TASK_NAME)
+                    .description(ANOTHER_TASK_DESCRIPTION)
                     .dueDate(TASK_DUE_DATE)
                     .projectId(anotherProject.getId())
                     .assigneeId(assignee.getId())
@@ -911,8 +911,8 @@ public class TaskServiceImplTest {
                     .thenReturn(Optional.of(anotherProject));
             when(projectAuthorityUtil.hasManagerialAuthority(ANOTHER_PROJECT_ID, FIRST_USER_ID))
                     .thenReturn(true);
-            when(userRepository.findById(LAST_USER_ID)).thenReturn(Optional.of(assignee));
-            when(projectRepository.isUserEmployee(ANOTHER_PROJECT_ID, LAST_USER_ID))
+            when(userRepository.findById(ANOTHER_USER_ID)).thenReturn(Optional.of(assignee));
+            when(projectRepository.isUserEmployee(ANOTHER_PROJECT_ID, ANOTHER_USER_ID))
                     .thenReturn(true);
             when(taskRepository.save(taskFromRepo)).thenReturn(taskFromRepoAfterUpdate);
             when(taskMapper.toTaskDto(taskFromRepoAfterUpdate)).thenReturn(taskResponse);
@@ -921,8 +921,8 @@ public class TaskServiceImplTest {
             assertEquals(taskResponse, taskServiceImpl.updateTask(
                     authenticatedUser,
                     new UpdateTaskRequest(
-                            TASK_NAME_2,
-                            TASK_DESCRIPTION_2,
+                            ANOTHER_TASK_NAME,
+                            ANOTHER_TASK_DESCRIPTION,
                             TASK_DUE_DATE.plusDays(TEN),
                             anotherProject.getId(),
                             assignee.getId()),
@@ -938,9 +938,9 @@ public class TaskServiceImplTest {
 
             User authenticatedUser = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -955,8 +955,8 @@ public class TaskServiceImplTest {
                     EntityNotFoundException.class, () -> taskServiceImpl.updateTask(
                             authenticatedUser,
                             new UpdateTaskRequest(
-                                    TASK_NAME_2,
-                                    TASK_DESCRIPTION_2,
+                                    ANOTHER_TASK_NAME,
+                                    ANOTHER_TASK_DESCRIPTION,
                                     TASK_DUE_DATE,
                                     FIRST_PROJECT_ID,
                                     FIRST_USER_ID),
@@ -977,9 +977,9 @@ public class TaskServiceImplTest {
 
             User authenticatedUser = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -1001,8 +1001,8 @@ public class TaskServiceImplTest {
 
             Task taskFromRepo = Task.builder()
                     .id(FIRST_TASK_ID)
-                    .name(TASK_NAME_1)
-                    .description(TASK_DESCRIPTION_1)
+                    .name(TASK_NAME)
+                    .description(TASK_DESCRIPTION)
                     .dueDate(TASK_DUE_DATE)
                     .priority(Task.Priority.LOW)
                     .status(Task.Status.NOT_STARTED)
@@ -1021,8 +1021,8 @@ public class TaskServiceImplTest {
                     ForbiddenException.class, () -> taskServiceImpl.updateTask(
                             authenticatedUser,
                             new UpdateTaskRequest(
-                                    TASK_NAME_2,
-                                    TASK_DESCRIPTION_2,
+                                    ANOTHER_TASK_NAME,
+                                    ANOTHER_TASK_DESCRIPTION,
                                     TASK_DUE_DATE,
                                     FIRST_PROJECT_ID,
                                     FIRST_USER_ID),
@@ -1045,9 +1045,9 @@ public class TaskServiceImplTest {
 
             User authenticatedUser = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -1056,10 +1056,10 @@ public class TaskServiceImplTest {
                     .build();
 
             User assignee = User.builder()
-                    .id(LAST_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .id(ANOTHER_USER_ID)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -1081,8 +1081,8 @@ public class TaskServiceImplTest {
 
             Task taskFromRepo = Task.builder()
                     .id(FIRST_TASK_ID)
-                    .name(TASK_NAME_1)
-                    .description(TASK_DESCRIPTION_1)
+                    .name(TASK_NAME)
+                    .description(TASK_DESCRIPTION)
                     .dueDate(TASK_DUE_DATE)
                     .priority(Task.Priority.LOW)
                     .status(Task.Status.NOT_STARTED)
@@ -1104,8 +1104,8 @@ public class TaskServiceImplTest {
                     assertThrows(EntityNotFoundException.class,
                         () -> taskServiceImpl.updateTask(authenticatedUser,
                             new UpdateTaskRequest(
-                                    TASK_NAME_2,
-                                    TASK_DESCRIPTION_2,
+                                    ANOTHER_TASK_NAME,
+                                    ANOTHER_TASK_DESCRIPTION,
                                     null,
                                     RANDOM_PROJECT_ID,
                                     assignee.getId()),
@@ -1128,9 +1128,9 @@ public class TaskServiceImplTest {
 
             User authenticatedUser = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -1139,10 +1139,10 @@ public class TaskServiceImplTest {
                     .build();
 
             User owner = User.builder()
-                    .id(LAST_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .id(ANOTHER_USER_ID)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -1176,8 +1176,8 @@ public class TaskServiceImplTest {
 
             Task taskFromRepo = Task.builder()
                     .id(FIRST_TASK_ID)
-                    .name(TASK_NAME_1)
-                    .description(TASK_DESCRIPTION_1)
+                    .name(TASK_NAME)
+                    .description(TASK_DESCRIPTION)
                     .dueDate(TASK_DUE_DATE)
                     .priority(Task.Priority.LOW)
                     .status(Task.Status.NOT_STARTED)
@@ -1199,8 +1199,8 @@ public class TaskServiceImplTest {
                     assertThrows(ForbiddenException.class,
                             () -> taskServiceImpl.updateTask(authenticatedUser,
                                     new UpdateTaskRequest(
-                                            TASK_NAME_2,
-                                            TASK_DESCRIPTION_2,
+                                            ANOTHER_TASK_NAME,
+                                            ANOTHER_TASK_DESCRIPTION,
                                             null,
                                             anotherProject.getId(),
                                             owner.getId()),
@@ -1218,9 +1218,9 @@ public class TaskServiceImplTest {
 
             User authenticatedUser = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -1254,8 +1254,8 @@ public class TaskServiceImplTest {
 
             Task taskFromRepo = Task.builder()
                     .id(FIRST_TASK_ID)
-                    .name(TASK_NAME_1)
-                    .description(TASK_DESCRIPTION_1)
+                    .name(TASK_NAME)
+                    .description(TASK_DESCRIPTION)
                     .dueDate(TASK_DUE_DATE)
                     .priority(Task.Priority.LOW)
                     .status(Task.Status.NOT_STARTED)
@@ -1280,8 +1280,8 @@ public class TaskServiceImplTest {
                     assertThrows(EntityNotFoundException.class,
                             () -> taskServiceImpl.updateTask(authenticatedUser,
                                     new UpdateTaskRequest(
-                                            TASK_NAME_2,
-                                            TASK_DESCRIPTION_2,
+                                            ANOTHER_TASK_NAME,
+                                            ANOTHER_TASK_DESCRIPTION,
                                             null,
                                             anotherProject.getId(),
                                             RANDOM_USER_ID),
@@ -1299,9 +1299,9 @@ public class TaskServiceImplTest {
 
             User authenticatedUser = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -1310,10 +1310,10 @@ public class TaskServiceImplTest {
                     .build();
 
             User assignee = User.builder()
-                    .id(LAST_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .id(ANOTHER_USER_ID)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -1335,8 +1335,8 @@ public class TaskServiceImplTest {
 
             Task taskFromRepo = Task.builder()
                     .id(FIRST_TASK_ID)
-                    .name(TASK_NAME_1)
-                    .description(TASK_DESCRIPTION_1)
+                    .name(TASK_NAME)
+                    .description(TASK_DESCRIPTION)
                     .dueDate(TASK_DUE_DATE)
                     .priority(Task.Priority.LOW)
                     .status(Task.Status.NOT_STARTED)
@@ -1352,23 +1352,23 @@ public class TaskServiceImplTest {
                     .thenReturn(true);
             when(projectAuthorityUtil.hasManagerialAuthority(ANOTHER_PROJECT_ID, FIRST_USER_ID))
                     .thenReturn(true);
-            when(userRepository.findById(LAST_USER_ID)).thenReturn(Optional.of(assignee));
+            when(userRepository.findById(ANOTHER_USER_ID)).thenReturn(Optional.of(assignee));
 
             //then
             ForbiddenException forbiddenException =
                     assertThrows(ForbiddenException.class,
                             () -> taskServiceImpl.updateTask(authenticatedUser,
                                     new UpdateTaskRequest(
-                                            TASK_NAME_2,
-                                            TASK_DESCRIPTION_2,
+                                            ANOTHER_TASK_NAME,
+                                            ANOTHER_TASK_DESCRIPTION,
                                             null,
                                             null,
-                                            LAST_USER_ID),
+                                            ANOTHER_USER_ID),
                                     FIRST_TASK_ID,
                                     TaskStatusDto.IN_PROGRESS,
                                     TaskPriorityDto.MEDIUM));
             assertEquals("You can't assign employee "
-                            + LAST_USER_ID + " to task " + FIRST_TASK_ID
+                            + ANOTHER_USER_ID + " to task " + FIRST_TASK_ID
                             + " since they are not in project " + FIRST_PROJECT_ID,
                     forbiddenException.getMessage());
         }
@@ -1398,10 +1398,10 @@ public class TaskServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
 
             User owner = User.builder()
-                    .id(LAST_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .id(ANOTHER_USER_ID)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -1423,8 +1423,8 @@ public class TaskServiceImplTest {
 
             Task taskFromRepo = Task.builder()
                     .id(FIRST_TASK_ID)
-                    .name(TASK_NAME_1)
-                    .description(TASK_DESCRIPTION_1)
+                    .name(TASK_NAME)
+                    .description(TASK_DESCRIPTION)
                     .dueDate(TASK_DUE_DATE)
                     .priority(Task.Priority.LOW)
                     .status(Task.Status.NOT_STARTED)
@@ -1451,10 +1451,10 @@ public class TaskServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
 
             User authenticatedUser = User.builder()
-                    .id(LAST_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .id(ANOTHER_USER_ID)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -1476,8 +1476,8 @@ public class TaskServiceImplTest {
 
             Task taskFromRepo = Task.builder()
                     .id(FIRST_TASK_ID)
-                    .name(TASK_NAME_1)
-                    .description(TASK_DESCRIPTION_1)
+                    .name(TASK_NAME)
+                    .description(TASK_DESCRIPTION)
                     .dueDate(TASK_DUE_DATE)
                     .priority(Task.Priority.LOW)
                     .status(Task.Status.NOT_STARTED)
@@ -1514,9 +1514,9 @@ public class TaskServiceImplTest {
 
             User authenticatedUser = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -1538,8 +1538,8 @@ public class TaskServiceImplTest {
 
             Task firstTask = Task.builder()
                     .id(FIRST_TASK_ID)
-                    .name(TASK_NAME_1)
-                    .description(TASK_DESCRIPTION_1)
+                    .name(TASK_NAME)
+                    .description(TASK_DESCRIPTION)
                     .dueDate(TASK_DUE_DATE)
                     .priority(Task.Priority.LOW)
                     .status(Task.Status.NOT_STARTED)
@@ -1550,8 +1550,8 @@ public class TaskServiceImplTest {
 
             Task secondTask = Task.builder()
                     .id(SECOND_TASK_ID)
-                    .name(TASK_NAME_2)
-                    .description(TASK_DESCRIPTION_2)
+                    .name(ANOTHER_TASK_NAME)
+                    .description(ANOTHER_TASK_DESCRIPTION)
                     .dueDate(TASK_DUE_DATE)
                     .priority(Task.Priority.MEDIUM)
                     .status(Task.Status.COMPLETED)
@@ -1562,8 +1562,8 @@ public class TaskServiceImplTest {
 
             Task thirdTask = Task.builder()
                     .id(THIRD_TASK_ID)
-                    .name(TASK_NAME_3)
-                    .description(TASK_DESCRIPTION_3)
+                    .name(YET_ANOTHER_TASK_NAME)
+                    .description(YET_ANOTHER_TASK_DESCRIPTION)
                     .dueDate(TASK_DUE_DATE)
                     .priority(Task.Priority.HIGH)
                     .status(Task.Status.IN_PROGRESS)

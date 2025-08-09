@@ -49,15 +49,15 @@ import org.springframework.data.domain.PageRequest;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceImplTest {
-    private static final String USERNAME_1 = "JohnDoe";
-    private static final String PASSWORD_1_DB =
+    private static final String TEST_USERNAME = "JohnDoe";
+    private static final String TEST_PASSWORD_ENCODED =
             "$2a$10$u4cOSEeePFyJlpvkPdtmhenMuPYhloQfrVS19DZU8/.5jtJNm7piW";
-    private static final String EMAIL_1 = "john_doe@mail.com";
+    private static final String TEST_EMAIL = "john_doe@mail.com";
 
-    private static final String USERNAME_2 = "RichardRoe";
-    private static final String EMAIL_2 = "richard_roe@mail.com";
+    private static final String ANOTHER_TEST_USERNAME = "RichardRoe";
+    private static final String ANOTHER_TEST_EMAIL = "richard_roe@mail.com";
 
-    private static final String EMAIL_3 = "jane_doe@mail.com";
+    private static final String YET_ANOTHER_TEST_EMAIL = "jane_doe@mail.com";
 
     private static final String ROLE_USER = "ROLE_USER";
 
@@ -76,7 +76,7 @@ public class UserServiceImplTest {
 
     private static final long FIRST_USER_ID = 1L;
     private static final long ANOTHER_USER_ID = 2L;
-    private static final long YER_ANOTHER_USER_ID = 3L;
+    private static final long YET_ANOTHER_USER_ID = 3L;
     private static final long RANDOM_USER_ID = 1000L;
 
     @Mock
@@ -118,9 +118,9 @@ public class UserServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
             User user = User.builder()
                     .id(ANOTHER_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -130,8 +130,8 @@ public class UserServiceImplTest {
 
             UserProfileResponse userProfileResponse = UserProfileResponse.builder()
                     .id(ANOTHER_USER_ID)
-                    .username(USERNAME_1)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(ROLE_USER)
@@ -190,9 +190,9 @@ public class UserServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
             User user = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -202,8 +202,8 @@ public class UserServiceImplTest {
 
             UserProfileResponse userProfileResponse = UserProfileResponse.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(ROLE_USER)
@@ -249,9 +249,9 @@ public class UserServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
             User user = User.builder()
                     .id(ANOTHER_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
@@ -262,8 +262,8 @@ public class UserServiceImplTest {
             UpdateUserProfileResponse expectedUpdateUserProfileResponse =
                     UpdateUserProfileResponse.builder()
                             .id(ANOTHER_USER_ID)
-                            .username(USERNAME_2)
-                            .email(EMAIL_1)
+                            .username(ANOTHER_TEST_USERNAME)
+                            .email(TEST_EMAIL)
                             .firstName(YET_ANOTHER_FIRST_NAME)
                             .lastName(YET_ANOTHER_LAST_NAME)
                             .role(ROLE_USER)
@@ -271,7 +271,7 @@ public class UserServiceImplTest {
 
             //when
             when(userRepository.findById(FIRST_USER_ID)).thenReturn(Optional.of(user));
-            when(userRepository.existsByEmail(EMAIL_1)).thenReturn(false);
+            when(userRepository.existsByEmail(TEST_EMAIL)).thenReturn(false);
             when(userRepository.save(user)).thenReturn(user);
             when(userMapper.toUpdateUserProfileInfoDto(user))
                     .thenReturn(expectedUpdateUserProfileResponse);
@@ -282,11 +282,11 @@ public class UserServiceImplTest {
                             new UpdateUserProfileRequest(
                                     YET_ANOTHER_FIRST_NAME,
                                     YET_ANOTHER_LAST_NAME,
-                                    EMAIL_1)));
+                                    TEST_EMAIL)));
 
             //verify
             verify(userRepository, times(1)).findById(FIRST_USER_ID);
-            verify(userRepository, times(1)).existsByEmail(EMAIL_1);
+            verify(userRepository, times(1)).existsByEmail(TEST_EMAIL);
             verify(userRepository, times(1)).save(user);
             verify(userMapper, times(1)).toUpdateUserProfileInfoDto(user);
         }
@@ -297,9 +297,9 @@ public class UserServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
             User user = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -309,7 +309,7 @@ public class UserServiceImplTest {
 
             //when
             when(userRepository.findById(FIRST_USER_ID)).thenReturn(Optional.of(user));
-            when(userRepository.existsByEmail(EMAIL_1)).thenReturn(true);
+            when(userRepository.existsByEmail(TEST_EMAIL)).thenReturn(true);
 
             //then
             IllegalArgumentException illegalArgumentException = assertThrows(
@@ -318,13 +318,13 @@ public class UserServiceImplTest {
                                     new UpdateUserProfileRequest(
                                             ANOTHER_FIRST_NAME,
                                             ANOTHER_LAST_NAME,
-                                            EMAIL_1)));
-            assertEquals("Email " + EMAIL_1
+                                            TEST_EMAIL)));
+            assertEquals("Email " + TEST_EMAIL
                     + " is already taken", illegalArgumentException.getMessage());
 
             //verify
             verify(userRepository, times(1)).findById(FIRST_USER_ID);
-            verify(userRepository, times(1)).existsByEmail(EMAIL_1);
+            verify(userRepository, times(1)).existsByEmail(TEST_EMAIL);
         }
 
         @Test
@@ -342,7 +342,7 @@ public class UserServiceImplTest {
                                     new UpdateUserProfileRequest(
                                             ANOTHER_FIRST_NAME,
                                             ANOTHER_LAST_NAME,
-                                            EMAIL_1)));
+                                            TEST_EMAIL)));
             assertEquals("User with id " + authenticatedUserId
                     + " not found", entityNotFoundException.getMessage());
 
@@ -393,9 +393,9 @@ public class UserServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
             User user = User.builder()
                     .id(changedUserId)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -406,8 +406,8 @@ public class UserServiceImplTest {
             UserProfileAdminResponse userProfileAdminResponseLocked =
                     UserProfileAdminResponse.builder()
                             .id(FIRST_USER_ID)
-                            .username(USERNAME_1)
-                            .email(EMAIL_1)
+                            .username(TEST_USERNAME)
+                            .email(TEST_EMAIL)
                             .firstName(FIRST_NAME)
                             .lastName(LAST_NAME)
                             .role(ROLE_USER)
@@ -440,9 +440,9 @@ public class UserServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
             User user = User.builder()
                     .id(changedUserId)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -453,8 +453,8 @@ public class UserServiceImplTest {
             UserProfileAdminResponse userProfileAdminResponseNonLocked =
                     UserProfileAdminResponse.builder()
                             .id(FIRST_USER_ID)
-                            .username(USERNAME_1)
-                            .email(EMAIL_1)
+                            .username(TEST_USERNAME)
+                            .email(TEST_EMAIL)
                             .firstName(FIRST_NAME)
                             .lastName(LAST_NAME)
                             .role(ROLE_USER)
@@ -485,9 +485,9 @@ public class UserServiceImplTest {
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
             User user = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -516,17 +516,17 @@ public class UserServiceImplTest {
         @Test
         void givenValidToken_whenConfirmEmailChange_thenSuccess() {
             //given
-            String oldEmail = EMAIL_1;
-            String newEmail = EMAIL_2;
+            String oldEmail = TEST_EMAIL;
+            String newEmail = ANOTHER_TEST_EMAIL;
             JwtAbstractUtil jwtActionUtil = new JwtActionUtil(
                     SECRET_KEY, ACTION_EXPIRATION);
             String expectedToken = jwtActionUtil.generateToken(oldEmail);
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
             User user = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
@@ -536,8 +536,8 @@ public class UserServiceImplTest {
             UpdateUserProfileResponse expectedUserProfileResponse =
                     UpdateUserProfileResponse.builder()
                             .id(FIRST_USER_ID)
-                            .username(USERNAME_1)
-                            .email(EMAIL_1)
+                            .username(TEST_USERNAME)
+                            .email(TEST_EMAIL)
                             .firstName(FIRST_NAME)
                             .lastName(LAST_NAME)
                             .role(ROLE_USER)
@@ -577,7 +577,7 @@ public class UserServiceImplTest {
             //given
             JwtAbstractUtil jwtActionUtil = new JwtActionUtil(
                     SECRET_KEY, ACTION_EXPIRATION);
-            String expectedToken = jwtActionUtil.generateToken(EMAIL_1);
+            String expectedToken = jwtActionUtil.generateToken(TEST_EMAIL);
             HttpServletRequest httpServletRequest = Mockito.mock(HttpServletRequest.class);
 
             //when
@@ -585,8 +585,8 @@ public class UserServiceImplTest {
                     .thenReturn(expectedToken);
             when(jwtStrategy.getStrategy(JwtType.ACTION)).thenReturn(jwtActionUtil);
             when(randomParamFromHttpRequestUtil.getNamedParameter(httpServletRequest, "newEmail"))
-                    .thenReturn(EMAIL_2);
-            when(actionTokenRepository.existsByActionToken(expectedToken + EMAIL_2))
+                    .thenReturn(ANOTHER_TEST_EMAIL);
+            when(actionTokenRepository.existsByActionToken(expectedToken + ANOTHER_TEST_EMAIL))
                     .thenReturn(false);
 
             //then
@@ -601,14 +601,14 @@ public class UserServiceImplTest {
             verify(jwtStrategy, times(1)).getStrategy(JwtType.ACTION);
             verify(randomParamFromHttpRequestUtil, times(1))
                     .getNamedParameter(httpServletRequest, "newEmail");
-            verify(actionTokenRepository, times(1)).existsByActionToken(expectedToken + EMAIL_2);
+            verify(actionTokenRepository, times(1)).existsByActionToken(expectedToken + ANOTHER_TEST_EMAIL);
         }
 
         @Test
         void givenInvalidTokenWithFakeEmail_whenConfirmEmailChange_thenException() {
             //given
-            String oldEmail = EMAIL_3;
-            String newEmail = EMAIL_2;
+            String oldEmail = YET_ANOTHER_TEST_EMAIL;
+            String newEmail = ANOTHER_TEST_EMAIL;
             JwtAbstractUtil jwtActionUtil = new JwtActionUtil(
                     SECRET_KEY, ACTION_EXPIRATION);
             String expectedToken = jwtActionUtil.generateToken(oldEmail);
@@ -650,82 +650,82 @@ public class UserServiceImplTest {
             PageRequest pageRequestForAllUsers = PageRequest.of(0, 3);
 
             Role role = Role.builder().name(Role.RoleName.ROLE_USER).build();
-            User user1 = User.builder()
+            User user = User.builder()
                     .id(FIRST_USER_ID)
-                    .username(USERNAME_1)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_1)
+                    .username(TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(TEST_EMAIL)
                     .firstName(FIRST_NAME)
                     .lastName(LAST_NAME)
                     .role(role)
                     .isEnabled(true)
                     .isAccountNonLocked(true)
                     .build();
-            UpdateUserProfileResponse userProfileResponse1 = UpdateUserProfileResponse
+            UpdateUserProfileResponse userProfileResponse = UpdateUserProfileResponse
                     .builder()
                             .id(FIRST_USER_ID)
-                            .username(USERNAME_1)
-                            .email(EMAIL_1)
+                            .username(TEST_USERNAME)
+                            .email(TEST_EMAIL)
                             .firstName(FIRST_NAME)
                             .lastName(LAST_NAME)
                             .role(ROLE_USER)
                             .message(CONFIRM_NEW_EMAIL_MESSAGE).build();
 
-            User user2 = User.builder()
+            User anotherUser = User.builder()
                     .id(ANOTHER_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(role)
                     .isEnabled(true)
                     .isAccountNonLocked(true)
                     .build();
-            UpdateUserProfileResponse userProfileResponse2 = UpdateUserProfileResponse
+            UpdateUserProfileResponse anotherUserProfileResponse = UpdateUserProfileResponse
                     .builder()
                     .id(ANOTHER_USER_ID)
-                    .username(USERNAME_2)
-                    .email(EMAIL_2)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(ANOTHER_FIRST_NAME)
                     .lastName(ANOTHER_LAST_NAME)
                     .role(ROLE_USER)
                     .message(CONFIRM_NEW_EMAIL_MESSAGE).build();
 
-            User user3 = User.builder()
-                    .id(YER_ANOTHER_USER_ID)
-                    .username(USERNAME_2)
-                    .password(PASSWORD_1_DB)
-                    .email(EMAIL_2)
+            User yetAnotherUser = User.builder()
+                    .id(YET_ANOTHER_USER_ID)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .password(TEST_PASSWORD_ENCODED)
+                    .email(ANOTHER_TEST_EMAIL)
                     .firstName(YET_ANOTHER_FIRST_NAME)
                     .lastName(YET_ANOTHER_LAST_NAME)
                     .role(role)
                     .isEnabled(true)
                     .isAccountNonLocked(true)
                     .build();
-            UpdateUserProfileResponse userProfileResponse3 = UpdateUserProfileResponse
+            UpdateUserProfileResponse yetAnotherUserResponse = UpdateUserProfileResponse
                     .builder()
-                    .id(YER_ANOTHER_USER_ID)
-                    .username(USERNAME_2)
-                    .email(EMAIL_3)
+                    .id(YET_ANOTHER_USER_ID)
+                    .username(ANOTHER_TEST_USERNAME)
+                    .email(YET_ANOTHER_TEST_EMAIL)
                     .firstName(YET_ANOTHER_FIRST_NAME)
                     .lastName(YET_ANOTHER_LAST_NAME)
                     .role(ROLE_USER)
                     .message(CONFIRM_NEW_EMAIL_MESSAGE).build();
 
-            List<User> users = Arrays.asList(user1, user2, user3);
+            List<User> users = Arrays.asList(user, anotherUser, yetAnotherUser);
 
             Page<User> usersPage = new PageImpl<>(users, pageRequestForAllUsers, users.size());
 
             //when
-            when(userMapper.toUserProfileInfoDto(user1)).thenReturn(userProfileResponse1);
-            when(userMapper.toUserProfileInfoDto(user2)).thenReturn(userProfileResponse2);
-            when(userMapper.toUserProfileInfoDto(user3)).thenReturn(userProfileResponse3);
+            when(userMapper.toUserProfileInfoDto(user)).thenReturn(userProfileResponse);
+            when(userMapper.toUserProfileInfoDto(anotherUser)).thenReturn(anotherUserProfileResponse);
+            when(userMapper.toUserProfileInfoDto(yetAnotherUser)).thenReturn(yetAnotherUserResponse);
             when(userRepository.findAll(pageRequestForAllUsers)).thenReturn(usersPage);
 
             //then
             List<UserProfileResponse> expectedUserProfileResponses =
-                    List.of(userProfileResponse1, userProfileResponse2, userProfileResponse3);
+                    List.of(userProfileResponse, anotherUserProfileResponse, yetAnotherUserResponse);
             assertEquals(expectedUserProfileResponses,
                     userServiceImpl.getAllUsers(pageRequestForAllUsers));
         }
