@@ -1,9 +1,11 @@
 package com.example.taskmanagementapp.repository;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.dropbox.core.v2.DbxClientV2;
 import com.example.taskmanagementapp.entity.ActionToken;
 import java.util.UUID;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,19 +31,19 @@ class ActionTokenRepositoryTest {
 
     @Test
     void givenActionToken_whenExistsByActionToken_thenReturnTrue() {
-        Assertions.assertTrue(actionTokenRepository.existsByActionToken(ACTION_TOKEN));
+        assertTrue(actionTokenRepository.existsByActionToken(ACTION_TOKEN));
     }
 
     @Test
     void givenDeletedActionToken_whenExistsByActionToken_thenReturnFalse() {
-        Assertions.assertTrue(actionTokenRepository.existsByActionToken(ACTION_TOKEN));
+        assertTrue(actionTokenRepository.existsByActionToken(ACTION_TOKEN));
         actionTokenRepository.deleteByActionToken(ACTION_TOKEN);
-        Assertions.assertFalse(actionTokenRepository.existsByActionToken(ACTION_TOKEN));
+        assertFalse(actionTokenRepository.existsByActionToken(ACTION_TOKEN));
     }
 
     @Test
     void givenNotExistingActionToken_whenExistsByActionToken_thenReturnFalse() {
-        Assertions.assertFalse(
+        assertFalse(
                 actionTokenRepository.existsByActionToken(NOT_EXISTING_ACTION_TOKEN));
     }
 }

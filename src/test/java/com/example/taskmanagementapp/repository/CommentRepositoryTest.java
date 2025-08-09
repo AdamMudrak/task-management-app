@@ -1,5 +1,8 @@
 package com.example.taskmanagementapp.repository;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.dropbox.core.v2.DbxClientV2;
 import com.example.taskmanagementapp.entity.Comment;
 import com.example.taskmanagementapp.entity.Project;
@@ -18,7 +21,6 @@ import javax.sql.DataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -182,7 +184,7 @@ public class CommentRepositoryTest {
     void givenTwoCommentsOfUser1ForTask1_whenFindAllByTaskId_thenReturnListOfTwoComments() {
         List<Comment> commentList =
                 commentRepository.findAllByTaskId(task1.getId(), Pageable.unpaged()).getContent();
-        Assertions.assertEquals(2, commentList.size());
+        assertEquals(2, commentList.size());
         for (Comment comment : commentList) {
             if (comment.getId().equals(comment1.getId())) {
                 commentAssertions(comment, task1, user1,
@@ -196,7 +198,7 @@ public class CommentRepositoryTest {
 
     @Test
     void givenTaskWithNoComments_whenFindAllByTaskId_thenReturnEmptyList() {
-        Assertions.assertTrue(
+        assertTrue(
                 commentRepository.findAllByTaskId(task2.getId(), Pageable.unpaged()).isEmpty());
     }
 
@@ -204,9 +206,9 @@ public class CommentRepositoryTest {
     void givenTwoCommentsOfUser1ForTask1_whenDeleteAllByTaskId_thenReturnEmptyList() {
         List<Comment> commentList =
                 commentRepository.findAllByTaskId(task1.getId(), Pageable.unpaged()).getContent();
-        Assertions.assertEquals(2, commentList.size());
+        assertEquals(2, commentList.size());
         commentRepository.deleteAllByTaskId(task1.getId());
-        Assertions.assertTrue(
+        assertTrue(
                 commentRepository.findAllByTaskId(task1.getId(), Pageable.unpaged()).isEmpty());
     }
 
@@ -225,17 +227,17 @@ public class CommentRepositoryTest {
 
     @Test
     void givenUserWithNoComment_whenFindByIdAndUserId_thenReturnEmpty() {
-        Assertions.assertTrue(
+        assertTrue(
                 commentRepository.findByIdAndUserId(comment1.getId(), user2.getId()).isEmpty());
-        Assertions.assertTrue(
+        assertTrue(
                 commentRepository.findByIdAndUserId(comment2.getId(), user2.getId()).isEmpty());
     }
 
     private void commentAssertions(Comment comment, Task task, User user,
                                    String commentText) {
-        Assertions.assertEquals(task, comment.getTask());
-        Assertions.assertEquals(user, comment.getUser());
-        Assertions.assertEquals(commentText, comment.getText());
-        Assertions.assertEquals(TIME_STAMP, comment.getTimestamp());
+        assertEquals(task, comment.getTask());
+        assertEquals(user, comment.getUser());
+        assertEquals(commentText, comment.getText());
+        assertEquals(TIME_STAMP, comment.getTimestamp());
     }
 }

@@ -1,5 +1,8 @@
 package com.example.taskmanagementapp.repository;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import com.dropbox.core.v2.DbxClientV2;
 import com.example.taskmanagementapp.entity.Role;
 import org.junit.jupiter.api.Assertions;
@@ -29,11 +32,11 @@ class RoleRepositoryTest {
     @Test
     void givenRole_whenFindByName_thenReturnRole() {
         Role userRole = roleRepository.findByName(Role.RoleName.ROLE_USER);
-        Assertions.assertNotNull(userRole);
-        Assertions.assertEquals(Role.RoleName.ROLE_USER, userRole.getName());
+        assertNotNull(userRole);
+        assertEquals(Role.RoleName.ROLE_USER, userRole.getName());
 
         Role adminRole = roleRepository.findByName(Role.RoleName.ROLE_ADMIN);
-        Assertions.assertNotNull(adminRole);
-        Assertions.assertEquals(Role.RoleName.ROLE_ADMIN, adminRole.getName());
+        assertNotNull(adminRole);
+        assertEquals(Role.RoleName.ROLE_ADMIN, adminRole.getName());
     }
 }

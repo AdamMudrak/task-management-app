@@ -1,5 +1,11 @@
 package com.example.taskmanagementapp.repository;
 
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.dropbox.core.v2.DbxClientV2;
 import com.example.taskmanagementapp.entity.Role;
 import com.example.taskmanagementapp.entity.User;
@@ -60,7 +66,7 @@ class UserRepositoryTest {
 
     @Test
     void givenNotExistingUser_whenFindByUsername_thenReturnEmptyUser() {
-        Assertions.assertTrue(userRepository.findByUsername(
+        assertTrue(userRepository.findByUsername(
                 USERNAME_2).isEmpty());
     }
 
@@ -75,40 +81,40 @@ class UserRepositoryTest {
 
     @Test
     void givenNotExistingUser_whenFindByEmail_thenReturnEmptyUser() {
-        Assertions.assertTrue(userRepository.findByEmail(
+        assertTrue(userRepository.findByEmail(
                 EMAIL_2).isEmpty());
     }
 
     @Test
     void givenUser_whenExistsByUsername_thenReturnTrue() {
-        Assertions.assertTrue(userRepository.existsByUsername(USERNAME_1));
+        assertTrue(userRepository.existsByUsername(USERNAME_1));
     }
 
     @Test
     void givenNotExistingUser_whenExistsByUsername_thenReturnFalse() {
-        Assertions.assertFalse(userRepository.existsByUsername(
+        assertFalse(userRepository.existsByUsername(
                 USERNAME_2));
     }
 
     @Test
     void givenUser_whenExistsByEmail_thenReturnTrue() {
-        Assertions.assertTrue(userRepository.existsByEmail(EMAIL_1));
+        assertTrue(userRepository.existsByEmail(EMAIL_1));
     }
 
     @Test
     void givenNotExistingUser_whenExistsByEmail_thenReturnFalse() {
-        Assertions.assertFalse(userRepository.existsByEmail(EMAIL_2));
+        assertFalse(userRepository.existsByEmail(EMAIL_2));
     }
 
     private void userAssertions(User user) {
-        Assertions.assertNotNull(user);
-        Assertions.assertEquals(USERNAME_1, user.getUsername());
-        Assertions.assertEquals(PASSWORD_1_DB, user.getPassword());
-        Assertions.assertEquals(EMAIL_1, user.getEmail());
-        Assertions.assertEquals(FIRST_NAME, user.getFirstName());
-        Assertions.assertEquals(LAST_NAME, user.getLastName());
-        Assertions.assertEquals(ROLE_USER, user.getRole().getName().name());
-        Assertions.assertTrue(user.isEnabled());
-        Assertions.assertTrue(user.isAccountNonLocked());
+        assertNotNull(user);
+        assertEquals(USERNAME_1, user.getUsername());
+        assertEquals(PASSWORD_1_DB, user.getPassword());
+        assertEquals(EMAIL_1, user.getEmail());
+        assertEquals(FIRST_NAME, user.getFirstName());
+        assertEquals(LAST_NAME, user.getLastName());
+        assertEquals(ROLE_USER, user.getRole().getName().name());
+        assertTrue(user.isEnabled());
+        assertTrue(user.isAccountNonLocked());
     }
 }

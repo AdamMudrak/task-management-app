@@ -1,5 +1,10 @@
 package com.example.taskmanagementapp.repository;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.dropbox.core.v2.DbxClientV2;
 import com.example.taskmanagementapp.entity.Label;
 import com.example.taskmanagementapp.entity.Project;
@@ -17,7 +22,6 @@ import javax.sql.DataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -164,13 +168,13 @@ class TaskRepositoryTest {
     void givenTaskAttachedToProject_whenFindAllByProjectIdNonDeleted_thenReturnTask() {
         List<Task> taskList = taskRepository.findAllByProjectIdNonDeleted(
                 livingProject.getId(), Pageable.unpaged()).getContent();
-        Assertions.assertEquals(1, taskList.size());
+        assertEquals(1, taskList.size());
         taskAssertions(taskList.getFirst());
     }
 
     @Test
     void givenProjectWithNoTask_whenFindAllByProjectIdNonDeleted_thenReturnEmpty() {
-        Assertions.assertTrue(taskRepository
+        assertTrue(taskRepository
                 .findAllByProjectIdNonDeleted(
                         deletedProject.getId(), Pageable.unpaged()).isEmpty());
     }
@@ -178,7 +182,7 @@ class TaskRepositoryTest {
     @Test
     void givenTask_whenFindAllNonDeletedWithAssigneeAndProject_thenReturnTaskAndFetchedEntities() {
         List<Task> taskList = taskRepository.findAllNonDeletedWithAssigneeAndProject();
-        Assertions.assertEquals(1, taskList.size());
+        assertEquals(1, taskList.size());
         taskAssertions(taskList.getFirst());
     }
 
@@ -191,35 +195,35 @@ class TaskRepositoryTest {
 
     @Test
     void givenDeletedByProjectTask_whenFindByIdNotDeleted_thenReturnOptionalEmpty() {
-        Assertions.assertTrue(taskRepository.findByIdNotDeleted(task1.getId()).isPresent());
+        assertTrue(taskRepository.findByIdNotDeleted(task1.getId()).isPresent());
         taskRepository.deleteAllByProjectId(livingProject.getId());
-        Assertions.assertTrue(taskRepository.findByIdNotDeleted(task1.getId()).isEmpty());
+        assertTrue(taskRepository.findByIdNotDeleted(task1.getId()).isEmpty());
     }
 
     @Test
     void givenLabelAndTask_whenFindAllByLabelIdNonDeleted_thenReturnTask() {
         List<Task> taskList = taskRepository.findAllByLabelIdNonDeleted(
                 livingLabel.getId(), Pageable.unpaged()).getContent();
-        Assertions.assertEquals(1, taskList.size());
+        assertEquals(1, taskList.size());
         taskAssertions(taskList.getFirst());
     }
 
     @Test
     void givenLabelWithNoTask_whenFindAllByLabelIdNonDeleted_thenReturnEmptyList() {
-        Assertions.assertTrue(taskRepository.findAllByLabelIdNonDeleted(
+        assertTrue(taskRepository.findAllByLabelIdNonDeleted(
                 labelWithNoTask.getId(), Pageable.unpaged()).isEmpty());
     }
 
     private void taskAssertions(Task task) {
-        Assertions.assertNotNull(task);
-        Assertions.assertEquals(task1.getId(), task.getId());
-        Assertions.assertEquals(TASK_NAME_1, task.getName());
-        Assertions.assertEquals(TASK_DESCRIPTION_1, task.getDescription());
-        Assertions.assertEquals(Task.Priority.LOW, task.getPriority());
-        Assertions.assertEquals(Task.Status.NOT_STARTED, task.getStatus());
-        Assertions.assertEquals(TASK_DUE_DATE, task.getDueDate());
-        Assertions.assertEquals(livingProject, task.getProject());
-        Assertions.assertEquals(user1, task.getAssignee());
-        Assertions.assertFalse(task.isDeleted());
+        assertNotNull(task);
+        assertEquals(task1.getId(), task.getId());
+        assertEquals(TASK_NAME_1, task.getName());
+        assertEquals(TASK_DESCRIPTION_1, task.getDescription());
+        assertEquals(Task.Priority.LOW, task.getPriority());
+        assertEquals(Task.Status.NOT_STARTED, task.getStatus());
+        assertEquals(TASK_DUE_DATE, task.getDueDate());
+        assertEquals(livingProject, task.getProject());
+        assertEquals(user1, task.getAssignee());
+        assertFalse(task.isDeleted());
     }
 }

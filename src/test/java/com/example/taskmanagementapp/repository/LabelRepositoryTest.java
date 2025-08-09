@@ -1,5 +1,10 @@
 package com.example.taskmanagementapp.repository;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.dropbox.core.v2.DbxClientV2;
 import com.example.taskmanagementapp.entity.Label;
 import com.example.taskmanagementapp.entity.Project;
@@ -17,7 +22,6 @@ import javax.sql.DataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -193,30 +197,30 @@ class LabelRepositoryTest {
 
     @Test
     void givenTwoLabelsAndUserWithNoLabels_whenFindByIdAndUserId_thenReturnEmpty() {
-        Assertions.assertTrue(labelRepository.findByIdAndUserId(
+        assertTrue(labelRepository.findByIdAndUserId(
                 labelId1, user2.getId()).isEmpty());
     }
 
     @Test
     void givenTwoLabelsAndUserWithNoLabels_whenFindAllByUserId_thenReturnEmpty() {
-        Assertions.assertTrue(labelRepository
+        assertTrue(labelRepository
                 .findAllByUserId(user2.getId(), Pageable.unpaged()).isEmpty());
     }
 
     @Test
     void givenTwoLabelsAndUserWithLabels_whenExistsByIdAndUserId_thenReturnTrue() {
-        Assertions.assertTrue(labelRepository
+        assertTrue(labelRepository
                 .existsByIdAndUserId(labelId1, user1.getId()));
-        Assertions.assertTrue(labelRepository
+        assertTrue(labelRepository
                 .existsByIdAndUserId(labelId2, user1.getId()));
 
     }
 
     @Test
     void givenTwoLabelsAndUserWithNoLabels_whenExistsByIdAndUserId_thenReturnFalse() {
-        Assertions.assertFalse(labelRepository
+        assertFalse(labelRepository
                 .existsByIdAndUserId(labelId1, user2.getId()));
-        Assertions.assertFalse(labelRepository
+        assertFalse(labelRepository
                 .existsByIdAndUserId(labelId2, user2.getId()));
 
     }
@@ -225,7 +229,7 @@ class LabelRepositoryTest {
     void givenTwoLabels_whenFindAllByUserId_thenReturnBoth() {
         List<Label> labels = labelRepository.findAllByUserId(
                 user1.getId(), Pageable.unpaged()).getContent();
-        Assertions.assertEquals(2, labels.size());
+        assertEquals(2, labels.size());
 
         for (Label label : labels) {
             if (label.getId().equals(labelId1)) {
@@ -245,24 +249,24 @@ class LabelRepositoryTest {
 
         List<Label> listOfFirstLabel = labelRepository.findAllByUserId(
                 user1.getId(), PageRequest.of(firstPage, size)).getContent();
-        Assertions.assertEquals(1, listOfFirstLabel.size());
+        assertEquals(1, listOfFirstLabel.size());
         labelAssertions(listOfFirstLabel.getFirst(), labelId1,
                 LABEL_NAME_1, Label.Color.RED, task1);
 
         List<Label> listOfSecondLabel = labelRepository.findAllByUserId(
                 user1.getId(), PageRequest.of(secondPage, size)).getContent();
-        Assertions.assertEquals(1, listOfSecondLabel.size());
+        assertEquals(1, listOfSecondLabel.size());
         labelAssertions(listOfSecondLabel.getFirst(), labelId2, LABEL_NAME_2,
                 Label.Color.YELLOW, task2);
     }
 
     private void labelAssertions(Label label,Long id, String name, Label.Color color, Task task) {
-        Assertions.assertNotNull(label);
-        Assertions.assertEquals(id, label.getId());
-        Assertions.assertEquals(name, label.getName());
-        Assertions.assertEquals(color, label.getColor());
-        Assertions.assertEquals(user1, label.getUser());
-        Assertions.assertEquals(1, label.getTasks().size());
-        Assertions.assertTrue(label.getTasks().contains(task));
+        assertNotNull(label);
+        assertEquals(id, label.getId());
+        assertEquals(name, label.getName());
+        assertEquals(color, label.getColor());
+        assertEquals(user1, label.getUser());
+        assertEquals(1, label.getTasks().size());
+        assertTrue(label.getTasks().contains(task));
     }
 }

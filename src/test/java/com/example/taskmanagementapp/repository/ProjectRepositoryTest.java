@@ -1,5 +1,10 @@
 package com.example.taskmanagementapp.repository;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.dropbox.core.v2.DbxClientV2;
 import com.example.taskmanagementapp.entity.Project;
 import com.example.taskmanagementapp.entity.Role;
@@ -9,7 +14,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -122,13 +126,13 @@ class ProjectRepositoryTest {
 
     @Test
     void givenUserWithNoProjects_whenFindAllByEmployeeId_thenReturnEmptyList() {
-        Assertions.assertTrue(projectRepository.findAllByEmployeeId(
+        assertTrue(projectRepository.findAllByEmployeeId(
                 user2.getId(), Pageable.unpaged()).isEmpty());
     }
 
     @Test
     void givenUserWithNoProjects_whenFindAllByOwnerId_thenReturnEmptyList() {
-        Assertions.assertTrue(projectRepository.findAllByOwnerId(
+        assertTrue(projectRepository.findAllByOwnerId(
                 user2.getId(), Pageable.unpaged()).isEmpty());
     }
 
@@ -136,8 +140,8 @@ class ProjectRepositoryTest {
     void givenNotDeletedProject_whenFindAllByOwnerId_thenReturnSingleProject() {
         List<Project> projectList = projectRepository
                 .findAllByOwnerId(user1.getId(), Pageable.unpaged()).getContent();
-        Assertions.assertEquals(1, projectList.size());
-        projectAssertions(projectList.getFirst(), false,
+        assertEquals(1, projectList.size());
+        project(projectList.getFirst(), false,
                 PROJECT_NAME, PROJECT_DESCRIPTION);
     }
 
@@ -145,8 +149,8 @@ class ProjectRepositoryTest {
     void givenDeletedProject_whenFindAllByOwnerIdDeleted_thenReturnSingleProject() {
         List<Project> projectList = projectRepository
                 .findAllByOwnerIdDeleted(user1.getId(), Pageable.unpaged()).getContent();
-        Assertions.assertEquals(1, projectList.size());
-        projectAssertions(projectList.getFirst(), true,
+        assertEquals(1, projectList.size());
+        project(projectList.getFirst(), true,
                 ANOTHER_PROJECT_NAME, ANOTHER_PROJECT_DESCRIPTION);
     }
 
@@ -154,8 +158,8 @@ class ProjectRepositoryTest {
     void givenNotDeletedProject_whenFindAllByEmployeeId_thenReturnSingleProject() {
         List<Project> projectList = projectRepository
                 .findAllByEmployeeId(user1.getId(), Pageable.unpaged()).getContent();
-        Assertions.assertEquals(1, projectList.size());
-        projectAssertions(projectList.getFirst(), false,
+        assertEquals(1, projectList.size());
+        project(projectList.getFirst(), false,
                 PROJECT_NAME, PROJECT_DESCRIPTION);
     }
 
@@ -163,50 +167,50 @@ class ProjectRepositoryTest {
     void givenExistingProjectId_whenFindByIdNotDeleted_thenReturnSingleProject() {
         Project project = projectRepository.findByIdNotDeleted(existingProjectId).orElseThrow(
                 () -> new EntityNotFoundException("No project with id " + existingProjectId));
-        projectAssertions(project, false, PROJECT_NAME, PROJECT_DESCRIPTION);
+        project(project, false, PROJECT_NAME, PROJECT_DESCRIPTION);
     }
 
     @Test
     void givenExistingProjectId_whenExistsByIdNotDeleted_thenReturnTrue() {
-        Assertions.assertTrue(projectRepository.existsByIdNotDeleted(existingProjectId));
+        assertTrue(projectRepository.existsByIdNotDeleted(existingProjectId));
     }
 
     @Test
     void givenDeletedProjectId_whenExistsByIdNotDeleted_thenReturnFalse() {
-        Assertions.assertFalse(projectRepository.existsByIdNotDeleted(deletedProjectId));
+        assertFalse(projectRepository.existsByIdNotDeleted(deletedProjectId));
     }
 
     @Test
     void givenNotDeletedProject_whenIsUserSomebody_thenReturnTrue() {
-        Assertions.assertTrue(projectRepository.isUserOwner(existingProjectId, user1.getId()));
-        Assertions.assertTrue(projectRepository.isUserManager(existingProjectId, user1.getId()));
-        Assertions.assertTrue(projectRepository
+        assertTrue(projectRepository.isUserOwner(existingProjectId, user1.getId()));
+        assertTrue(projectRepository.isUserManager(existingProjectId, user1.getId()));
+        assertTrue(projectRepository
                 .isUserEmployee(existingProjectId, user1.getId()));
     }
 
     @Test
     void givenDeletedProject_whenIsUserSomebody_thenReturnFalse() {
-        Assertions.assertFalse(projectRepository.isUserOwner(deletedProjectId, user1.getId()));
-        Assertions.assertFalse(projectRepository.isUserManager(deletedProjectId, user1.getId()));
-        Assertions.assertFalse(projectRepository
+        assertFalse(projectRepository.isUserOwner(deletedProjectId, user1.getId()));
+        assertFalse(projectRepository.isUserManager(deletedProjectId, user1.getId()));
+        assertFalse(projectRepository
                 .isUserEmployee(deletedProjectId, user1.getId()));
     }
 
-    private void projectAssertions(Project project, boolean isDeleted,
+    private void project(Project project, boolean isDeleted,
                                    String projectName, String projectDescription) {
-        Assertions.assertNotNull(project);
-        Assertions.assertEquals(projectName, project.getName());
-        Assertions.assertEquals(projectDescription, project.getDescription());
-        Assertions.assertEquals(PROJECT_START_DATE, project.getStartDate());
-        Assertions.assertEquals(PROJECT_END_DATE, project.getEndDate());
-        Assertions.assertEquals(Project.Status.IN_PROGRESS, project.getStatus());
+        assertNotNull(project);
+        assertEquals(projectName, project.getName());
+        assertEquals(projectDescription, project.getDescription());
+        assertEquals(PROJECT_START_DATE, project.getStartDate());
+        assertEquals(PROJECT_END_DATE, project.getEndDate());
+        assertEquals(Project.Status.IN_PROGRESS, project.getStatus());
         if (isDeleted) {
-            Assertions.assertTrue(project.isDeleted());
+            assertTrue(project.isDeleted());
         } else {
-            Assertions.assertFalse(project.isDeleted());
+            assertFalse(project.isDeleted());
         }
-        Assertions.assertEquals(user1.getId(), project.getOwner().getId());
-        Assertions.assertEquals(1, project.getManagers().size());
-        Assertions.assertEquals(1, project.getEmployees().size());
+        assertEquals(user1.getId(), project.getOwner().getId());
+        assertEquals(1, project.getManagers().size());
+        assertEquals(1, project.getEmployees().size());
     }
 }

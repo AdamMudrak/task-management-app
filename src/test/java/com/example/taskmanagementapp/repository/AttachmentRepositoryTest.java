@@ -1,5 +1,8 @@
 package com.example.taskmanagementapp.repository;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.dropbox.core.v2.DbxClientV2;
 import com.example.taskmanagementapp.entity.Attachment;
 import com.example.taskmanagementapp.entity.Project;
@@ -176,13 +179,13 @@ class AttachmentRepositoryTest {
 
     @Test
     void givenTaskWithNoAttachment_whenFindAllByTaskId_thenReturnEmptyList() {
-        Assertions.assertTrue(attachmentRepository.findAllByTaskId(task2.getId()).isEmpty());
+        assertTrue(attachmentRepository.findAllByTaskId(task2.getId()).isEmpty());
     }
 
     private void attachmentAssertions(Attachment attachment, String fileId, String fileName) {
-        Assertions.assertEquals(fileId, attachment.getFileId());
-        Assertions.assertEquals(fileName, attachment.getFileName());
-        Assertions.assertEquals(task1, attachment.getTask());
-        Assertions.assertEquals(UPLOADED_DATE, attachment.getUploadDate());
+        assertEquals(fileId, attachment.getFileId());
+        assertEquals(fileName, attachment.getFileName());
+        assertEquals(task1, attachment.getTask());
+        assertEquals(UPLOADED_DATE, attachment.getUploadDate());
     }
 }

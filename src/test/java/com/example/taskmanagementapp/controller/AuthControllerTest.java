@@ -9,6 +9,8 @@ import static com.example.taskmanagementapp.constant.security.SecurityConstants.
 import static com.example.taskmanagementapp.constant.security.SecurityConstants.STRENGTH;
 import static com.example.taskmanagementapp.constant.validation.ValidationConstants.NEW_PASSWORD_MISMATCH;
 import static com.example.taskmanagementapp.constant.validation.ValidationConstants.PASSWORD_COLLISION;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.example.taskmanagementapp.dto.authentication.request.LoginRequest;
 import com.example.taskmanagementapp.dto.authentication.request.PasswordChangeRequest;
@@ -31,7 +33,6 @@ import jakarta.servlet.http.Cookie;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -189,10 +190,10 @@ public class AuthControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
                     .andReturn();
             JsonNode jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
-            Assertions.assertEquals(EXPECTED_ERRORS_ON_REGISTER.size(),
+            assertEquals(EXPECTED_ERRORS_ON_REGISTER.size(),
                     jsonNode.get("errors").size());
             for (JsonNode node : jsonNode.get("errors")) {
-                Assertions.assertTrue(EXPECTED_ERRORS_ON_REGISTER
+                assertTrue(EXPECTED_ERRORS_ON_REGISTER
                         .contains(node.asText()));
             }
         }
@@ -228,8 +229,8 @@ public class AuthControllerTest {
                     .andReturn();
             JsonNode jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
 
-            Assertions.assertEquals("CONFLICT", jsonNode.get("status").asText());
-            Assertions.assertEquals("User with username "
+            assertEquals("CONFLICT", jsonNode.get("status").asText());
+            assertEquals("User with username "
                             + registrationRequest.username() + " already exists.",
                     jsonNode.get("errors").asText());
         }
@@ -254,7 +255,7 @@ public class AuthControllerTest {
                     .andReturn();
             JsonNode jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
 
-            Assertions.assertEquals("User with email "
+            assertEquals("User with email "
                             + registrationRequest.email() + " already exists.",
                     jsonNode.get("errors").asText());
         }
@@ -284,7 +285,7 @@ public class AuthControllerTest {
                     .andReturn();
             JsonNode jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
             TestCaptureService.clear();
-            Assertions.assertEquals(REGISTRATION_CONFIRMED, jsonNode.get("response").asText());
+            assertEquals(REGISTRATION_CONFIRMED, jsonNode.get("response").asText());
         }
 
         @Test
@@ -302,7 +303,7 @@ public class AuthControllerTest {
                     .andReturn();
             JsonNode jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
 
-            Assertions.assertEquals("User with email " + MOCK_EMAIL + " was not found.",
+            assertEquals("User with email " + MOCK_EMAIL + " was not found.",
                     jsonNode.get("errors").asText());
         }
 
@@ -319,7 +320,7 @@ public class AuthControllerTest {
                     .andReturn();
             JsonNode jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
 
-            Assertions.assertEquals("Wasn't able to parse link...Might be expired or forged.",
+            assertEquals("Wasn't able to parse link...Might be expired or forged.",
                     jsonNode.get("errors").asText());
         }
 
@@ -332,7 +333,7 @@ public class AuthControllerTest {
                     .andReturn();
             JsonNode jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
 
-            Assertions.assertEquals("Wasn't able to parse link...Might be expired or forged.",
+            assertEquals("Wasn't able to parse link...Might be expired or forged.",
                     jsonNode.get("errors").asText());
         }
     }
@@ -356,9 +357,9 @@ public class AuthControllerTest {
                     .andReturn();
 
             Cookie[] cookies = result.getResponse().getCookies();
-            Assertions.assertEquals(expectedCookies.size(), cookies.length);
+            assertEquals(expectedCookies.size(), cookies.length);
             for (Cookie cookie : cookies) {
-                Assertions.assertTrue(expectedCookies.contains(cookie.getName()));
+                assertTrue(expectedCookies.contains(cookie.getName()));
             }
         }
 
@@ -379,9 +380,9 @@ public class AuthControllerTest {
                     .andReturn();
 
             Cookie[] cookies = result.getResponse().getCookies();
-            Assertions.assertEquals(expectedCookies.size(), cookies.length);
+            assertEquals(expectedCookies.size(), cookies.length);
             for (Cookie cookie : cookies) {
-                Assertions.assertTrue(expectedCookies.contains(cookie.getName()));
+                assertTrue(expectedCookies.contains(cookie.getName()));
             }
         }
 
@@ -399,7 +400,7 @@ public class AuthControllerTest {
                     .andReturn();
 
             JsonNode jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
-            Assertions.assertEquals(
+            assertEquals(
                     "Either login or password is invalid.", jsonNode.get("errors").asText());
         }
 
@@ -417,7 +418,7 @@ public class AuthControllerTest {
                     .andReturn();
 
             JsonNode jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
-            Assertions.assertEquals(
+            assertEquals(
                     "Your account is locked. Consider contacting support team.",
                     jsonNode.get("errors").asText());
         }
@@ -436,7 +437,7 @@ public class AuthControllerTest {
                     .andReturn();
 
             JsonNode jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
-            Assertions.assertEquals(
+            assertEquals(
                     "Either login or password is invalid.", jsonNode.get("errors").asText());
         }
 
@@ -454,7 +455,7 @@ public class AuthControllerTest {
                     .andReturn();
 
             JsonNode jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
-            Assertions.assertEquals(
+            assertEquals(
                     "Either login or password is invalid.", jsonNode.get("errors").asText());
         }
 
@@ -472,7 +473,7 @@ public class AuthControllerTest {
                     .andReturn();
 
             JsonNode jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
-            Assertions.assertEquals(
+            assertEquals(
                     "Either login or password is invalid.", jsonNode.get("errors").asText());
         }
     }
@@ -495,7 +496,7 @@ public class AuthControllerTest {
             User user = userRepository.findByUsername(USERNAME_1)
                     .orElseThrow(() -> new EntityNotFoundException(
                             "No user with username " + USERNAME_1));
-            Assertions.assertTrue(encoder.matches(PASSWORD_2, user.getPassword()));
+            assertTrue(encoder.matches(PASSWORD_2, user.getPassword()));
 
             //reset this test
             user.setPassword(PASSWORD_1_DB);
@@ -517,7 +518,7 @@ public class AuthControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
                     .andReturn();
             JsonNode jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
-            Assertions.assertEquals(NEW_PASSWORD_MISMATCH, jsonNode.get("errors").get(0).asText());
+            assertEquals(NEW_PASSWORD_MISMATCH, jsonNode.get("errors").get(0).asText());
         }
 
         @WithUserDetails(USERNAME_1)
@@ -535,7 +536,7 @@ public class AuthControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isConflict())
                     .andReturn();
             JsonNode jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
-            Assertions.assertEquals("Wrong password. Try resetting "
+            assertEquals("Wrong password. Try resetting "
                     + "password and using a new random password.", jsonNode.get("errors").asText());
         }
 
@@ -554,7 +555,7 @@ public class AuthControllerTest {
                     .andExpect(MockMvcResultMatchers.status().isBadRequest())
                     .andReturn();
             JsonNode jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
-            Assertions.assertEquals(PASSWORD_COLLISION, jsonNode.get("errors").get(0).asText());
+            assertEquals(PASSWORD_COLLISION, jsonNode.get("errors").get(0).asText());
         }
     }
 
@@ -575,7 +576,7 @@ public class AuthControllerTest {
 
             JsonNode jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
 
-            Assertions.assertEquals("No user with username " + MOCK_USERNAME + " found.",
+            assertEquals("No user with username " + MOCK_USERNAME + " found.",
                     jsonNode.get("errors").asText());
         }
 
@@ -594,7 +595,7 @@ public class AuthControllerTest {
 
             JsonNode jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
 
-            Assertions.assertEquals("No user with email " + MOCK_EMAIL + " found.",
+            assertEquals("No user with email " + MOCK_EMAIL + " found.",
                     jsonNode.get("errors").asText());
         }
 
@@ -613,7 +614,7 @@ public class AuthControllerTest {
 
             JsonNode jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
 
-            Assertions.assertEquals("Your account is locked. Consider contacting support team.",
+            assertEquals("Your account is locked. Consider contacting support team.",
                     jsonNode.get("errors").asText());
         }
 
@@ -632,7 +633,7 @@ public class AuthControllerTest {
 
             JsonNode jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
 
-            Assertions.assertEquals("Your account is locked. Consider contacting support team.",
+            assertEquals("Your account is locked. Consider contacting support team.",
                     jsonNode.get("errors").asText());
         }
 
@@ -652,7 +653,7 @@ public class AuthControllerTest {
 
             JsonNode jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
 
-            Assertions.assertEquals(REGISTERED_BUT_NOT_ACTIVATED,
+            assertEquals(REGISTERED_BUT_NOT_ACTIVATED,
                     jsonNode.get("errors").asText());
 
             //Check if you can activate after failure
@@ -667,7 +668,7 @@ public class AuthControllerTest {
                     .andReturn();
             jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
             TestCaptureService.clear();
-            Assertions.assertEquals(REGISTRATION_CONFIRMED, jsonNode.get("response").asText());
+            assertEquals(REGISTRATION_CONFIRMED, jsonNode.get("response").asText());
         }
 
         @Test
@@ -686,7 +687,7 @@ public class AuthControllerTest {
 
             JsonNode jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
 
-            Assertions.assertEquals(REGISTERED_BUT_NOT_ACTIVATED,
+            assertEquals(REGISTERED_BUT_NOT_ACTIVATED,
                     jsonNode.get("errors").asText());
 
             //Check if you can activate after failure
@@ -701,7 +702,7 @@ public class AuthControllerTest {
                     .andReturn();
             jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
             TestCaptureService.clear();
-            Assertions.assertEquals(REGISTRATION_CONFIRMED, jsonNode.get("response").asText());
+            assertEquals(REGISTRATION_CONFIRMED, jsonNode.get("response").asText());
         }
     }
 
@@ -728,7 +729,7 @@ public class AuthControllerTest {
 
             JsonNode jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
 
-            Assertions.assertEquals(SEND_LINK_TO_RESET_PASSWORD, jsonNode.get("response").asText());
+            assertEquals(SEND_LINK_TO_RESET_PASSWORD, jsonNode.get("response").asText());
 
             //actually reset the password
             if (TestCaptureService.getLastValue() == null) {
@@ -744,7 +745,7 @@ public class AuthControllerTest {
 
             jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
 
-            Assertions.assertEquals(CHECK_YOUR_EMAIL, jsonNode.get("response").asText());
+            assertEquals(CHECK_YOUR_EMAIL, jsonNode.get("response").asText());
 
             //verify that login with a new password works
             jsonRequest = objectMapper.writeValueAsString(new LoginRequest(EMAIL_1,
@@ -762,9 +763,9 @@ public class AuthControllerTest {
                     .andReturn();
 
             Cookie[] cookies = result.getResponse().getCookies();
-            Assertions.assertEquals(expectedCookies.size(), cookies.length);
+            assertEquals(expectedCookies.size(), cookies.length);
             for (Cookie cookie : cookies) {
-                Assertions.assertTrue(expectedCookies.contains(cookie.getName()));
+                assertTrue(expectedCookies.contains(cookie.getName()));
             }
         }
 
@@ -778,7 +779,7 @@ public class AuthControllerTest {
 
             JsonNode jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
 
-            Assertions.assertEquals("Wasn't able to parse link...Might be expired or forged.",
+            assertEquals("Wasn't able to parse link...Might be expired or forged.",
                     jsonNode.get("errors").asText());
         }
 
@@ -791,7 +792,7 @@ public class AuthControllerTest {
 
             JsonNode jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
 
-            Assertions.assertEquals("Wasn't able to parse link...Might be expired or forged.",
+            assertEquals("Wasn't able to parse link...Might be expired or forged.",
                     jsonNode.get("errors").asText());
         }
     }
@@ -807,6 +808,6 @@ public class AuthControllerTest {
                 .andReturn();
         JsonNode jsonNode = objectMapper.readTree(result.getResponse().getContentAsString());
 
-        Assertions.assertEquals(REGISTERED, jsonNode.get("response").asText());
+        assertEquals(REGISTERED, jsonNode.get("response").asText());
     }
 }
