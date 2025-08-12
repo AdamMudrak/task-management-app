@@ -1,6 +1,6 @@
 package com.example.taskmanagementapp.validation.password;
 
-import static com.example.taskmanagementapp.constants.validation.ValidationConstants.COMPILED_PASSWORD_PATTERN;
+import static com.example.taskmanagementapp.constant.validation.ValidationConstants.COMPILED_PASSWORD_PATTERN;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

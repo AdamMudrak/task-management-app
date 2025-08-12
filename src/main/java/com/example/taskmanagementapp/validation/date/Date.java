@@ -1,6 +1,6 @@
 package com.example.taskmanagementapp.validation.date;
 
-import static com.example.taskmanagementapp.constants.validation.ValidationConstants.INVALID_DATE_FORMAT;
+import static com.example.taskmanagementapp.constant.validation.ValidationConstants.INVALID_DATE_FORMAT;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

@@ -16,7 +16,7 @@ use this API to reset password, get a new random password instead, and set a new
 - **POST**: `/auth/login` - Log in using existing email account.
 - **POST**: `/auth/change-password` - Change password while being logged in.
 - **POST**: `/auth/forgot-password` - Initiate password reset via a link sent to your email.
-- [AuthenticationController](src/main/java/com/example/taskmanagementapp/controllers/AuthController.java)
+- [AuthenticationController](src/main/java/com/example/taskmanagementapp/controller/AuthController.java)
 
 ## User API Controller
 Here you'll find a comprehensive overview of how to assign roles to users in this app having
@@ -30,7 +30,7 @@ ADMIN role or to block them, and also how to get and update your profile info.
 **User functionality:**
 - **GET**: `/users/me` - Retrieve profile info.
 - **PUT**: `/users/me` - Update profile info.
-- [UserController](src/main/java/com/example/taskmanagementapp/controllers/UserController.java)
+- [UserController](src/main/java/com/example/taskmanagementapp/controller/UserController.java)
 
 ## Project API Controller
 Here you'll find a comprehensive overview of how to create, read, update, delete, projects,
@@ -45,7 +45,7 @@ and also how to read deleted projects and assign employees to or remove from pro
 - **DELETE**: `/projects/{projectId}` - Delete project by id. Only for owners.
 - **POST**: `/projects/assign-employee/{projectId}/{employeeId}` - Add employee to project, optionally give them managerial role. Only for owners and managers.
 - **POST**: `/projects/remove-employee/{projectId}/{employeeId}` - Delete employee from project. Only for owners and managers.
-- [ProjectController](src/main/java/com/example/taskmanagementapp/controllers/ProjectController.java)
+- [ProjectController](src/main/java/com/example/taskmanagementapp/controller/ProjectController.java)
 
 ## Tasks API Controller
 Here you'll find a comprehensive overview of how to create, read, update, delete tasks.
@@ -56,7 +56,7 @@ Here you'll find a comprehensive overview of how to create, read, update, delete
 - **GET**: `/tasks/all-project-tasks/{projectId}` - Retrieve tasks for project.
 - **PUT**: `/tasks/{taskId}` - Update task by id. Only owners and managers of project can update tasks.
 - **DELETE**: `/tasks/{taskId}` - Delete task by id. Only owners and managers of project can delete tasks.
-- [TaskController](src/main/java/com/example/taskmanagementapp/controllers/TaskController.java)
+- [TaskController](src/main/java/com/example/taskmanagementapp/controller/TaskController.java)
 
 ## Labels API
 Here you'll find a comprehensive overview of how to create, update, get and delete labels.
@@ -69,7 +69,7 @@ It is also possible to attach/detach label to/from a task on condition you are t
 - **PUT**: `/labels/{taskId}/{labelId}/attach` - Attach your label to your task.
 - **PUT**: `/labels/{taskId}/{labelId}/detach` - Detach your label from your task.
 - **DELETE**: `/labels/{labelId}` - Delete your label by id.
-- [LabelController](src/main/java/com/example/taskmanagementapp/controllers/LabelController.java)
+- [LabelController](src/main/java/com/example/taskmanagementapp/controller/LabelController.java)
 
 ## Attachments API
 Here you'll find a comprehensive overview of how to add, get and delete attachments. Under the hood,
@@ -79,7 +79,7 @@ and all files attached at once should not be more than 25 MB.
 - **POST**: `/attachments/{taskId}` - Upload attachments. Important condition: the task you are adding attachments to is from a project you are participant of.
 - **GET**: `/attachments/{taskId}` - Get attachments. Important condition: the task you are getting attachments for is from a project you are participant of.
 - **DELETE**: `/attachments/{taskId}/{attachmentId}` - Delete attachments. Important condition: the task you are deleting attachments from is from a project you are participant of.
-- [AttachmentController](src/main/java/com/example/taskmanagementapp/controllers/AttachmentController.java)
+- [AttachmentController](src/main/java/com/example/taskmanagementapp/controller/AttachmentController.java)
 
 ## Comments API
 Here you'll find a comprehensive overview of how to add, get, update and delete comments.
@@ -88,7 +88,7 @@ Here you'll find a comprehensive overview of how to add, get, update and delete 
 - **GET**: `/comments/{taskId}` - Retrieve all comments for the task if you are participant of the project the task belongs to.
 - **PUT**: `/comments/{commentId}` - Update your comment.
 - **DELETE**: `/comments/{commentId}` - Delete your comment.
-- [CommentController](src/main/java/com/example/taskmanagementapp/controllers/CommentController.java)
+- [CommentController](src/main/java/com/example/taskmanagementapp/controller/CommentController.java)
 
 ### ⚠️Nota bene!
 #### All requests above, except for:
@@ -167,7 +167,7 @@ Not ready for setting up my application locally yet? Then explore [Landing](http
    ```
    - If you want to use your **own** MySQL, update [application.properties](src/main/resources/application.properties) directly or [.env.sample](.env.sample) with your MySQL credentials.
        - If not, just proceed with the next step as follow-up commands are ready to start MySQL locally in docker container.
-    - Having a resend API key **or** adjusting [EmailService](src/main/java/com/example/taskmanagementapp/services/email/EmailService.java) to use Google SMTP **is a must**.
+    - Having a resend API key **or** adjusting [EmailService](src/main/java/com/example/taskmanagementapp/service/email/EmailService.java) to use Google SMTP **is a must**.
         - Having a [Resend account](https://resend.com) **is a must** if using Google SMTP is unwanted;
           - [Get API key](https://apidog.com/blog/resend-api/#1-sign-up-and-create-an-api-key)
         - Having a spare domain for email address to use Resend **is highly recommended**;

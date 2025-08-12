@@ -32,4 +32,18 @@ jobs:
         run: mvn checkstyle:check
 
       - name: Run tests
-        run: mvn test
+        run: mvn test -Dspring.profiles.active=test
+
+env:
+  SPRING_DATASOURCE_TEST_URL: ${{ secrets.SPRING_DATASOURCE_TEST_URL }}
+  SPRING_LIQUIBASE_TEST_CHANGE_LOG: ${{ secrets.SPRING_LIQUIBASE_TEST_CHANGE_LOG }}
+  JWT_ACTION_EXPIRATION: ${{ secrets.JWT_ACTION_EXPIRATION }}
+  JWT_ACCESS_EXPIRATION: ${{ secrets.JWT_ACCESS_EXPIRATION }}
+  JWT_REFRESH_EXPIRATION: ${{ secrets.JWT_REFRESH_EXPIRATION }}
+  JWT_SECRET: ${{ secrets.JWT_SECRET }}
+  RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+  MAIL: ${{ secrets.MAIL }}
+  DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
+  DROPBOX_KEY: ${{ secrets.DROPBOX_KEY }}
+  DROPBOX_SECRET: ${{ secrets.DROPBOX_SECRET }}
+  SERVER_PATH: ${{ secrets.SERVER_PATH }}

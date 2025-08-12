@@ -1,13 +1,13 @@
 package com.example.taskmanagementapp;
 
-import static com.example.taskmanagementapp.constants.Constants.GREEN;
-import static com.example.taskmanagementapp.constants.Constants.RESET;
+import static com.example.taskmanagementapp.constant.Constants.GREEN;
+import static com.example.taskmanagementapp.constant.Constants.RESET;
 
 import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.oauth.DbxCredential;
 import com.dropbox.core.v2.DbxClientV2;
-import com.example.taskmanagementapp.exceptions.ForbiddenException;
+import com.example.taskmanagementapp.exception.ForbiddenException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;

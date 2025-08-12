@@ -1,6 +1,6 @@
 package com.example.taskmanagementapp.validation.fieldmatch;
 
-import com.example.taskmanagementapp.dtos.authentication.request.RegistrationRequest;
+import com.example.taskmanagementapp.dto.authentication.request.RegistrationRequest;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
