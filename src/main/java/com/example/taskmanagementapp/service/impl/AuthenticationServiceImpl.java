@@ -191,6 +191,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 () -> new EntityNotFoundException("User with email "
                         + email + " was not found"));
         user.setEnabled(true);
+        user.setAccountNonLocked(true);
         userRepository.save(user);
         return new RegistrationConfirmationResponse(REGISTRATION_CONFIRMED);
     }

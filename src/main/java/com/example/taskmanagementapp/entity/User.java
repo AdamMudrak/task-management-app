@@ -48,7 +48,7 @@ public class User implements UserDetails {
     @Column(nullable = false, columnDefinition = "TINYINT(1)", name = "is_enabled")
     private boolean isEnabled;
     @Column(nullable = false, columnDefinition = "TINYINT(1)", name = "is_account_non_locked")
-    private boolean isAccountNonLocked = true;
+    private boolean isAccountNonLocked;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

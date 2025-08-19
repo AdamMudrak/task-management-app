@@ -41,6 +41,7 @@ public class Label {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+    @Builder.Default
     @ManyToMany
     @JoinTable(name = "labels_tasks",
                 joinColumns = @JoinColumn (name = "label_id"),

@@ -51,12 +51,14 @@ public class Project {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "owner_id")
     private User owner;
+    @Builder.Default
     @ManyToMany
     @JoinTable(
             name = "project_managers",
             joinColumns = @JoinColumn(name = "project_id"),
             inverseJoinColumns = @JoinColumn(name = "manager_id"))
     private Set<User> managers = new HashSet<>();
+    @Builder.Default
     @ManyToMany
     @JoinTable(
             name = "project_employees",
