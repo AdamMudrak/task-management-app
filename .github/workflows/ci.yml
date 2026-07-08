@@ -1,40 +1,20 @@
-name: CI
+name: CI/CD
 
 on:
   push:
-    branches: [ '**' ]
+    branches:
+      - master
   pull_request:
-    branches: [ main ]
+    branches:
+      - master
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Java 21
-        uses: actions/setup-java@v3
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: Cache Maven dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-
-      - name: Run Checkstyle
-        run: mvn checkstyle:check
-
-      - name: Run tests
-        run: mvn test -Dspring.profiles.active=test
+permissions:
+  contents: read
 
 env:
+  APP_NAME: task-management-app
+  IMAGE_NAME: task-management-app
+  APP_PORT: "8082"
   SPRING_DATASOURCE_TEST_URL: ${{ secrets.SPRING_DATASOURCE_TEST_URL }}
   SPRING_LIQUIBASE_TEST_CHANGE_LOG: ${{ secrets.SPRING_LIQUIBASE_TEST_CHANGE_LOG }}
   JWT_ACTION_EXPIRATION: ${{ secrets.JWT_ACTION_EXPIRATION }}
@@ -47,3 +27,104 @@ env:
   DROPBOX_KEY: ${{ secrets.DROPBOX_KEY }}
   DROPBOX_SECRET: ${{ secrets.DROPBOX_SECRET }}
   SERVER_PATH: ${{ secrets.SERVER_PATH }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Run tests
+        run: mvn -B test -Dspring.profiles.active=test
+
+      - name: Package application
+        run: mvn -B package -DskipTests
+
+      - name: Build Docker image
+        if: github.event_name == 'push'
+        run: docker build -t "$IMAGE_NAME:latest" .
+
+      - name: Export Docker image
+        if: github.event_name == 'push'
+        run: |
+          mkdir -p deploy
+          docker save "$IMAGE_NAME:latest" -o "deploy/$APP_NAME.tar"
+
+      - name: Upload image to Hetzner
+        if: github.event_name == 'push'
+        uses: easingthemes/ssh-deploy@v5.1.0
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.HETZNER_SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.HETZNER_HOST }}
+          REMOTE_USER: ${{ secrets.HETZNER_USER }}
+          REMOTE_PORT: ${{ secrets.HETZNER_PORT || '22' }}
+          SOURCE: deploy/
+          TARGET: ${{ secrets.HETZNER_DEPLOY_PATH }}
+          ARGS: -rlgoDzvc
+
+      - name: Restart container on Hetzner
+        if: github.event_name == 'push'
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          TARGET: ${{ secrets.HETZNER_DEPLOY_PATH }}
+          DOCKER_NETWORK: ${{ secrets.HETZNER_DOCKER_NETWORK }}
+          SPRING_LIQUIBASE_CHANGE_LOG: /db/changelog/db.changelog-master.yaml
+          SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL }}
+          SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
+          SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
+          MAIL: facio@adammudrak.pp.ua
+          SERVER_PATH: https://facio.adammudrak.pp.ua
+        with:
+          host: ${{ secrets.HETZNER_HOST }}
+          username: ${{ secrets.HETZNER_USER }}
+          key: ${{ secrets.HETZNER_SSH_KEY }}
+          port: ${{ secrets.HETZNER_PORT || '22' }}
+          envs: APP_NAME,IMAGE_NAME,APP_PORT,TARGET,DOCKER_NETWORK,SPRING_LIQUIBASE_CHANGE_LOG,SPRING_DATASOURCE_URL,SPRING_DATASOURCE_USERNAME,SPRING_DATASOURCE_PASSWORD,JWT_ACTION_EXPIRATION,JWT_ACCESS_EXPIRATION,JWT_REFRESH_EXPIRATION,JWT_SECRET,RESEND_API_KEY,MAIL,DROPBOX_REFRESH_TOKEN,DROPBOX_KEY,DROPBOX_SECRET,SERVER_PATH
+          script: |
+            set -e
+            docker load -i "$TARGET/$APP_NAME.tar"
+            docker rm -f "$APP_NAME" 2>/dev/null || true
+
+            ENV_FILE_ARG=""
+            if [ -f "$TARGET/.env" ]; then
+              ENV_FILE_ARG="--env-file $TARGET/.env"
+            fi
+
+            NETWORK_ARG=""
+            if [ -n "$DOCKER_NETWORK" ]; then
+              NETWORK_ARG="--network $DOCKER_NETWORK"
+            fi
+
+            docker run -d \
+              --name "$APP_NAME" \
+              --restart unless-stopped \
+              $ENV_FILE_ARG \
+              $NETWORK_ARG \
+              -e SERVER_PORT="$APP_PORT" \
+              -e SPRING_LIQUIBASE_CHANGE_LOG="$SPRING_LIQUIBASE_CHANGE_LOG" \
+              -e SPRING_DATASOURCE_URL="$SPRING_DATASOURCE_URL" \
+              -e SPRING_DATASOURCE_USERNAME="$SPRING_DATASOURCE_USERNAME" \
+              -e SPRING_DATASOURCE_PASSWORD="$SPRING_DATASOURCE_PASSWORD" \
+              -e JWT_ACTION_EXPIRATION="$JWT_ACTION_EXPIRATION" \
+              -e JWT_ACCESS_EXPIRATION="$JWT_ACCESS_EXPIRATION" \
+              -e JWT_REFRESH_EXPIRATION="$JWT_REFRESH_EXPIRATION" \
+              -e JWT_SECRET="$JWT_SECRET" \
+              -e RESEND_API_KEY="$RESEND_API_KEY" \
+              -e MAIL="$MAIL" \
+              -e DROPBOX_REFRESH_TOKEN="$DROPBOX_REFRESH_TOKEN" \
+              -e DROPBOX_KEY="$DROPBOX_KEY" \
+              -e DROPBOX_SECRET="$DROPBOX_SECRET" \
+              -e SERVER_PATH="$SERVER_PATH" \
+              -p "$APP_PORT:$APP_PORT" \
+              "$IMAGE_NAME:latest"
+
+            rm -f "$TARGET/$APP_NAME.tar"
