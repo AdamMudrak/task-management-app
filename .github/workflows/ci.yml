@@ -62,15 +62,27 @@ jobs:
 
       - name: Upload image to Hetzner
         if: github.event_name == 'push'
-        uses: easingthemes/ssh-deploy@v6.0.1
-        with:
+        env:
           SSH_PRIVATE_KEY: ${{ secrets.HETZNER_SSH_KEY }}
-          REMOTE_HOST: ${{ secrets.HETZNER_HOST }}
-          REMOTE_USER: root
-          REMOTE_PORT: ${{ secrets.HETZNER_PORT || '22' }}
-          SOURCE: deploy/
-          TARGET: ${{ secrets.HETZNER_DEPLOY_PATH }}
-          ARGS: -rlgoDzvc
+          HETZNER_HOST: ${{ secrets.HETZNER_HOST }}
+          HETZNER_PORT: ${{ secrets.HETZNER_PORT || '22' }}
+          HETZNER_DEPLOY_PATH: ${{ secrets.HETZNER_DEPLOY_PATH }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          KEY_FILE="$HOME/.ssh/hetzner_deploy_key"
+          printf '%s\n' "$SSH_PRIVATE_KEY" > "$KEY_FILE"
+          chmod 600 "$KEY_FILE"
+
+          HOST="$(printf '%s' "$HETZNER_HOST" | xargs)"
+          PORT="$(printf '%s' "$HETZNER_PORT" | xargs)"
+          TARGET="$(printf '%s' "$HETZNER_DEPLOY_PATH" | xargs)"
+
+          rsync -rlgoDzvc \
+            -e "ssh -p $PORT -i $KEY_FILE -o StrictHostKeyChecking=no" \
+            deploy/ \
+            "root@$HOST:$TARGET"
 
       - name: Restart container on Hetzner
         if: github.event_name == 'push'
