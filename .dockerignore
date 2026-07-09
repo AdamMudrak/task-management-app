@@ -1,0 +1,11 @@
+.git
+.github
+.idea
+.env
+.env.*
+!.env.sample
+target/*
+!target/*.jar
+*.iml
+HELP.md
+RUN_ME.md
