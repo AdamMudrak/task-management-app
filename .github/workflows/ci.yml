@@ -75,9 +75,13 @@ jobs:
           printf '%s\n' "$SSH_PRIVATE_KEY" > "$KEY_FILE"
           chmod 600 "$KEY_FILE"
 
-          HOST="$(printf '%s' "$HETZNER_HOST" | xargs)"
-          PORT="$(printf '%s' "$HETZNER_PORT" | xargs)"
-          TARGET="$(printf '%s' "$HETZNER_DEPLOY_PATH" | xargs)"
+          trim_value() {
+            printf '%s' "$1" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
+          }
+
+          HOST="$(trim_value "$HETZNER_HOST")"
+          PORT="$(trim_value "$HETZNER_PORT")"
+          TARGET="$(trim_value "$HETZNER_DEPLOY_PATH")"
 
           rsync -rlgoDzvc \
             -e "ssh -p $PORT -i $KEY_FILE -o StrictHostKeyChecking=no" \
@@ -104,6 +108,13 @@ jobs:
           envs: APP_NAME,IMAGE_NAME,APP_PORT,TARGET,DOCKER_NETWORK,SPRING_LIQUIBASE_CHANGE_LOG,SPRING_DATASOURCE_URL,SPRING_DATASOURCE_USERNAME,SPRING_DATASOURCE_PASSWORD,JWT_ACTION_EXPIRATION,JWT_ACCESS_EXPIRATION,JWT_REFRESH_EXPIRATION,JWT_SECRET,RESEND_API_KEY,MAIL,DROPBOX_REFRESH_TOKEN,DROPBOX_KEY,DROPBOX_SECRET,SERVER_PATH
           script: |
             set -e
+            trim_value() {
+              printf '%s' "$1" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
+            }
+            for var in APP_NAME IMAGE_NAME APP_PORT TARGET DOCKER_NETWORK SPRING_LIQUIBASE_CHANGE_LOG SPRING_DATASOURCE_URL SPRING_DATASOURCE_USERNAME SPRING_DATASOURCE_PASSWORD JWT_ACTION_EXPIRATION JWT_ACCESS_EXPIRATION JWT_REFRESH_EXPIRATION JWT_SECRET RESEND_API_KEY MAIL DROPBOX_REFRESH_TOKEN DROPBOX_KEY DROPBOX_SECRET SERVER_PATH; do
+              eval "$var=\$(trim_value \"\${$var:-}\")"
+            done
+
             docker load -i "$TARGET/$APP_NAME.tar"
             docker rm -f "$APP_NAME" 2>/dev/null || true
 
