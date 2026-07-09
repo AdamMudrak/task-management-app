@@ -27,7 +27,6 @@ env:
   DROPBOX_KEY: ${{ secrets.DROPBOX_KEY }}
   DROPBOX_SECRET: ${{ secrets.DROPBOX_SECRET }}
   SERVER_PATH: ${{ secrets.SERVER_PATH }}
-  HETZNER_USER: ${{ secrets.HETZNER_USER || 'root' }}
 
 jobs:
   build:
@@ -63,11 +62,11 @@ jobs:
 
       - name: Upload image to Hetzner
         if: github.event_name == 'push'
-        uses: easingthemes/ssh-deploy@v5.1.0
+        uses: easingthemes/ssh-deploy@v6.0.1
         with:
           SSH_PRIVATE_KEY: ${{ secrets.HETZNER_SSH_KEY }}
           REMOTE_HOST: ${{ secrets.HETZNER_HOST }}
-          REMOTE_USER: ${{ env.HETZNER_USER }}
+          REMOTE_USER: root
           REMOTE_PORT: ${{ secrets.HETZNER_PORT || '22' }}
           SOURCE: deploy/
           TARGET: ${{ secrets.HETZNER_DEPLOY_PATH }}
@@ -87,7 +86,7 @@ jobs:
           SERVER_PATH: https://facio.adammudrak.pp.ua
         with:
           host: ${{ secrets.HETZNER_HOST }}
-          username: ${{ env.HETZNER_USER }}
+          username: root
           key: ${{ secrets.HETZNER_SSH_KEY }}
           port: ${{ secrets.HETZNER_PORT || '22' }}
           envs: APP_NAME,IMAGE_NAME,APP_PORT,TARGET,DOCKER_NETWORK,SPRING_LIQUIBASE_CHANGE_LOG,SPRING_DATASOURCE_URL,SPRING_DATASOURCE_USERNAME,SPRING_DATASOURCE_PASSWORD,JWT_ACTION_EXPIRATION,JWT_ACCESS_EXPIRATION,JWT_REFRESH_EXPIRATION,JWT_SECRET,RESEND_API_KEY,MAIL,DROPBOX_REFRESH_TOKEN,DROPBOX_KEY,DROPBOX_SECRET,SERVER_PATH
