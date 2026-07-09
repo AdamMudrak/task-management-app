@@ -72,7 +72,7 @@ jobs:
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
           KEY_FILE="$HOME/.ssh/hetzner_deploy_key"
-          printf '%s\n' "$SSH_PRIVATE_KEY" > "$KEY_FILE"
+          printf '%s\n' "$SSH_PRIVATE_KEY" | tr -d '\r' > "$KEY_FILE"
           chmod 600 "$KEY_FILE"
 
           trim_value() {
@@ -90,8 +90,10 @@ jobs:
 
       - name: Restart container on Hetzner
         if: github.event_name == 'push'
-        uses: appleboy/ssh-action@v1.2.0
         env:
+          SSH_PRIVATE_KEY: ${{ secrets.HETZNER_SSH_KEY }}
+          HETZNER_HOST: ${{ secrets.HETZNER_HOST }}
+          HETZNER_PORT: ${{ secrets.HETZNER_PORT || '22' }}
           TARGET: ${{ secrets.HETZNER_DEPLOY_PATH }}
           DOCKER_NETWORK: ${{ secrets.HETZNER_DOCKER_NETWORK }}
           SPRING_LIQUIBASE_CHANGE_LOG: /db/changelog/db.changelog-master.yaml
@@ -100,21 +102,30 @@ jobs:
           SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
           MAIL: facio@adammudrak.pp.ua
           SERVER_PATH: https://facio.adammudrak.pp.ua
-        with:
-          host: ${{ secrets.HETZNER_HOST }}
-          username: root
-          key: ${{ secrets.HETZNER_SSH_KEY }}
-          port: ${{ secrets.HETZNER_PORT || '22' }}
-          envs: APP_NAME,IMAGE_NAME,APP_PORT,TARGET,DOCKER_NETWORK,SPRING_LIQUIBASE_CHANGE_LOG,SPRING_DATASOURCE_URL,SPRING_DATASOURCE_USERNAME,SPRING_DATASOURCE_PASSWORD,JWT_ACTION_EXPIRATION,JWT_ACCESS_EXPIRATION,JWT_REFRESH_EXPIRATION,JWT_SECRET,RESEND_API_KEY,MAIL,DROPBOX_REFRESH_TOKEN,DROPBOX_KEY,DROPBOX_SECRET,SERVER_PATH
-          script: |
-            set -e
-            trim_value() {
-              printf '%s' "$1" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
-            }
-            for var in APP_NAME IMAGE_NAME APP_PORT TARGET DOCKER_NETWORK SPRING_LIQUIBASE_CHANGE_LOG SPRING_DATASOURCE_URL SPRING_DATASOURCE_USERNAME SPRING_DATASOURCE_PASSWORD JWT_ACTION_EXPIRATION JWT_ACCESS_EXPIRATION JWT_REFRESH_EXPIRATION JWT_SECRET RESEND_API_KEY MAIL DROPBOX_REFRESH_TOKEN DROPBOX_KEY DROPBOX_SECRET SERVER_PATH; do
-              eval "$var=\$(trim_value \"\${$var:-}\")"
-            done
+        run: |
+          set -euo pipefail
+          trim_value() {
+            printf '%s' "$1" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
+          }
 
+          DEPLOY_VARS="APP_NAME IMAGE_NAME APP_PORT TARGET DOCKER_NETWORK SPRING_LIQUIBASE_CHANGE_LOG SPRING_DATASOURCE_URL SPRING_DATASOURCE_USERNAME SPRING_DATASOURCE_PASSWORD JWT_ACTION_EXPIRATION JWT_ACCESS_EXPIRATION JWT_REFRESH_EXPIRATION JWT_SECRET RESEND_API_KEY MAIL DROPBOX_REFRESH_TOKEN DROPBOX_KEY DROPBOX_SECRET SERVER_PATH"
+          for var in HETZNER_HOST HETZNER_PORT $DEPLOY_VARS; do
+            printf -v "$var" '%s' "$(trim_value "${!var-}")"
+          done
+
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          KEY_FILE="$HOME/.ssh/hetzner_deploy_key"
+          printf '%s\n' "$SSH_PRIVATE_KEY" | tr -d '\r' > "$KEY_FILE"
+          chmod 600 "$KEY_FILE"
+
+          REMOTE_SCRIPT="$(mktemp)"
+          {
+            echo 'set -e'
+            for var in $DEPLOY_VARS; do
+              printf 'export %s=%q\n' "$var" "${!var-}"
+            done
+            cat <<'REMOTE_SCRIPT_BODY'
             docker load -i "$TARGET/$APP_NAME.tar"
             docker rm -f "$APP_NAME" 2>/dev/null || true
 
@@ -152,3 +163,11 @@ jobs:
               "$IMAGE_NAME:latest"
 
             rm -f "$TARGET/$APP_NAME.tar"
+          REMOTE_SCRIPT_BODY
+          } > "$REMOTE_SCRIPT"
+
+          ssh -p "$HETZNER_PORT" \
+            -i "$KEY_FILE" \
+            -o StrictHostKeyChecking=no \
+            "root@$HETZNER_HOST" \
+            'bash -s' < "$REMOTE_SCRIPT"
